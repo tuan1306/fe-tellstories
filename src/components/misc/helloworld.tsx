@@ -36,7 +36,7 @@ export default function HelloWorld() {
           clearInterval(typing);
         }
       }, 100);
-    }, 2000);
+    }, 1500);
 
     return () => clearInterval(delay);
   }, [isEnd]);
@@ -52,7 +52,7 @@ export default function HelloWorld() {
 
   return (
     <div>
-      <h1 className="text-[105px] text-slate-700 font-medium text-shadow-[0_7px_8px_rgba(0,0,0,0.3)]">
+      <h1 className="text-[105px] text-slate-700 font-medium text-shadow-[8px_10px_8px_rgba(0,0,0,0.3)]">
         {text}
         <span className={`${showCursor ? "inline" : "invisible"}`}>_</span>
       </h1>
