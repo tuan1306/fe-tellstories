@@ -56,7 +56,7 @@ export default function HelloWorld() {
         {text}
         <span className={`${showCursor ? "inline" : "invisible"}`}>_</span>
       </h1>
-      <h1 className="text-[17px]">{more}</h1>
+      <h1 className="text-[17px] ml-2">{more}</h1>
     </div>
   );
 }
