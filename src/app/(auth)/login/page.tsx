@@ -44,14 +44,14 @@ export default function Login() {
         <div className="w-1/2 h-screen bg-slate-disable flex justify-center items-center text-white">
           <div className="flex justify-center items-center flex-col gap-10">
             <h1 className="text-5xl font-semibold  text-shadow-[7px_6px_5px_rgba(0,0,0,0.6)] tracking-wider">
-              Log In
+              Log in
             </h1>
             {/* I can use Zod but I'm not sure whether using it on login is good @@ */}
             <form className="flex flex-col gap-5">
               <div>
                 <Label
                   htmlFor="email"
-                  className=" text-[16px] font-normal ml-3"
+                  className=" text-[14px] font-normal ml-3"
                 >
                   Email
                 </Label>
@@ -65,7 +65,7 @@ export default function Login() {
               <div>
                 <Label
                   htmlFor="password"
-                  className="text-[16px] font-normal ml-3"
+                  className="text-[14px] font-normal ml-3"
                 >
                   Password
                 </Label>
@@ -94,7 +94,7 @@ export default function Login() {
                 Forgot password?
               </Link>
             </div>
-            <Button className="w-55 h-18 bg-[#395B8C] shadow-[1px_8px_7px_rgba(0,0,0,0.5)]">
+            <Button className="w-55 h-18 bg-[#395B8C] text-xl font-semibold shadow-[1px_8px_7px_rgba(0,0,0,0.5)]">
               Login
             </Button>
           </div>
