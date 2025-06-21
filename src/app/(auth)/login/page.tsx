@@ -24,7 +24,6 @@ export default function Login() {
               fill={true}
               className="object-cover"
             />
-
             <div className="absolute top-6 left-6 text-white flex gap-2">
               <SwatchBook className="drop-shadow-lg/80" />
               <p className="text-xl font-bold text-shadow-lg/80">
@@ -40,62 +39,65 @@ export default function Login() {
             </div>
           </div>
         </div>
-        <div className="w-1/2 h-screen bg-slate-disable flex justify-center items-center flex-col gap-10">
-          <h1 className="text-5xl font-semibold text-white text-shadow-[7px_6px_5px_rgba(0,0,0,0.6)] tracking-wider">
-            Log In
-          </h1>
-          {/* I can use Zod but I'm not sure whether using it on login is good @@ */}
-          <form className="flex flex-col gap-5">
-            <div>
-              <Label
-                htmlFor="email"
-                className="text-white text-[16px] font-normal ml-3"
-              >
-                Email
-              </Label>
-              <Input
-                type="email"
-                id="email"
-                placeholder=""
-                className="bg-[#060D14] border-none w-100 h-15 shadow-xl/35 text-white hover:cursor-pointer"
-              />
-            </div>
-            <div>
-              <Label
-                htmlFor="password"
-                className="text-white text-[16px] font-normal ml-3"
-              >
-                Password
-              </Label>
-              <Input
-                type="password"
-                id="password"
-                placeholder=""
-                className="bg-[#060D14] border-none w-100 h-15 shadow-xl/35"
-              ></Input>
-            </div>
-          </form>
-          <div className="flex justify-between items-center w-[70%] px-20 -mt-6 text-white text-sm">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="rememberme"
-                className="h-4 w-4 bg-gray-700 data-[state=checked]:bg-white data-[state=checked]:text-black"
-              />
-              <Label htmlFor="rememberme" className="text-sm">
-                Remember me?
-              </Label>
-            </div>
 
-            <Link
-              href={"/recoverpassword"}
-              className="hover:underline cursor-pointer underline-offset-3"
-            >
-              Forgot password?
-            </Link>
+        {/* The login part */}
+        <div className="w-1/2 h-screen bg-slate-disable flex justify-center items-center text-white">
+          <div className="flex justify-center items-center flex-col gap-10">
+            <h1 className="text-5xl font-semibold  text-shadow-[7px_6px_5px_rgba(0,0,0,0.6)] tracking-wider">
+              Log In
+            </h1>
+            {/* I can use Zod but I'm not sure whether using it on login is good @@ */}
+            <form className="flex flex-col gap-5">
+              <div>
+                <Label
+                  htmlFor="email"
+                  className=" text-[16px] font-normal ml-3"
+                >
+                  Email
+                </Label>
+                <Input
+                  type="email"
+                  id="email"
+                  placeholder=""
+                  className="bg-[#060D14] border-none w-100 h-15 shadow-xl/35 hover:cursor-pointer"
+                />
+              </div>
+              <div>
+                <Label
+                  htmlFor="password"
+                  className="text-[16px] font-normal ml-3"
+                >
+                  Password
+                </Label>
+                <Input
+                  type="password"
+                  id="password"
+                  placeholder=""
+                  className="bg-[#060D14] border-none w-100 h-15 shadow-xl/35"
+                ></Input>
+              </div>
+            </form>
+            <div className="w-[70%] -mt-5 flex justify-between content-center mr-40 ml-40 text-sm">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="rememberme"
+                  className="h-4 w-4 bg-gray-700 data-[state=checked]:bg-white data-[state=checked]:text-black"
+                />
+                <Label htmlFor="rememberme" className="text-sm">
+                  Remember me?
+                </Label>
+              </div>
+              <Link
+                href={"/recoverpassword"}
+                className="hover:underline cursor-pointer underline-offset-3"
+              >
+                Forgot password?
+              </Link>
+            </div>
+            <Button className="w-55 h-18 bg-[#395B8C] shadow-[1px_8px_7px_rgba(0,0,0,0.5)]">
+              Login
+            </Button>
           </div>
-          <Button className="w-55 h-18 bg-[#395B8C] shadow-[1px_8px_7px_rgba(0,0,0,0.5)]">
-            Login
-          </Button>
         </div>
       </div>
     </div>
