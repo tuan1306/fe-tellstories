@@ -2,9 +2,9 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@radix-ui/react-label";
 import { SwatchBook } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import ImageSwiper from "@/components/misc/imageswiper/ImageSwiper";
 
 export default function Login() {
   return (
@@ -17,13 +17,10 @@ export default function Login() {
 
       <div className="h-screen flex bg-gradient-to-l from-[#102134] from-[60%] to-[#2F629A] to-[100%]">
         <div className="w-1/2 h-screen bg-slate-disable flex justify-center items-center">
-          <div className="w-[90%] h-[95%] bg-slate-200 flex rounded-[18px] relative overflow-hidden shadow-[-10px_12px_13px_rgba(0,0,0,0.3)]">
-            <Image
-              src="https://images.pexels.com/photos/1295036/pexels-photo-1295036.jpeg"
-              alt="Placeholder"
-              fill={true}
-              className="object-cover"
-            />
+          <div className="w-[90%] h-[95%] flex relative shadow-[-10px_12px_13px_rgba(0,0,0,0.3)]">
+            <div className="absolute inset-0 z-0 rounded-[18px] overflow-hidden">
+              <ImageSwiper />
+            </div>
             <div className="absolute top-6 left-6 text-white flex gap-2">
               <SwatchBook className="drop-shadow-lg/80" />
               <p className="text-xl font-bold text-shadow-lg/80">
@@ -31,7 +28,7 @@ export default function Login() {
               </p>
             </div>
             <div className="absolute bottom-5 left-0 right-0 text-white flex justify-center items-center">
-              <p className="text-3xl text-shadow-lg/80 text-center tracking-wide">
+              <p className="text-4xl text-shadow-lg/80 text-center tracking-wide pb-8">
                 Make stories
                 <br />
                 Change life
