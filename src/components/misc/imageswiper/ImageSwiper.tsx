@@ -18,11 +18,12 @@ const images = [
 const swiperParams: SwiperOptions = {
   slidesPerView: 1,
   speed: 600,
+  preventClicks: true,
   autoplay: {
     delay: 3000,
     disableOnInteraction: false,
   },
-  pagination: { dynamicBullets: true },
+  pagination: { clickable: true },
   modules: [Pagination, Autoplay],
 };
 
@@ -30,7 +31,7 @@ export default function ImageSwiper() {
   return (
     <Swiper
       {...swiperParams}
-      className="w-full h-full rounded-xl overflow-hidden"
+      className="w-full h-full rounded-xl overflow-hidden cursor-grab active:cursor-grabbing"
     >
       {images.map((src, i) => (
         <SwiperSlide key={i}>
