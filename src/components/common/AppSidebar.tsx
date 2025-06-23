@@ -1,3 +1,4 @@
+"use client";
 import {
   AlertTriangle,
   BookOpen,
@@ -27,6 +28,7 @@ import {
   SidebarMenuItem,
 } from "../ui/sidebar";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +36,11 @@ import {
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import Image from "next/image";
+
+// Voodoo magic idk
+// So for all of the classes that's associated
+const cn = (...classes: (string | false | undefined)[]) =>
+  classes.filter(Boolean).join(" ");
 
 const items = [
   {
@@ -89,12 +96,15 @@ const items = [
 ];
 
 const AppSidebar = () => {
+  // Highlight the tab that is active.
+  const pathname = usePathname();
+
   return (
     <Sidebar
       className="text-white font-semibold border-r border-gray-700 transition-all ease-in-out duration-300"
       collapsible="icon"
     >
-      <SidebarHeader className="bg-[#1A293F] border-b border-gray-700 transition-all duration-200">
+      <SidebarHeader className="h-12 bg-[#1A293F] border-b border-gray-700 transition-all duration-200">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -121,7 +131,10 @@ const AppSidebar = () => {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    className="hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200 [&_svg]:hover:text-[#896F3D]"
+                    className={cn(
+                      "hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200",
+                      pathname === item.url && "bg-[#102134] text-[#896F3D]"
+                    )}
                   >
                     <a href={item.url}>
                       <item.icon className="transition-all duration-200" />
@@ -140,7 +153,7 @@ const AppSidebar = () => {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="group hover:bg-[#102134] hover:text-[#896F3D] flex items-center justify-between w-full transition-all duration-200">
+                <SidebarMenuButton className="group cursor-pointer hover:bg-[#102134] hover:text-[#896F3D] flex items-center justify-between w-full transition-all duration-200">
                   <div className="flex items-center gap-2">
                     <Image
                       src="/Avatar.jpg"
@@ -151,7 +164,7 @@ const AppSidebar = () => {
                     />
                     <span>John Doe</span>
                   </div>
-                  <ChevronUp className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />{" "}
+                  <ChevronUp className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -160,11 +173,11 @@ const AppSidebar = () => {
                 align="start"
                 className="w-[var(--radix-popper-anchor-width)] bg-[#1A293F] text-white px-2 py-2 rounded-md text-[15px] space-y-1 transition-all duration-300"
               >
-                <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200">
+                <DropdownMenuItem className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200">
                   <User2 className="w-4 h-4" />
                   <span>Account</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200">
+                <DropdownMenuItem className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200">
                   <Settings className="w-4 h-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
