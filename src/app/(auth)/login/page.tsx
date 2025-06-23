@@ -1,20 +1,53 @@
+"use client";
+
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@radix-ui/react-label";
-import { SwatchBook } from "lucide-react";
+import { Loader2Icon, SwatchBook } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ImageSwiper from "@/components/misc/imageswiper/ImageSwiper";
+import { logIn } from "@/services/api/loginApi";
+import { logInSchema } from "@/utils/validators/schemas";
+import { useState } from "react";
 
 export default function Login() {
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement)
+      .value;
+
+    try {
+      const validatedData = logInSchema.parse({ email, password });
+      await logIn(validatedData);
+    } catch (err) {
+      if (err instanceof Error) {
+        setErr("Please enter valid email and password");
+      } else {
+        setErr("Wrong email or password");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="relative h-screen overflow-hidden bg-gradient-to-l from-[#102134] from-[60%] to-[#2F629A] to-[100%]">
+      {/* funny layered circles */}
       <div className="absolute top-0 right-0 z-0">
         <div className="absolute top-[-110px] right-[-110px] w-[280px] h-[280px] rounded-full bg-[#1A293F] rotate-45 shadow-2xl/40" />
         <div className="absolute top-[-130px] right-[-130px] w-[280px] h-[280px] rounded-full bg-[#293E5C] rotate-45 shadow-xl/20" />
         <div className="absolute top-[-150px] right-[-150px] w-[280px] h-[280px] rounded-full bg-[#475F81] rotate-45 shadow-md/10" />
       </div>
 
+      {/* Image slider */}
       <div className="h-screen flex bg-gradient-to-l from-[#102134] from-[60%] to-[#2F629A] to-[100%]">
         <div className="w-1/2 h-screen bg-slate-disable flex justify-center items-center">
           <div className="w-[90%] h-[95%] flex relative shadow-[-10px_12px_13px_rgba(0,0,0,0.3)]">
@@ -40,26 +73,28 @@ export default function Login() {
         {/* The login part */}
         <div className="w-1/2 h-screen bg-slate-disable flex justify-center items-center text-white">
           <div className="flex justify-center items-center flex-col gap-10">
-            <h1 className="text-5xl font-semibold  text-shadow-[7px_6px_5px_rgba(0,0,0,0.6)] tracking-wider">
+            <h1 className="text-5xl font-semibold text-shadow-[7px_6px_5px_rgba(0,0,0,0.6)] tracking-wider">
               Log in
             </h1>
             {/* I can use Zod but I'm not sure whether using it on login is good @@ */}
-            <form className="flex flex-col gap-5">
-              <div>
-                <Label
-                  htmlFor="email"
-                  className=" text-[14px] font-normal ml-3"
-                >
+            <form
+              className="flex flex-col items-center gap-5 w-100"
+              autoComplete="off"
+              id="login"
+              onSubmit={handleSubmit}
+            >
+              <div className="w-full">
+                <Label htmlFor="email" className="text-[14px] font-normal ml-3">
                   Email
                 </Label>
                 <Input
                   type="email"
                   id="email"
-                  placeholder=""
-                  className="bg-[#060D14] border-none w-100 h-15 shadow-xl/35 hover:cursor-pointer"
+                  className="bg-[#060D14] border-none w-full h-15 shadow-xl/35"
                 />
               </div>
-              <div>
+
+              <div className="w-full">
                 <Label
                   htmlFor="password"
                   className="text-[14px] font-normal ml-3"
@@ -69,31 +104,44 @@ export default function Login() {
                 <Input
                   type="password"
                   id="password"
-                  placeholder=""
-                  className="bg-[#060D14] border-none w-100 h-15 shadow-xl/35"
-                ></Input>
-              </div>
-            </form>
-            <div className="w-[70%] -mt-5 flex justify-between content-center mr-40 ml-40 text-sm">
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="rememberme"
-                  className="h-4 w-4 bg-gray-700 data-[state=checked]:bg-white data-[state=checked]:text-black"
+                  className="bg-[#060D14] border-none w-full h-15 shadow-xl/35"
                 />
-                <Label htmlFor="rememberme" className="text-sm">
-                  Remember me?
-                </Label>
               </div>
-              <Link
-                href={"/recoverpassword"}
-                className="hover:underline cursor-pointer underline-offset-3"
+
+              {/* Checkbox & link */}
+              <div className="flex justify-between items-center w-full px-5 text-sm">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="rememberme"
+                    className="h-4 w-4 bg-gray-700 data-[state=checked]:bg-white data-[state=checked]:text-black cursor-pointer"
+                  />
+                  <Label htmlFor="rememberme" className="text-sm">
+                    Remember me?
+                  </Label>
+                </div>
+                <Link
+                  href="/recoverpassword"
+                  className="hover:underline cursor-pointer underline-offset-3"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+
+              {err && (
+                <p className="text-red-500 flex w-full justify-center-safe -mb-5">
+                  {err}
+                </p>
+              )}
+
+              <Button
+                className="w-55 h-18 mt-5 bg-[#395B8C] text-xl font-semibold shadow-[1px_8px_7px_rgba(0,0,0,0.5)] hover:cursor-pointer"
+                type="submit"
+                disabled={loading}
               >
-                Forgot password?
-              </Link>
-            </div>
-            <Button className="w-55 h-18 bg-[#395B8C] text-xl font-semibold shadow-[1px_8px_7px_rgba(0,0,0,0.5)]">
-              Login
-            </Button>
+                {loading && <Loader2Icon className="animate-spin" />}
+                Login
+              </Button>
+            </form>
           </div>
         </div>
       </div>
