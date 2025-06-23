@@ -10,12 +10,19 @@ export async function logIn(unsafeData: z.infer<typeof logInSchema>) {
     `${process.env.NEXT_PUBLIC_API_BASE_URL}/Auth/login`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(result.data),
     }
   );
 
-  if (!res.ok) throw new Error("Login failed");
-  const { token } = await res.json();
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({}));
+    throw new Error(error.message || "Login failed");
+  }
+
+  const { data: token } = await res.json();
+  if (!token) throw new Error("Token missing");
   localStorage.setItem("token", token);
 }

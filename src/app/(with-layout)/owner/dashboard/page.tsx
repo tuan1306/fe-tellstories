@@ -1,3 +1,4 @@
+import { ChartAreaInteractive } from "@/components/AppLineChart";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -95,11 +96,8 @@ export default function Dashboard() {
           <p>727,420</p>
         </CardContent>
       </Card>
-      <div className="bg-primary-foreground p-4 rounded-2xl lg:col-span-4">
-        Amongus
-      </div>
-      <div className="bg-primary-foreground p-4 rounded-2xl lg:col-span-4">
-        Amongus
+      <div className="rounded-2xl lg:col-span-4">
+        <ChartAreaInteractive />
       </div>
     </div>
   );

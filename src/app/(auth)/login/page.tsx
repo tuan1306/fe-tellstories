@@ -10,6 +10,7 @@ import ImageSwiper from "@/components/misc/imageswiper/ImageSwiper";
 import { logIn } from "@/services/api/loginApi";
 import { logInSchema } from "@/utils/validators/schemas";
 import { useState } from "react";
+import { redirect } from "next/navigation";
 
 export default function Login() {
   const [err, setErr] = useState("");
@@ -29,12 +30,13 @@ export default function Login() {
       await logIn(validatedData);
     } catch (err) {
       if (err instanceof Error) {
-        setErr("Please enter valid email and password");
+        setErr("Something went wrong");
       } else {
         setErr("Wrong email or password");
       }
     } finally {
       setLoading(false);
+      redirect("owner/dashboard");
     }
   }
 

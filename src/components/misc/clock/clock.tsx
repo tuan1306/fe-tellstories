@@ -15,7 +15,7 @@ const Clock = () => {
     if (hour >= 8 && hour < 11) return <Sun className="text-[#ffd428]" />;
     if (hour >= 11 && hour < 14) return <CloudSun className="text-[#5be4ff]" />;
     if (hour >= 14 && hour < 18) return <Sunset className="text-[#ffa527]" />;
-    return <Moon className="text-[#003ba8]" />;
+    return <Moon className="text-[#013ba8]" />;
   };
 
   return (
