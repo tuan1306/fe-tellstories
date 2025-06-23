@@ -156,9 +156,9 @@ const AppSidebar = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="top"
-                sideOffset={13}
+                sideOffset={20}
                 align="start"
-                className="w-[var(--radix-popper-anchor-width)] animate-dropdown bg-[#1A293F] text-white px-2 py-2 rounded-md text-[15px] space-y-1 transition-all duration-200 origin-bottom-left"
+                className="w-[var(--radix-popper-anchor-width)] bg-[#1A293F] text-white px-2 py-2 rounded-md text-[15px] space-y-1 transition-all duration-300"
               >
                 <DropdownMenuItem className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200">
                   <User2 className="w-4 h-4" />
