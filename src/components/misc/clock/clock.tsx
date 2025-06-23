@@ -11,12 +11,11 @@ const Clock = () => {
   }, []);
 
   const getIconByHour = (hour: number) => {
-    if (hour >= 5 && hour < 8) return <Sunrise className="text-orange-300" />;
-    if (hour >= 8 && hour < 11) return <Sun className="text-yellow-400" />;
-    if (hour >= 11 && hour < 14)
-      return <CloudSun className="text-yellow-500" />;
+    if (hour >= 5 && hour < 8) return <Sunrise className="text-[#ffc966]" />;
+    if (hour >= 8 && hour < 11) return <Sun className="text-[#ffd428]" />;
+    if (hour >= 11 && hour < 14) return <CloudSun className="text-[#5be4ff]" />;
     if (hour >= 14 && hour < 18) return <Sunset className="text-[#ffa527]" />;
-    return <Moon className="text-blue-400" />;
+    return <Moon className="text-[#003ba8]" />;
   };
 
   return (
