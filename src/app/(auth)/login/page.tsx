@@ -134,7 +134,7 @@ export default function Login() {
               )}
 
               <Button
-                className="w-55 h-18 mt-5 bg-[#395B8C] text-xl font-semibold shadow-[1px_8px_7px_rgba(0,0,0,0.5)] hover:cursor-pointer"
+                className="w-55 h-18 mt-5 bg-[#395B8C] text-xl font-semibold shadow-[1px_8px_7px_rgba(0,0,0,0.5)] hover:cursor-pointer hover:bg-[#7b9bcb]"
                 type="submit"
                 disabled={loading}
               >
