@@ -1,8 +1,8 @@
 "use server";
 
 import { logInSchema } from "@/utils/validators/schemas";
-import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 type RawJwtPayload = {
@@ -50,15 +50,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    cookieStore.set("token", token, {
+    const response = NextResponse.json(
+      { message: "Login successful" },
+      { status: 200 }
+    );
+
+    cookieStore.set({
+      name: "authToken",
+      value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
       path: "/",
       maxAge: 60 * 60 * 24,
     });
+
+    return response;
   } catch (err) {
     console.error("Something wrong on the login API: ", err);
     throw err;
   }
-  return NextResponse.json({ message: "Login successful" }, { status: 200 });
 }
