@@ -8,7 +8,7 @@ export const getData = async (): Promise<User[]> => {
       id: "1",
       displayName: "NguyenLe",
       email: "nguyenle@gmai.com",
-      userType: null,
+      userType: "User",
       status: "Active",
     },
     {
@@ -16,6 +16,20 @@ export const getData = async (): Promise<User[]> => {
       displayName: "JaneDoe",
       email: "janedoe@gmail.com",
       userType: "Admin",
+      status: "Pending",
+    },
+    {
+      id: "3",
+      displayName: "JamesDoe",
+      email: "jamesdoe@gmail.com",
+      userType: "User",
+      status: "Pending",
+    },
+    {
+      id: "4",
+      displayName: "CraneDoe",
+      email: "CraneDoe@gmail.com",
+      userType: "User",
       status: "Pending",
     },
   ];
