@@ -39,6 +39,7 @@ export default function ImageSwiper() {
             <Image
               src={src}
               alt={`Slide ${i + 1}`}
+              sizes="auto"
               fill
               className="object-cover"
               priority

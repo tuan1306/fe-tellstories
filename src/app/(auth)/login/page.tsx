@@ -7,7 +7,6 @@ import { Loader2Icon, SwatchBook } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ImageSwiper from "@/components/misc/imageswiper/ImageSwiper";
-import { logIn } from "@/services/api/login/route";
 import { logInSchema } from "@/utils/validators/schemas";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,7 +14,6 @@ import { useRouter } from "next/navigation";
 export default function Login() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -28,17 +26,26 @@ export default function Login() {
       .value;
 
     try {
-      const validatedData = logInSchema.parse({ email, password });
-      await logIn(validatedData);
-      router.push("/owner/dashboard");
-    } catch (err) {
-      if (err instanceof Error) {
-        setErr("Not authorized");
-      } else {
-        setErr("Wrong email or password");
+      const validated = logInSchema.parse({ email, password });
+
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(validated),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        setErr(error.message || "Login failed");
+        return;
       }
+    } catch (err) {
+      setErr(
+        err instanceof Error ? "Unauthorized Account" : "Something went wrong"
+      );
     } finally {
       setLoading(false);
+      router.push("/owner/dashboard");
     }
   }
 
