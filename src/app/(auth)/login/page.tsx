@@ -10,11 +10,13 @@ import ImageSwiper from "@/components/misc/imageswiper/ImageSwiper";
 import { logIn } from "@/services/api/loginApi";
 import { logInSchema } from "@/utils/validators/schemas";
 import { useState } from "react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,6 +30,7 @@ export default function Login() {
     try {
       const validatedData = logInSchema.parse({ email, password });
       await logIn(validatedData);
+      router.push("/owner/dashboard");
     } catch (err) {
       if (err instanceof Error) {
         setErr("Something went wrong");
@@ -36,7 +39,6 @@ export default function Login() {
       }
     } finally {
       setLoading(false);
-      redirect("owner/dashboard");
     }
   }
 
@@ -81,7 +83,6 @@ export default function Login() {
             {/* I can use Zod but I'm not sure whether using it on login is good @@ */}
             <form
               className="flex flex-col items-center gap-5 w-100"
-              autoComplete="off"
               id="login"
               onSubmit={handleSubmit}
             >
