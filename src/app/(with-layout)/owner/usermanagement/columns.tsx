@@ -18,7 +18,7 @@ export type User = {
   displayName: string;
   email: string;
   userType: string | null;
-  status: "Active" | "Pending" | "Inactive";
+  status: string | null;
 };
 
 export const columns: ColumnDef<User>[] = [
