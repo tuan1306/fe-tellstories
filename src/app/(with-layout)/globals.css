@@ -83,7 +83,7 @@
   --foreground: oklch(0.984 0.003 247.858);
   --card:oklch(0.1552 0.0192 247.12);
   --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.1552 0.0192 247.12);
+  --popover: oklch(0.2789 0.0458 257.84);
   --popover-foreground: oklch(0.984 0.003 247.858);
   --primary: oklch(0.929 0.013 255.508);
   --primary-foreground: oklch(0.208 0.042 265.755);
@@ -91,7 +91,7 @@
   --secondary-foreground: oklch(0.984 0.003 247.858);
   --muted: oklch(0.279 0.041 260.031);
   --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(30.751% 0.02721 248.762);
+  --accent: oklch(36.077% 0.04896 257.915);
   --accent-foreground: oklch(0.984 0.003 247.858);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
@@ -121,6 +121,7 @@
   }
 }
 
+/* Dropdown popping up */
 @keyframes dropdown-up {
   from {
     opacity: 0;
@@ -149,6 +150,37 @@
 
 [data-side="top"][data-state="closed"] {
   animation: dropdown-down 0.2s ease-in;
+}
+
+/* Dropdown popping down */
+@keyframes dropdown-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+@keyframes dropdown-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+[data-side="bottom"][data-state="open"] {
+  animation: dropdown-fade-in 0.2s ease-out;
+}
+
+[data-side="bottom"][data-state="closed"] {
+  animation: dropdown-fade-out 0.2s ease-in;
 }
 
 
