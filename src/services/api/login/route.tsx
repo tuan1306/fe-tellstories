@@ -9,10 +9,13 @@ type RawJwtPayload = {
   "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": string;
 };
 
+// The problem here is that I haven't set an authorization role router.
+
 export async function logIn(unsafeData: z.infer<typeof logInSchema>) {
   try {
     const cookieStore = await cookies();
 
+    // Zod scheme for validating input
     const result = logInSchema.safeParse(unsafeData);
     if (!result.success) throw new Error("Invalid input");
 

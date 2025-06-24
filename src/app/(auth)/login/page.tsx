@@ -7,7 +7,7 @@ import { Loader2Icon, SwatchBook } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ImageSwiper from "@/components/misc/imageswiper/ImageSwiper";
-import { logIn } from "@/services/api/loginApi";
+import { logIn } from "@/services/api/login/route";
 import { logInSchema } from "@/utils/validators/schemas";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -33,7 +33,7 @@ export default function Login() {
       router.push("/owner/dashboard");
     } catch (err) {
       if (err instanceof Error) {
-        setErr("Something went wrong");
+        setErr("Not authorized");
       } else {
         setErr("Wrong email or password");
       }

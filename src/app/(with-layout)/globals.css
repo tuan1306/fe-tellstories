@@ -110,6 +110,15 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+
+table {
+    background-color: var(--card);
+    color: var(--card-foreground);
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 0.5rem; /* optional */
+    overflow: hidden;
+  }
 }
 
 @layer base {

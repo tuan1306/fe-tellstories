@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -68,9 +69,16 @@ export const columns: ColumnDef<User>[] = [
     },
     cell: ({ row }) => {
       const role = row.getValue("userType") as string;
+
+      const roleColor: Record<string, string> = {
+        Member: "bg-[#2F629A] text-white",
+      };
+
       return (
         <div className="flex justify-center items-center">
-          {role ?? "Undefined"}
+          <Badge className={roleColor[role] || "bg-[#F46A00] text-white"}>
+            {role || "Undefined"}
+          </Badge>
         </div>
       );
     },
@@ -93,7 +101,19 @@ export const columns: ColumnDef<User>[] = [
     },
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
-      return <div className="flex justify-center capitalize">{status}</div>;
+      const statusColor: Record<string, string> = {
+        Active: "bg-green-500 text-white",
+        Pending: "bg-yellow-500 text-white",
+        Inactive: "bg-red-500 text-white",
+      };
+
+      return (
+        <div className="flex justify-center items-center">
+          <Badge className={statusColor[status] || "bg-[#F46A00] text-white"}>
+            {status || "Undefined"}
+          </Badge>
+        </div>
+      );
     },
   },
   {
