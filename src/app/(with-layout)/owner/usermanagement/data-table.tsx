@@ -124,17 +124,19 @@ export function DataTable<TData, TValue>({
           </DropdownMenu>
         </div>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border shadow-sm">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow className="border" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="border-y border-r last:border-r-0"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          // Flex render for badge rendering.
                           header.column.columnDef.header,
                           header.getContext()
                         )}
@@ -170,6 +172,7 @@ export function DataTable<TData, TValue>({
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
+          className="cursor-pointer"
           variant="outline"
           size="sm"
           onClick={() => table.previousPage()}
@@ -178,6 +181,7 @@ export function DataTable<TData, TValue>({
           Previous
         </Button>
         <Button
+          className="cursor-pointer"
           variant="outline"
           size="sm"
           onClick={() => table.nextPage()}

@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
+import type { SortingFn } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
 export type User = {
@@ -21,16 +22,32 @@ export type User = {
   status: string | null;
 };
 
+// TanStack doc: https://tanstack.com/table/v8/docs/guide/sorting for custom funcs
+// Sure you can write em at the sortingFn but then this exist, which is cleaner.
+const userTypeSort: SortingFn<User> = (rowA, rowB, columnId) => {
+  const order: Record<string, number> = {
+    Admin: 0,
+    User: 1,
+    null: 2,
+    undefined: 3,
+  };
+
+  const a = rowA.getValue(columnId);
+  const b = rowB.getValue(columnId);
+
+  return (order[a as string] ?? 3) - (order[b as string] ?? 3);
+};
+
 export const columns: ColumnDef<User>[] = [
   {
     id: "rowNumber",
     header: "#",
     cell: ({ row, table }) => {
-      const pageIndex = table.getState().pagination?.pageIndex ?? 0;
-      const pageSize = table.getState().pagination?.pageSize ?? row.index + 1;
-      const rowNumber = pageIndex * pageSize + row.index + 1;
-
-      return <div className="text-muted-foreground">{rowNumber}</div>;
+      // Since the row got sorted by role everytime we reload the page
+      // Get the sorted rows -> return the first index of the array based on the sorted rows (0 + 1, 1 + 1,...)
+      const sortedRows = table.getSortedRowModel().rows;
+      const rowNumber = sortedRows.findIndex((r) => r.id === row.id) + 1;
+      return <div>{rowNumber}</div>;
     },
     enableSorting: false,
     enableHiding: false,
@@ -53,25 +70,25 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "userType",
-    header: ({ column }) => {
-      return (
-        <div className="flex justify-center">
-          <Button
-            variant="ghost"
-            className="gap-2"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Role
-            <ArrowUpDown className="h-4 w-4" />
-          </Button>
-        </div>
-      );
-    },
+    header: ({ column }) => (
+      <div className="flex justify-center">
+        <Button
+          variant="ghost"
+          className="gap-2 cursor-pointer"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Role
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+      </div>
+    ),
     cell: ({ row }) => {
       const role = row.getValue("userType") as string;
 
       const roleColor: Record<string, string> = {
-        Member: "bg-[#2F629A] text-white",
+        Admin: "bg-[#deac4a] text-white",
+        User: "bg-[#2F629A] text-white",
+        null: "bg-[#e06976] text-white",
       };
 
       return (
@@ -82,6 +99,10 @@ export const columns: ColumnDef<User>[] = [
         </div>
       );
     },
+    // (rowA, rowB, columnId) => -1 | 0 | 1
+    // If -1 -> rowA (admin row)
+    // If 0 -> rowB (user row)
+    sortingFn: userTypeSort,
   },
   {
     accessorKey: "status",
@@ -90,7 +111,7 @@ export const columns: ColumnDef<User>[] = [
         <div className="flex justify-center">
           <Button
             variant="ghost"
-            className="gap-2"
+            className="gap-2 cursor-pointer"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             Status
@@ -115,9 +136,19 @@ export const columns: ColumnDef<User>[] = [
         </div>
       );
     },
+    sortingFn: (a, b) => {
+      const order: Record<string, number> = {
+        Admin: 0,
+        User: 1,
+        null: 2,
+        undefined: 3,
+      };
+      const aVal = a.getValue("userType");
+      const bVal = b.getValue("userType");
+      return (order[aVal as string] ?? 3) - (order[bVal as string] ?? 3);
+    },
   },
   {
-    // TODO: Needed to add some mfkin action here.
     id: "actions",
     cell: ({ row }) => {
       // Based on the current row of the action.
@@ -127,12 +158,12 @@ export const columns: ColumnDef<User>[] = [
         <div className="flex justify-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="action-dropdown">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem className="cursor-pointer">
                 View User Details
