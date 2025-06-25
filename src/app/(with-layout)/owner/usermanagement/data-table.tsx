@@ -29,6 +29,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DataTablePagination } from "@/components/TablePagination";
 
 // Define the prerequisite values.
 interface DataTableProps<TData, TValue> {
@@ -170,25 +171,28 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
+      {/* <div className="flex items-center justify-end space-x-2 py-4">
         <Button
-          className="cursor-pointer"
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+        className="cursor-pointer"
+        variant="outline"
+        size="sm"
+        onClick={() => table.previousPage()}
+        disabled={!table.getCanPreviousPage()}
         >
-          Previous
+        Previous
         </Button>
         <Button
-          className="cursor-pointer"
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+        className="cursor-pointer"
+        variant="outline"
+        size="sm"
+        onClick={() => table.nextPage()}
+        disabled={!table.getCanNextPage()}
         >
-          Next
+        Next
         </Button>
+        </div> */}
+      <div className="py-3">
+        <DataTablePagination table={table} />
       </div>
     </div>
   );

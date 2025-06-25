@@ -120,6 +120,10 @@
     overflow: hidden;
   }
 
+  thead tr:hover {
+    background-color: transparent !important;
+  }
+
   .action-dropdown {
     background-color: var(--card); /* or your custom popover color */
     color: oklch(0.984 0.003 247.858);
