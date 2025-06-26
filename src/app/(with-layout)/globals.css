@@ -133,6 +133,30 @@
     padding: 0.5rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
+
+  .rdp-weekdays,
+  .rdp-weeks {
+    background-color: var(--background);
+    padding-top: 10px;
+  }
+
+  .rdp-weekdays:hover {
+    background-color: var(--background) !important;
+  }
+
+  .rdp-weekday {
+    background-color: transparent;
+    color: var(--muted-foreground);
+  }
+
+  .rdp-day_button:hover {
+    background-color: var(--accent);
+  }
+
+  .calendar select option {
+    background-color: var(--popover);
+    color: white;
+  }
 }
 
 @layer base {
