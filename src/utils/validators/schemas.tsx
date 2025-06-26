@@ -17,7 +17,7 @@ export const addUserSchema = z.object({
   avatarUrl: z.string().optional(),
   userType: z.enum(["Admin", "User"]),
   status: z.enum(["Active", "Disabled", "Banned"]),
-  phoneNumber: z.string().min(1),
+  phoneNumber: z.string().min(1).optional(),
   password: z
     .string()
     .min(6)

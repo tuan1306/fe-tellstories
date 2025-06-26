@@ -38,8 +38,9 @@ import { cn } from "@/lib/utils";
 import React from "react";
 
 export function EditUserSheet({ children }: { children: React.ReactNode }) {
-  const [open, setOpen] = React.useState(false); // control visibility
+  const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
 
   const form = useForm<z.infer<typeof addUserSchema>>({
     resolver: zodResolver(addUserSchema),
@@ -59,12 +60,43 @@ export function EditUserSheet({ children }: { children: React.ReactNode }) {
   async function onSubmit(values: z.infer<typeof addUserSchema>) {
     setLoading(true);
     try {
+      let avatarUrl = "";
+
+      // Docs: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("file", avatarFile);
+
+        const uploadRes = await fetch("/api/cdn/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadRes.ok) throw new Error("Upload failed");
+        const uploadData = await uploadRes.json();
+        avatarUrl = uploadData.url;
+      }
+
+      // If everything is alright then to the payload.
       const payload = {
         ...values,
+        avatarUrl,
         dob: values.dob.toISOString().split("T")[0],
       };
-      console.log("Payload:", payload);
-      await new Promise((r) => setTimeout(r, 1000));
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Failed to create user");
+      }
+
+      const data = await res.json();
+      console.log("Created user:", data);
       setOpen(false);
     } catch (error) {
       console.error("Submit error:", error);
@@ -163,20 +195,17 @@ export function EditUserSheet({ children }: { children: React.ReactNode }) {
             <FormField
               control={form.control}
               name="avatarUrl"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Avatar</FormLabel>
                   <FormControl>
                     <Input
                       type="file"
                       accept="image/*"
-                      onChange={async (e) => {
+                      onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          console.log("Selected file:", file);
-                          // simulate upload:
-                          const fakeUrl = URL.createObjectURL(file); // replace with actual upload logic
-                          field.onChange(fakeUrl); // set avatarUrl in form state
+                          setAvatarFile(file);
                         }
                       }}
                     />
