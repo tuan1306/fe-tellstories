@@ -190,7 +190,24 @@ export const columns: ColumnDef<UserDetails>[] = [
                   </EditUserSheet>
                 </div>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              {/* Needed some how to add Dialog here. */}
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={async () => {
+                  const confirmed = confirm(
+                    "Are you sure you want to delete this user?"
+                  );
+                  if (!confirmed) return;
+
+                  const res = await fetch(`/api/users/${user.id}`, {
+                    method: "DELETE",
+                  });
+
+                  const data = await res.json();
+                  console.log("Delete result:", data);
+                  // Optionally call `onSuccess?.()` if passed in to refresh
+                }}
+              >
                 Delete User
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -32,7 +32,43 @@ export async function PUT(
     const data = await res.json();
     return NextResponse.json(data, { status: 201 });
   } catch (err) {
-    console.error("PUT - /api/users/[id] error:", err);
+    console.error("PUT - /api/users/update/[id] error:", err);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const token = (await cookies()).get("authToken")?.value;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/delete/${params.id}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!res.ok) {
+      const error = await res.text();
+      return NextResponse.json(
+        { message: "Failed to delete user", error },
+        { status: res.status }
+      );
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data, { status: 200 });
+  } catch (err) {
+    console.error("DELETE - /api/users/[id] error:", err);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
