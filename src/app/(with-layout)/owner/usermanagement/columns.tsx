@@ -1,5 +1,7 @@
 "use client";
 
+import { UserDetails } from "@/app/types/user";
+import { EditUserSheet } from "@/components/EditUserSheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,17 +16,9 @@ import { ColumnDef } from "@tanstack/react-table";
 import type { SortingFn } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 
-export type User = {
-  id: string;
-  displayName: string;
-  email: string;
-  userType: string | null;
-  status: string | null;
-};
-
 // TanStack doc: https://tanstack.com/table/v8/docs/guide/sorting for custom funcs
 // Sure you can write em at the sortingFn but then this exist, which is cleaner.
-const userTypeSort: SortingFn<User> = (rowA, rowB, columnId) => {
+const userTypeSort: SortingFn<UserDetails> = (rowA, rowB, columnId) => {
   const order: Record<string, number> = {
     Admin: 0,
     User: 1,
@@ -38,7 +32,7 @@ const userTypeSort: SortingFn<User> = (rowA, rowB, columnId) => {
   return (order[a as string] ?? 3) - (order[b as string] ?? 3);
 };
 
-const statusSort: SortingFn<User> = (rowA, rowB, columnId) => {
+const statusSort: SortingFn<UserDetails> = (rowA, rowB, columnId) => {
   const order: Record<string, number> = {
     Active: 0,
     Disabled: 1,
@@ -52,7 +46,7 @@ const statusSort: SortingFn<User> = (rowA, rowB, columnId) => {
   return (order[a as string] ?? 3) - (order[b as string] ?? 3);
 };
 
-export const columns: ColumnDef<User>[] = [
+export const columns: ColumnDef<UserDetails>[] = [
   {
     id: "rowNumber",
     header: () => <div className="flex justify-center">#</div>,
@@ -181,8 +175,20 @@ export const columns: ColumnDef<User>[] = [
               >
                 Copy User ID
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                Quick Edit User
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                className="p-0"
+              >
+                <div className="w-full">
+                  <EditUserSheet user={user}>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start px-2 py-1.5 h-auto font-normal cursor-pointer"
+                    >
+                      Quick Edit User
+                    </Button>
+                  </EditUserSheet>
+                </div>
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
                 Delete User

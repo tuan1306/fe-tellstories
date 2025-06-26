@@ -9,20 +9,14 @@ export const logInSchema = z.object({
 // May change based on business
 export const addUserSchema = z.object({
   email: z.string().email(),
-  userName: z
-    .string()
-    .min(6, { message: "Please add the damn username" })
-    .max(14, { message: "No more than 14 characters in username" }),
+  userName: z.string().min(6, { message: "Please add the damn username" }),
   displayName: z.string().min(1),
   avatarUrl: z.string().optional(),
   userType: z.enum(["Admin", "User"]).optional(),
   status: z.enum(["Active", "Disabled", "Banned"]).optional(),
-  phoneNumber: z.string().min(1).optional(),
-  password: z
-    .string()
-    .min(6)
-    .regex(/[!@#$%^&*(),.?":{}|<>]/, {
-      message: "Password must contain a special character",
-    }),
+  phoneNumber: z.string().optional(),
+  password: z.string().regex(/[!@#$%^&*(),.?":{}|<>]/, {
+    message: "Password must contain a special character",
+  }),
   dob: z.date(),
 });

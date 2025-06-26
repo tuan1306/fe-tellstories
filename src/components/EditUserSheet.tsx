@@ -37,8 +37,17 @@ import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import React from "react";
 import { ScrollArea } from "./ui/scroll-area";
+import { UserDetails } from "@/app/types/user";
 
-export function AddUserSheet({ children }: { children: React.ReactNode }) {
+export function EditUserSheet({
+  children,
+  user,
+  onSuccess,
+}: {
+  children: React.ReactNode;
+  user?: UserDetails;
+  onSuccess?: () => void;
+}) {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
@@ -46,15 +55,15 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
   const form = useForm<z.infer<typeof addUserSchema>>({
     resolver: zodResolver(addUserSchema),
     defaultValues: {
-      email: "",
-      userName: "",
-      displayName: "",
-      avatarUrl: "",
-      userType: "User",
-      status: "Active",
-      phoneNumber: "",
+      email: user?.email || "",
+      userName: user?.email || "", // Toan fucked this one up, so I'm waiting for fix.
+      displayName: user?.displayName || "",
+      avatarUrl: user?.avatarUrl || "",
+      userType: user?.userType ?? "User",
+      status: user?.status ?? "Active",
+      phoneNumber: user?.phoneNumber || "",
       password: "",
-      dob: new Date(),
+      dob: user?.dob ? new Date(user.dob) : new Date(),
     },
   });
 
@@ -84,21 +93,26 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
         avatarUrl,
         dob: values.dob.toISOString().split("T")[0],
       };
-      const res = await fetch("/api/users", {
-        method: "POST",
+
+      if (!user?.id) throw new Error("User ID is missing");
+
+      const res = await fetch(`/api/users/${user.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
       });
+
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || "Failed to create user");
+        throw new Error(err.message || "Failed to update user");
       }
 
       const data = await res.json();
-      console.log("Created user:", data);
+      console.log("Updated user:", data);
       setOpen(false);
+      onSuccess?.(); // Refresh data
     } catch (error) {
       console.error("Submit error:", error);
     } finally {
@@ -146,6 +160,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                 <FormField
                   control={form.control}
                   name="userName"
+                  disabled
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Username</FormLabel>
@@ -195,7 +210,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input placeholder="" {...field} />
+                        <Input placeholder="●●●●●●●●●●●●●●●●" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -209,7 +224,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                     <FormItem>
                       <FormLabel>Avatar</FormLabel>
                       <FormControl>
-                        <div className="flex gap-5">
+                        <div>
                           <input
                             id="avatar"
                             type="file"
@@ -263,6 +278,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="status"
@@ -280,7 +296,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="Active">Active</SelectItem>
-                            <SelectItem value="Inactive">Inactive</SelectItem>
+                            <SelectItem value="Disabled">Disabled</SelectItem>
                             <SelectItem value="Banned">Banned</SelectItem>
                           </SelectContent>
                         </Select>

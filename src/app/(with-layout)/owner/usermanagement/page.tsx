@@ -1,11 +1,12 @@
 import { cookies } from "next/headers";
-import { User, columns } from "./columns";
+import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { Suspense } from "react";
+import { UserDetails } from "@/app/types/user";
 
 // Remind my dumbass to return an array not a singer user.
 // For the love of god, I have to remind myself so many about cookie doesn't automatically send everywhere.
-export const getData = async (): Promise<User[]> => {
+export const getData = async (): Promise<UserDetails[]> => {
   const cookie = await cookies();
   const cookieToken = cookie.toString();
 
@@ -19,15 +20,9 @@ export const getData = async (): Promise<User[]> => {
   if (!res.ok) throw new Error("Failed to fetch users");
 
   const json = await res.json();
-  const fullData: User[] = json.data;
+  const fullData: UserDetails[] = json.data;
 
-  return fullData.map(({ id, email, displayName, userType, status }) => ({
-    id,
-    email,
-    displayName,
-    userType,
-    status,
-  }));
+  return fullData;
 };
 
 export default async function UserManagement() {
