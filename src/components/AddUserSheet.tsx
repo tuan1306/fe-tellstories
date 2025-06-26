@@ -38,7 +38,7 @@ import { cn } from "@/lib/utils";
 import React from "react";
 import { ScrollArea } from "./ui/scroll-area";
 
-export function EditUserSheet({ children }: { children: React.ReactNode }) {
+export function AddUserSheet({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [avatarFile, setAvatarFile] = React.useState<File | null>(null);

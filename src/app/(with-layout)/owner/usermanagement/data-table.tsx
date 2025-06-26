@@ -30,7 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DataTablePagination } from "@/components/TablePagination";
-import { EditUserSheet } from "@/components/EditUserSheet";
+import { AddUserSheet } from "@/components/AddUserSheet";
 
 // Define the prerequisite values.
 interface DataTableProps<TData, TValue> {
@@ -91,11 +91,11 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
         <div className="ml-auto flex gap-4">
-          <EditUserSheet>
+          <AddUserSheet>
             <Button variant="outline" className="cursor-pointer">
               Add User
             </Button>
-          </EditUserSheet>
+          </AddUserSheet>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="cursor-pointer">

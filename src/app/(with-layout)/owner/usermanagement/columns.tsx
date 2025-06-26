@@ -38,6 +38,20 @@ const userTypeSort: SortingFn<User> = (rowA, rowB, columnId) => {
   return (order[a as string] ?? 3) - (order[b as string] ?? 3);
 };
 
+const statusSort: SortingFn<User> = (rowA, rowB, columnId) => {
+  const order: Record<string, number> = {
+    Active: 0,
+    Disabled: 1,
+    Banned: 2,
+    undefined: 3,
+  };
+
+  const a = rowA.getValue(columnId);
+  const b = rowB.getValue(columnId);
+
+  return (order[a as string] ?? 3) - (order[b as string] ?? 3);
+};
+
 export const columns: ColumnDef<User>[] = [
   {
     id: "rowNumber",
@@ -138,17 +152,7 @@ export const columns: ColumnDef<User>[] = [
         </div>
       );
     },
-    sortingFn: (a, b) => {
-      const order: Record<string, number> = {
-        Admin: 0,
-        User: 1,
-        null: 2,
-        undefined: 3,
-      };
-      const aVal = a.getValue("userType");
-      const bVal = b.getValue("userType");
-      return (order[aVal as string] ?? 3) - (order[bVal as string] ?? 3);
-    },
+    sortingFn: statusSort,
   },
   {
     id: "actions",

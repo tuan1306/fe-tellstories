@@ -15,8 +15,8 @@ export const addUserSchema = z.object({
     .max(14, { message: "No more than 14 characters in username" }),
   displayName: z.string().min(1),
   avatarUrl: z.string().optional(),
-  userType: z.enum(["Admin", "User"]),
-  status: z.enum(["Active", "Disabled", "Banned"]),
+  userType: z.enum(["Admin", "User"]).optional(),
+  status: z.enum(["Active", "Disabled", "Banned"]).optional(),
   phoneNumber: z.string().min(1).optional(),
   password: z
     .string()
