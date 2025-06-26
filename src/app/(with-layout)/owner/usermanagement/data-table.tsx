@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DataTablePagination } from "@/components/TablePagination";
+import { EditUserSheet } from "@/components/EditUserSheet";
 
 // Define the prerequisite values.
 interface DataTableProps<TData, TValue> {
@@ -90,10 +91,11 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
         <div className="ml-auto flex gap-4">
-          <Button variant="outline" className="cursor-pointer">
-            Add User
-          </Button>
-
+          <EditUserSheet>
+            <Button variant="outline" className="cursor-pointer">
+              Add User
+            </Button>
+          </EditUserSheet>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="cursor-pointer">
@@ -129,7 +131,7 @@ export function DataTable<TData, TValue>({
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow className="border" key={headerGroup.id}>
+              <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
@@ -152,7 +154,10 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      className="border-y border-r last:border-r-0"
+                      key={cell.id}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -191,7 +196,7 @@ export function DataTable<TData, TValue>({
         Next
         </Button>
         </div> */}
-      <div className="py-3">
+      <div className="py-4">
         <DataTablePagination table={table} />
       </div>
     </div>

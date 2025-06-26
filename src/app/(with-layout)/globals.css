@@ -124,7 +124,8 @@
     background-color: transparent !important;
   }
 
-  .action-dropdown {
+  .action-dropdown,
+  .chart-select-dropdown {
     background-color: var(--card); /* or your custom popover color */
     color: oklch(0.984 0.003 247.858);
     border: 1px solid oklch(1 0 0 / 10%);

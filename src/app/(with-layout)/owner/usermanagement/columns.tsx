@@ -41,13 +41,15 @@ const userTypeSort: SortingFn<User> = (rowA, rowB, columnId) => {
 export const columns: ColumnDef<User>[] = [
   {
     id: "rowNumber",
-    header: "#",
+    header: () => <div className="flex justify-center">#</div>,
     cell: ({ row, table }) => {
       // Since the row got sorted by role everytime we reload the page
       // Get the sorted rows -> return the first index of the array based on the sorted rows (0 + 1, 1 + 1,...)
       const sortedRows = table.getSortedRowModel().rows;
       const rowNumber = sortedRows.findIndex((r) => r.id === row.id) + 1;
-      return <div>{rowNumber}</div>;
+      return (
+        <div className="flex justify-center items-center">{rowNumber}</div>
+      );
     },
     enableSorting: false,
     enableHiding: false,
@@ -57,7 +59,7 @@ export const columns: ColumnDef<User>[] = [
     header: "Username",
     cell: ({ row }) => {
       const value = row.getValue("displayName") as string;
-      return <div className="font-medium">{value}</div>;
+      return <div>{value}</div>;
     },
   },
   {

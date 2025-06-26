@@ -5,11 +5,13 @@ import { DataTable } from "./data-table";
 // Remind my dumbass to return an array not a singer user.
 // For the love of god, I have to remind myself so many about cookie doesn't automatically send everywhere.
 export const getData = async (): Promise<User[]> => {
-  const cookie = cookies().toString();
+  const cookie = await cookies();
+  const cookieToken = cookie.toString();
+
   const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/users`, {
     cache: "no-cache",
     headers: {
-      Cookie: cookie,
+      Cookie: cookieToken,
     },
   });
 

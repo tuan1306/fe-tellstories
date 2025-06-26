@@ -11,6 +11,8 @@ import { logInSchema } from "@/utils/validators/schemas";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+// This login form does not use react hook form (will update later!!!! ＼(º □ º l|l)/)
+
 export default function Login() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);

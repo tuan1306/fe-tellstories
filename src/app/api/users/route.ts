@@ -1,7 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -10,7 +10,6 @@ export async function GET() {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/User`, {
       headers: {
         Authorization: `Bearer ${token}`,
-        credentials: "include",
       },
     });
 
@@ -23,10 +22,45 @@ export async function GET() {
     }
 
     const data = await res.json();
-    console.log(data);
     return NextResponse.json(data, { status: 200 });
   } catch (err) {
     console.error("GET - /api/users response:", err);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const token = (await cookies()).get("authToken")?.value;
+    const body = await req.json();
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/create`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    if (!res.ok) {
+      const error = await res.text();
+      return NextResponse.json(
+        { message: "Failed to create user", error },
+        { status: res.status }
+      );
+    }
+
+    const data = await res.json();
+    return NextResponse.json(data, { status: 201 });
+  } catch (err) {
+    console.error("POST - /api/users/create error:", err);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
