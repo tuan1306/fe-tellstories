@@ -3,14 +3,15 @@ export type StoryDetails = {
   title: string;
   author: string | null;
   description: string;
-  status: string | null;
+  status: "Draft" | "Published" | "Archived" | null;
   coverImageUrl: string;
-  language: string;
+  language: "EN" | "VN" | null;
   duration: number;
-  ageRange: string;
-  readingLevel: string;
+  ageRange: "1-3" | "3-5" | "5-8" | "8-10" | "10+" | null;
+  readingLevel: "Sơ cấp" | "Trung cấp" | "Nâng cao" | null;
   storyType: string;
   isAIGenerated: boolean;
+  isDraft: boolean;
   backgroundMusicUrl: string;
   isFeatured: boolean;
   isCommunity: boolean;
@@ -40,4 +41,31 @@ export type StoryDetails = {
     slug: string;
     description: string | null;
   }[];
+};
+
+export type StoryEditDetails = {
+  id: string;
+  title: string;
+  author: string;
+  description: string;
+  isDraft: boolean;
+  coverImageUrl: string;
+  language: "ENG" | "VIE";
+  duration: number;
+  ageRange: "1-3" | "3-5" | "5-8" | "8-10" | "10+";
+  readingLevel: "Sơ cấp" | "Trung cấp" | "Nâng cao";
+  storyType: string;
+  isAIGenerated: boolean;
+  backgroundMusicUrl: string;
+  panels: {
+    content: string;
+    imageUrl: string;
+    audioUrl: string;
+    isEndPanel: boolean;
+    languageCode: string;
+    panelNumber: number;
+  }[];
+  tags: {
+    tagNames: string[];
+  };
 };

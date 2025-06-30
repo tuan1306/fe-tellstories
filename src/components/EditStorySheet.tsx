@@ -9,14 +9,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useForm } from "react-hook-form";
-import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { addUserSchema } from "@/utils/validators/schemas";
+import { addStorySchema } from "@/utils/validators/schemas";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,50 +29,54 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "./ui/calendar";
-import { cn } from "@/lib/utils";
 import React from "react";
 import { ScrollArea } from "./ui/scroll-area";
-import { UserDetails } from "@/app/types/user";
+import { StoryEditDetails } from "@/app/types/story";
 
 export function EditStorySheet({
   children,
-  user,
+  story,
   onSuccess,
 }: {
   children: React.ReactNode;
-  user?: UserDetails;
+  story?: StoryEditDetails;
   onSuccess?: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
-  const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
+  const [coverImageFile, setCoverImageFile] = React.useState<File | null>(null);
 
-  const form = useForm<z.infer<typeof addUserSchema>>({
-    resolver: zodResolver(addUserSchema),
+  const form = useForm<z.infer<typeof addStorySchema>>({
+    resolver: zodResolver(addStorySchema),
     defaultValues: {
-      email: user?.email || "",
-      displayName: user?.displayName || "",
-      avatarUrl: user?.avatarUrl || "",
-      userType: user?.userType ?? "User",
-      status: user?.status ?? "Active",
-      phoneNumber: user?.phoneNumber || "",
-      password: "",
-      dob: user?.dob ? new Date(user.dob) : new Date(),
+      id: story?.id || crypto.randomUUID(),
+      title: story?.title || "",
+      author: story?.author || "",
+      description: story?.description || "",
+      isDraft: story?.isDraft ?? true,
+      coverImageUrl: story?.coverImageUrl || "",
+      language: story?.language as "ENG" | "VIE",
+      duration: story?.duration ?? 0,
+      ageRange: story?.ageRange as "1-3" | "3-5" | "5-8" | "8-10" | "10+",
+      readingLevel: story?.readingLevel as "Sơ cấp" | "Trung cấp" | "Nâng cao",
+      storyType: story?.storyType || "",
+      isAIGenerated: story?.isAIGenerated ?? false,
+      backgroundMusicUrl: story?.backgroundMusicUrl || "",
+      panels: story?.panels || [],
+      tags: story?.tags || { tagNames: [] },
     },
   });
 
-  async function onSubmit(values: z.infer<typeof addUserSchema>) {
-    setLoading(true);
+  async function onSubmit(values: z.infer<typeof addStorySchema>) {
     try {
-      let avatarUrl = user?.avatarUrl || "";
+      if (!story?.id) throw new Error("Story ID is missing");
+
+      let coverImageUrl = "";
 
       // Docs: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects
-      if (avatarFile) {
+      if (coverImageFile) {
         const formData = new FormData();
-        formData.append("file", avatarFile);
+        formData.append("file", coverImageFile);
 
         const uploadRes = await fetch("/api/cdn/upload", {
           method: "POST",
@@ -83,19 +85,15 @@ export function EditStorySheet({
 
         if (!uploadRes.ok) throw new Error("Upload failed");
         const uploadData = await uploadRes.json();
-        avatarUrl = uploadData.url;
+        coverImageUrl = uploadData.url;
       }
 
-      // If everything is alright then to the payload.
       const payload = {
         ...values,
-        avatarUrl,
-        dob: values.dob.toISOString().split("T")[0],
+        coverImageUrl,
       };
 
-      if (!user?.id) throw new Error("User ID is missing");
-
-      const res = await fetch(`/api/users/${user.id}`, {
+      const res = await fetch(`/api/stories/`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -105,13 +103,13 @@ export function EditStorySheet({
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || "Failed to update user");
+        throw new Error(err.message || "Failed to update story");
       }
 
       const data = await res.json();
-      console.log("Updated user:", data);
+      console.log("Updated story:", data);
       setOpen(false);
-      onSuccess?.(); // Refresh data
+      onSuccess?.();
     } catch (error) {
       console.error("Submit error:", error);
     } finally {
@@ -126,9 +124,9 @@ export function EditStorySheet({
         <ScrollArea className="h-full">
           <div className="p-5">
             <SheetHeader className="p-0">
-              <SheetTitle className="text-2xl">Edit User</SheetTitle>
+              <SheetTitle className="text-2xl">Edit Story Metadata</SheetTitle>
               <SheetDescription className="mb-10">
-                Fill in the details below to edit the user to your system. Make
+                Fill in the details below to edit the story in your system. Make
                 sure everything looks right before saving.
               </SheetDescription>
             </SheetHeader>
@@ -141,32 +139,12 @@ export function EditStorySheet({
               >
                 <FormField
                   control={form.control}
-                  name="displayName"
+                  name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Display name</FormLabel>
+                      <FormLabel>Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="John420" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        This will be publicly displayed on the system
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="JohnStoryteller@gmail.com"
-                          {...field}
-                        />
+                        <Input placeholder="My Great Story" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -175,12 +153,12 @@ export function EditStorySheet({
 
                 <FormField
                   control={form.control}
-                  name="phoneNumber"
+                  name="author"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>Author</FormLabel>
                       <FormControl>
-                        <Input placeholder="0123456789" {...field} />
+                        <Input placeholder="Author Name" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -189,12 +167,12 @@ export function EditStorySheet({
 
                 <FormField
                   control={form.control}
-                  name="password"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Input placeholder="●●●●●●●●●●●●●●●●" {...field} />
+                        <Input placeholder="A tale about..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -203,10 +181,10 @@ export function EditStorySheet({
 
                 <FormField
                   control={form.control}
-                  name="avatarUrl"
+                  name="coverImageUrl"
                   render={() => (
                     <FormItem>
-                      <FormLabel>Avatar</FormLabel>
+                      <FormLabel>Cover image URL</FormLabel>
                       <FormControl>
                         <div className="flex gap-5">
                           <input
@@ -215,7 +193,7 @@ export function EditStorySheet({
                             accept="image/*"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
-                              if (file) setAvatarFile(file);
+                              if (file) setCoverImageFile(file);
                             }}
                             className="hidden"
                           />
@@ -225,9 +203,9 @@ export function EditStorySheet({
                           >
                             Choose File
                           </label>
-                          {avatarFile && (
+                          {coverImageFile && (
                             <p className="mt-2 text-sm text-muted-foreground">
-                              {avatarFile.name} selected
+                              {coverImageFile.name} selected
                             </p>
                           )}
                         </div>
@@ -237,100 +215,177 @@ export function EditStorySheet({
                   )}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="userType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>User Role</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a role" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Admin">Admin</SelectItem>
-                            <SelectItem value="User">User</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>User Status</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a status" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Active">Active</SelectItem>
-                            <SelectItem value="Disabled">Disabled</SelectItem>
-                            <SelectItem value="Banned">Banned</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
                 <FormField
                   control={form.control}
-                  name="dob"
+                  name="ageRange"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Date of birth</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-[240px] pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
-                            captionLayout="dropdown"
-                            className="calendar"
-                          />
-                        </PopoverContent>
-                      </Popover>
+                    <FormItem>
+                      <FormLabel>Age Range</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select age range" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="1-3">1-3</SelectItem>
+                          <SelectItem value="3-5">3-5</SelectItem>
+                          <SelectItem value="5-8">5-8</SelectItem>
+                          <SelectItem value="8-10">8-10</SelectItem>
+                          <SelectItem value="10+">10+</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name="readingLevel"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Reading level</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select reading level" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Sơ cấp">Sơ cấp</SelectItem>
+                          <SelectItem value="Trung cấp">Trung cấp</SelectItem>
+                          <SelectItem value="Nâng cao">Nâng cao</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="language"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Language</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select language" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="ENG">ENG</SelectItem>
+                          <SelectItem value="VIE">VIE</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="storyType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Story Type</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Fiction" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="backgroundMusicUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Background Music URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => {
+                    // eslint-disable-next-line react-hooks/rules-of-hooks
+                    const [inputValue, setInputValue] = React.useState("");
+
+                    const addTag = (tag: string) => {
+                      const trimmed = tag.trim();
+                      const currentTags = field.value?.tagNames || [];
+                      if (trimmed && !currentTags.includes(trimmed)) {
+                        field.onChange({ tagNames: [...currentTags, trimmed] });
+                      }
+                    };
+
+                    const removeTag = (tag: string) => {
+                      const currentTags = field.value?.tagNames || [];
+                      field.onChange({
+                        tagNames: currentTags.filter((t) => t !== tag),
+                      });
+                    };
+
+                    return (
+                      <FormItem>
+                        <FormLabel>Tags</FormLabel>
+                        <FormControl>
+                          <div className="flex flex-wrap items-center gap-2 border rounded-md p-2">
+                            {(field.value?.tagNames || []).map((tag) => (
+                              <span
+                                key={tag}
+                                className="flex items-center gap-1 bg-muted px-2 py-1 rounded-full text-sm"
+                              >
+                                {tag}
+                                <button
+                                  type="button"
+                                  onClick={() => removeTag(tag)}
+                                  className="text-muted-foreground hover:text-destructive"
+                                >
+                                  ×
+                                </button>
+                              </span>
+                            ))}
+                            <input
+                              type="text"
+                              className="flex-1 bg-transparent outline-none min-w-[100px]"
+                              value={inputValue}
+                              placeholder="Type and press Enter"
+                              onChange={(e) => setInputValue(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" || e.key === ",") {
+                                  e.preventDefault();
+                                  addTag(inputValue);
+                                  setInputValue("");
+                                }
+                              }}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+
                 <Button
                   type="submit"
                   className="cursor-pointer"

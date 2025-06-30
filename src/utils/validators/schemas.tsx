@@ -19,3 +19,32 @@ export const addUserSchema = z.object({
   }),
   dob: z.date(),
 });
+
+export const addStorySchema = z.object({
+  id: z.string().uuid(),
+  title: z.string().min(1, "Title is required"),
+  author: z.string().min(1, "Author is required"),
+  description: z.string(),
+  isDraft: z.boolean(),
+  coverImageUrl: z.string(),
+  language: z.enum(["ENG", "VIE"]),
+  duration: z.number(),
+  ageRange: z.enum(["1-3", "3-5", "5-8", "8-10", "10+"]),
+  readingLevel: z.enum(["Sơ cấp", "Trung cấp", "Nâng cao"]),
+  storyType: z.string().min(1, "Story type is required"),
+  isAIGenerated: z.boolean(),
+  backgroundMusicUrl: z.string(),
+  panels: z.array(
+    z.object({
+      content: z.string(),
+      imageUrl: z.string(),
+      audioUrl: z.string(),
+      isEndPanel: z.boolean(),
+      languageCode: z.string(),
+      panelNumber: z.number(),
+    })
+  ),
+  tags: z.object({
+    tagNames: z.array(z.string()),
+  }),
+});
