@@ -47,7 +47,6 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
     resolver: zodResolver(addUserSchema),
     defaultValues: {
       email: "",
-      userName: "",
       displayName: "",
       avatarUrl: "",
       userType: "User",
@@ -138,20 +137,6 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                       <FormDescription>
                         This will be publicly displayed on the system
                       </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="userName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Username</FormLabel>
-                      <FormControl>
-                        <Input placeholder="JohnDoe" {...field} />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

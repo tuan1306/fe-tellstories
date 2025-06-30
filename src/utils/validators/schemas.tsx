@@ -9,7 +9,6 @@ export const logInSchema = z.object({
 // May change based on business
 export const addUserSchema = z.object({
   email: z.string().email(),
-  userName: z.string().min(6, { message: "Please add the damn username" }),
   displayName: z.string().min(1),
   avatarUrl: z.string().optional(),
   userType: z.enum(["Admin", "User"]).optional(),

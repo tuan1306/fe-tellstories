@@ -1,22 +1,27 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@radix-ui/react-label";
 import { Loader2Icon, SwatchBook } from "lucide-react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import ImageSwiper from "@/components/misc/imageswiper/ImageSwiper";
 import { logInSchema } from "@/utils/validators/schemas";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 // This login form does not use react hook form (will update later!!!! ＼(º □ º l|l)/)
 
 export default function Login() {
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
-
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -84,77 +89,42 @@ export default function Login() {
           </div>
         </div>
 
-        {/* The login part */}
+        {/* The forgotpass part */}
         <div className="w-1/2 h-screen bg-slate-disable flex justify-center items-center text-white">
           <div className="flex justify-center items-center flex-col gap-10">
-            <h1 className="text-5xl font-semibold text-shadow-[7px_6px_5px_rgba(0,0,0,0.6)] tracking-wider">
-              Log in
-            </h1>
-            {/* I can use Zod but I'm not sure whether using it on login is good @@ */}
-            <form
-              className="flex flex-col items-center gap-5 w-100"
-              id="login"
-              onSubmit={handleSubmit}
-            >
-              <div className="w-full">
-                <Label htmlFor="email" className="text-[14px] font-normal ml-3">
-                  Email
-                </Label>
-                <Input
-                  type="email"
-                  id="email"
-                  className="bg-[#060D14] border-none w-full h-15 shadow-xl/35"
-                />
-              </div>
-
-              <div className="w-full">
-                <Label
-                  htmlFor="password"
-                  className="text-[14px] font-normal ml-3"
+            <Card className="w-[550px] h-[250px] p-5 shadow-2xl bg-[#1A293F] border-none text-white">
+              <CardHeader className="">
+                <CardTitle>Forgot password</CardTitle>
+                <CardDescription>
+                  Please enter the email address you would like to reset.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form>
+                  <div className="flex flex-col gap-6">
+                    <div className="grid gap-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input id="email" type="email" required />
+                    </div>
+                  </div>
+                </form>
+                {err && (
+                  <p className="text-red-500 flex w-full justify-center-safe -mb-5">
+                    {err}
+                  </p>
+                )}
+              </CardContent>
+              <CardFooter className="flex-col gap-2">
+                <Button
+                  className=" w-full hover:cursor-pointer hover:bg-[#7b9bcb]"
+                  type="submit"
+                  disabled={loading}
                 >
-                  Password
-                </Label>
-                <Input
-                  type="password"
-                  id="password"
-                  className="bg-[#060D14] border-none w-full h-15 shadow-xl/35"
-                />
-              </div>
-
-              {/* Checkbox & link */}
-              <div className="flex justify-between items-center w-full px-5 text-sm">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="rememberme"
-                    className="h-4 w-4 bg-gray-700 data-[state=checked]:bg-white data-[state=checked]:text-black cursor-pointer"
-                  />
-                  <Label htmlFor="rememberme" className="text-sm">
-                    Remember me?
-                  </Label>
-                </div>
-                <Link
-                  href="/forgotpassword"
-                  className="hover:underline cursor-pointer underline-offset-3"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-
-              {err && (
-                <p className="text-red-500 flex w-full justify-center-safe -mb-5">
-                  {err}
-                </p>
-              )}
-
-              <Button
-                className="w-55 h-18 mt-5 bg-[#395B8C] text-xl font-semibold shadow-[1px_8px_7px_rgba(0,0,0,0.5)] hover:cursor-pointer hover:bg-[#7b9bcb]"
-                type="submit"
-                disabled={loading}
-              >
-                {loading && <Loader2Icon className="animate-spin" />}
-                Login
-              </Button>
-            </form>
+                  {loading && <Loader2Icon className="animate-spin" />}
+                  Request Email
+                </Button>
+              </CardFooter>
+            </Card>
           </div>
         </div>
       </div>

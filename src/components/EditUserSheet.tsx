@@ -56,7 +56,6 @@ export function EditUserSheet({
     resolver: zodResolver(addUserSchema),
     defaultValues: {
       email: user?.email || "",
-      userName: user?.email || "", // Toan fucked this one up, so I'm waiting for fix.
       displayName: user?.displayName || "",
       avatarUrl: user?.avatarUrl || "",
       userType: user?.userType ?? "User",
@@ -152,21 +151,6 @@ export function EditUserSheet({
                       <FormDescription>
                         This will be publicly displayed on the system
                       </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="userName"
-                  disabled
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Username</FormLabel>
-                      <FormControl>
-                        <Input placeholder="JohnDoe" {...field} />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
