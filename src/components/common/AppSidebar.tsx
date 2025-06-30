@@ -6,6 +6,7 @@ import {
   ChevronUp,
   LayoutDashboard,
   LucideMessageSquareText,
+  PenBoxIcon,
   Receipt,
   Scroll,
   Settings,
@@ -79,6 +80,11 @@ const items = [
     icon: LucideMessageSquareText,
   },
   {
+    title: "Write Stories",
+    url: "/owner/write-story",
+    icon: PenBoxIcon,
+  },
+  {
     title: "Published Stories Management",
     url: "/owner/published-stories",
     icon: BookOpen,
@@ -88,6 +94,7 @@ const items = [
     url: "/owner/featured-stories",
     icon: BookOpenCheck,
   },
+
   {
     title: "Staff Log",
     url: "/owner/staff-log",

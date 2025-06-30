@@ -214,7 +214,7 @@ export default function UserPage() {
 
           <div className="mt-4">
             <div className="bg-card mt-4 p-5 rounded-lg">
-              <ScrollArea className="w-full h-[440px]">
+              <ScrollArea className="w-full h-[405px]">
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
                   <div className="space-y-2">
                     <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">

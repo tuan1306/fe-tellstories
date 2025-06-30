@@ -25,7 +25,7 @@ export const getData = async (): Promise<UserDetails[]> => {
   return fullData;
 };
 
-export default async function UserManagement() {
+export default async function UserManagementPage() {
   const data = await getData();
 
   return (
