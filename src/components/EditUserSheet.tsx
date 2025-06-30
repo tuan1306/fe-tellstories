@@ -69,7 +69,7 @@ export function EditUserSheet({
   async function onSubmit(values: z.infer<typeof addUserSchema>) {
     setLoading(true);
     try {
-      let avatarUrl = "";
+      let avatarUrl = user?.avatarUrl || "";
 
       // Docs: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects
       if (avatarFile) {
@@ -126,9 +126,9 @@ export function EditUserSheet({
         <ScrollArea className="h-full">
           <div className="p-5">
             <SheetHeader className="p-0">
-              <SheetTitle className="text-2xl">Add User</SheetTitle>
+              <SheetTitle className="text-2xl">Edit User</SheetTitle>
               <SheetDescription className="mb-10">
-                Fill in the details below to add a new user to your system. Make
+                Fill in the details below to edit the user to your system. Make
                 sure everything looks right before saving.
               </SheetDescription>
             </SheetHeader>
@@ -208,7 +208,7 @@ export function EditUserSheet({
                     <FormItem>
                       <FormLabel>Avatar</FormLabel>
                       <FormControl>
-                        <div>
+                        <div className="flex gap-5">
                           <input
                             id="avatar"
                             type="file"

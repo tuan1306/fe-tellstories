@@ -15,9 +15,11 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import type { SortingFn } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // TanStack doc: https://tanstack.com/table/v8/docs/guide/sorting for custom funcs
 // Sure you can write em at the sortingFn but then this exist, which is cleaner.
+
 const userTypeSort: SortingFn<UserDetails> = (rowA, rowB, columnId) => {
   const order: Record<string, number> = {
     Admin: 0,
@@ -153,6 +155,8 @@ export const columns: ColumnDef<UserDetails>[] = [
     cell: ({ row }) => {
       // Based on the current row of the action.
       const user = row.original;
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const router = useRouter();
 
       return (
         <div className="flex justify-center">
@@ -165,7 +169,12 @@ export const columns: ColumnDef<UserDetails>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="action-dropdown">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() =>
+                  router.push(`/owner/usermanagement/users/${user.id}`)
+                }
+              >
                 View User Details
               </DropdownMenuItem>
               <DropdownMenuSeparator />

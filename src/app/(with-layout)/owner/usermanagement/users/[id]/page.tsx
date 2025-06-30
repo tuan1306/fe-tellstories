@@ -1,3 +1,6 @@
+"use client";
+
+import { UserDetails } from "@/app/types/user";
 import CardList from "@/components/CardList";
 import { EditUserSheet } from "@/components/EditUserSheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,8 +15,41 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet } from "@/components/ui/sheet";
 import { BadgeCheck } from "lucide-react";
 import Image from "next/image";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function user() {
+export default function UserPage() {
+  const { id } = useParams();
+  const [user, setUser] = useState<UserDetails | null>(null);
+
+  async function fetchUserById(id: string): Promise<UserDetails | null> {
+    try {
+      const res = await fetch(`/api/users/${id}`, {
+        method: "GET",
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        console.error("Failed to fetch user:", err.message);
+        return null;
+      }
+
+      const json = await res.json();
+      return json.data as UserDetails;
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      return null;
+    }
+  }
+
+  useEffect(() => {
+    if (typeof id === "string") {
+      fetchUserById(id).then(setUser);
+    }
+  }, [id]);
+
+  if (!user) return <div>Loading...</div>;
+
   return (
     <div className="mt-4 flex flex-col xl:flex-row gap-8">
       {/* LEFT */}
@@ -28,7 +64,10 @@ export default function user() {
               </h1>
             </div>
             <Sheet>
-              <EditUserSheet>
+              <EditUserSheet
+                user={user}
+                onSuccess={() => fetchUserById(id as string).then(setUser)}
+              >
                 <Button>Edit User</Button>
               </EditUserSheet>
             </Sheet>
@@ -37,15 +76,15 @@ export default function user() {
           <div className="space-y-3 mt-4">
             <div className="flex items-center gap-2">
               <span className="font-bold">ID:</span>
-              <span>01ceadb2-55d6-48a8-997d-5c8cc4c66d22</span>
+              <span>{user.id}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold">Email:</span>
-              <span>john.doe@gmail.com</span>
+              <span>{user.email}</span>
               <HoverCard>
                 <HoverCardTrigger>
                   <BadgeCheck
-                    size={24} // smaller icon
+                    size={24}
                     className="rounded-full bg-green-500/30 border border-green-500/50 p-1"
                   />
                 </HoverCardTrigger>
@@ -59,30 +98,27 @@ export default function user() {
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold">Phone:</span>
-              <span>+1 234 5678</span>
+              <span>{user.phoneNumber || "N/A"}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold">Location:</span>
-              <span>New York, NY</span>
+              <span className="font-bold">DOB:</span>
+              <span>{user.dob?.slice(0, 10)}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold">Role:</span>
-              <Badge>Admin</Badge>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold">Current Membership:</span>
-              <Badge>Member</Badge>
+              <Badge>{user.userType}</Badge>
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold">Status:</span>
-              <Badge>Active</Badge>
+              <Badge>{user.status}</Badge>
             </div>
           </div>
+
           <p className="text-sm text-muted-foreground mt-4">
-            Joined on 2025.01.01
+            Joined on {user.createdDate?.slice(0, 10)}
           </p>
           <p className="text-sm text-muted-foreground mt-4">
-            Updated on 2025.06.23
+            Updated on {user.updatedDate?.slice(0, 10)}
           </p>
         </div>
         {/* Card list */}
@@ -99,11 +135,18 @@ export default function user() {
         <div className="bg-primary-foreground p-4 rounded-lg space-y-2">
           <div className="flex items-start gap-4">
             <Avatar className="size-50 rounded-xl">
-              <AvatarImage src="/Goated fucking cat.png" />
-              <AvatarFallback>JN</AvatarFallback>
+              {user.avatarUrl ? (
+                <AvatarImage src={user.avatarUrl} alt="User Avatar" />
+              ) : (
+                <AvatarFallback>
+                  {user.displayName?.slice(0, 2).toUpperCase() || "NA"}
+                </AvatarFallback>
+              )}
             </Avatar>
             <div className="flex flex-col">
-              <h1 className="text-4xl mb-3 font-semibold">JermaNguyen</h1>
+              <h1 className="text-4xl mb-3 font-semibold">
+                {user.displayName}
+              </h1>
               <p className="text-sm text-muted-foreground">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                 Suspendisse porttitor justo neque, non semper odio lobortis sed.

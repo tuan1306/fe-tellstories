@@ -1,6 +1,5 @@
 export type UserDetails = {
   id: string;
-  username: string;
   displayName: string;
   email: string;
   userType: "Admin" | "User" | null;
@@ -8,4 +7,6 @@ export type UserDetails = {
   avatarUrl: string;
   phoneNumber: string | null;
   dob: string | null;
+  createdDate: string;
+  updatedDate: string;
 };
