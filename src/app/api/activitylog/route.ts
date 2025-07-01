@@ -12,7 +12,7 @@ export async function GET(
     const userId = await param.id;
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/by-id/${userId}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/ActivityLog/user-id/${userId}`,
       {
         method: "GET",
         headers: {

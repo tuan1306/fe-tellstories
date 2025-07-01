@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { addUserSchema } from "@/utils/validators/schemas";
+import { editUserSchema } from "@/utils/validators/schemas";
 import {
   Form,
   FormControl,
@@ -52,8 +52,8 @@ export function EditUserSheet({
   const [loading, setLoading] = React.useState(false);
   const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
 
-  const form = useForm<z.infer<typeof addUserSchema>>({
-    resolver: zodResolver(addUserSchema),
+  const form = useForm<z.infer<typeof editUserSchema>>({
+    resolver: zodResolver(editUserSchema),
     defaultValues: {
       email: user?.email || "",
       displayName: user?.displayName || "",
@@ -61,12 +61,11 @@ export function EditUserSheet({
       userType: user?.userType ?? "User",
       status: user?.status ?? "Active",
       phoneNumber: user?.phoneNumber || "",
-      password: "",
       dob: user?.dob ? new Date(user.dob) : new Date(),
     },
   });
 
-  async function onSubmit(values: z.infer<typeof addUserSchema>) {
+  async function onSubmit(values: z.infer<typeof editUserSchema>) {
     setLoading(true);
     try {
       let avatarUrl = user?.avatarUrl || "";
@@ -181,20 +180,6 @@ export function EditUserSheet({
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
                         <Input placeholder="0123456789" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input placeholder="●●●●●●●●●●●●●●●●" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
