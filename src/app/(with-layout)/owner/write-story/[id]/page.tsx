@@ -20,6 +20,7 @@ export default function WriteStoryPage() {
   const { id } = useParams();
   const [story, setStory] = useState<StoryEditDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [panelContents, setPanelContents] = useState<string[]>([]);
 
   const fetchStoryById = async (storyId: string) => {
     try {
@@ -30,6 +31,11 @@ export default function WriteStoryPage() {
       console.log("Data:", JSON.stringify(json, null, 2)); // Pretty-print
 
       setStory(json.data.data);
+      setPanelContents(
+        (json.data.data.panels as { content: string }[]).map(
+          (p) => p.content || ""
+        )
+      );
     } catch (err) {
       console.error("Failed to fetch story:", err);
     } finally {
@@ -42,6 +48,37 @@ export default function WriteStoryPage() {
       fetchStoryById(id);
     }
   }, [id]);
+
+  const handleSave = async () => {
+    if (!story) return;
+
+    const updatedPanels = story.panels.map((panel, i) => ({
+      ...panel,
+      content: panelContents[i] || "",
+    }));
+
+    const payload = {
+      ...story,
+      id: story.id,
+      panels: updatedPanels,
+    };
+
+    console.log("Submitting payload:", payload);
+
+    const res = await fetch("/api/stories", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      alert("Saved!");
+      fetchStoryById(story.id);
+    } else {
+      const error = await res.json();
+      alert("Failed to save: " + error.message);
+    }
+  };
 
   if (loading) return <div className="p-4">Loading...</div>;
   if (!story) return <div className="p-4">Story not found.</div>;
@@ -153,9 +190,15 @@ export default function WriteStoryPage() {
                     )}
                     <div className="flex flex-col items-center justify-center text-center min-h-32 space-y-2">
                       <Textarea
-                        defaultValue={panel.content}
+                        value={panelContents[i] ?? ""}
+                        onChange={(e) => {
+                          const newContents = [...panelContents];
+                          newContents[i] = e.target.value;
+                          setPanelContents(newContents);
+                        }}
                         placeholder="Enter panel text..."
-                        className="w-full h-[75vh] resize-none"
+                        className="panel-textarea w-full h-[75vh] resize-none"
+                        data-index={i}
                       />
                     </div>
                   </div>
@@ -164,7 +207,10 @@ export default function WriteStoryPage() {
           </ScrollArea>
 
           <div className="pt-2 border-t mt-4">
-            <Button className="w-full py-4 hover:bg-primary/90 transition">
+            <Button
+              className="w-full py-4 hover:bg-primary/90 transition"
+              onClick={handleSave}
+            >
               Save Changes
             </Button>
           </div>

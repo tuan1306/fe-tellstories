@@ -63,7 +63,11 @@ export function EditStorySheet({
       isAIGenerated: story?.isAIGenerated ?? false,
       backgroundMusicUrl: story?.backgroundMusicUrl || "",
       panels: story?.panels || [],
-      tags: story?.tags || { tagNames: [] },
+      tags: {
+        tagNames: Array.isArray(story?.tags)
+          ? story.tags.map((tag) => tag.name)
+          : story?.tags?.tagNames || [],
+      },
     },
   });
 
@@ -71,7 +75,7 @@ export function EditStorySheet({
     try {
       if (!story?.id) throw new Error("Story ID is missing");
 
-      let coverImageUrl = "";
+      let coverImageUrl = story?.coverImageUrl || "";
 
       // Docs: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects
       if (coverImageFile) {
@@ -84,12 +88,20 @@ export function EditStorySheet({
         });
 
         if (!uploadRes.ok) throw new Error("Upload failed");
+
         const uploadData = await uploadRes.json();
         coverImageUrl = uploadData.url;
+
+        form.setValue("coverImageUrl", coverImageUrl);
       }
 
+      //Bugged
+      // const uniqueTags = Array.from(
+      //   new Set(values.tags.tagNames.map((tag) => tag.trim()))
+      // );
       const payload = {
         ...values,
+        // tags: { tagNames: uniqueTags },
         coverImageUrl,
       };
 

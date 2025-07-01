@@ -97,7 +97,18 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const data = await res.json();
+    const text = await res.text();
+    console.log("Raw response text from backend:", text);
+
+    try {
+      const data = JSON.parse(text);
+      return NextResponse.json(data, { status: 200 });
+    } catch (err) {
+      return NextResponse.json(
+        { message: "Failed to parse JSON", raw: text },
+        { status: 500 }
+      );
+    }
     return NextResponse.json(data, { status: 200 });
   } catch (err) {
     console.error("PUT /api/stories error:", err);
