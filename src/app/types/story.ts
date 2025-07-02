@@ -75,6 +75,13 @@ export type StoryEditDetails = {
 export interface UserPublish {
   id: string;
   title: string;
-  coverUrl: string;
+  coverImageUrl: string;
   author: string;
+}
+
+export interface UserRecentPublish {
+  id: string;
+  title: string;
+  coverImageUrl: string;
+  ageRange: string;
 }

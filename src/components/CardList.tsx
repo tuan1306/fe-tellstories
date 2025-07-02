@@ -1,84 +1,70 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardFooter, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
+import { UserRecentPublish } from "@/app/types/story";
 
-const recentPublish = [
-  {
-    id: 1,
-    title: "To the moon",
-    badge: "Sad shit",
-    image: "/Cover/bookcover1.png",
-    count: 4300,
-  },
-  {
-    id: 2,
-    title: "Among Us",
-    badge: "Sussy shit",
-    image: "/Cover/bookcover2.png",
-    count: 3200,
-  },
-  {
-    id: 3,
-    title: "Silksong",
-    badge: "Longwaited",
-    image: "/Cover/bookcover3.png",
-    count: 2400,
-  },
-];
+const CardList = ({
+  title,
+  desc,
+  userId,
+}: {
+  title: string;
+  desc: string;
+  userId: string;
+}) => {
+  const [stories, setStories] = useState<UserRecentPublish[]>([]);
 
-const recentComment = [
-  {
-    id: 1,
-    title: "CatNumber420",
-    badge: "Basic",
-    image: "/uia cat.png",
-    count: 1400,
-  },
-  {
-    id: 2,
-    title: "CatNumber421",
-    badge: "Basic",
-    image: "/uia cat.png",
-    count: 2100,
-  },
-  {
-    id: 3,
-    title: "CatNumber422",
-    badge: "Premium",
-    image: "/uia cat.png",
-    count: 1300,
-  },
-];
+  useEffect(() => {
+    const fetchStories = async () => {
+      try {
+        const res = await fetch(`/api/stories/user/published/${userId}`);
+        const json = await res.json();
+        setStories(json.data.data || []);
+      } catch (err) {
+        console.error("Failed to fetch recent stories", err);
+      }
+    };
 
-const CardList = ({ title, desc }: { title: string; desc: string }) => {
-  const list = title === "Recent Published" ? recentPublish : recentComment;
+    fetchStories();
+  }, [userId]);
+
   return (
-    <div className="">
+    <div>
       <h1 className="text-lg font-medium">{title}</h1>
       <h1 className="text-sm font-semibold text-muted-foreground mb-3">
         {desc}
       </h1>
       <div className="flex flex-col gap-2">
-        {list.map((item) => (
+        {stories.slice(0, 3).map((story) => (
           <Card
-            key={item.id}
+            key={story.id}
             className="flex-row items-center justify-between gap-4 p-4"
           >
-            <div className="w-12 h-12 rounded-sm relative overflow-hidden">
-              <Image
-                src={item.image}
-                alt={item.title}
-                fill
-                className="object-cover"
-              />
+            <div className="relative w-12 h-12 overflow-hidden rounded-sm bg-muted flex items-center justify-center">
+              {story.coverImageUrl?.startsWith("http") ? (
+                <Image
+                  src={story.coverImageUrl}
+                  alt={story.title}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <span className="text-muted-foreground text-[10px] text-center">
+                  No Cover
+                </span>
+              )}
             </div>
+
             <CardContent className="flex-1 p-0">
-              <CardTitle className="text-sm font-medium">
-                {item.title}
+              <CardTitle className="text-sm font-medium truncate max-w-[170px]">
+                {story.title}
               </CardTitle>
-              <Badge variant="secondary">{item.badge}</Badge>
+              <Badge variant="secondary">{story.ageRange}</Badge>
             </CardContent>
-            <CardFooter className="p-0">{item.count / 1000}K</CardFooter>
+            <CardFooter className="p-0">100 views</CardFooter>
           </Card>
         ))}
       </div>

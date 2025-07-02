@@ -159,12 +159,17 @@ export default function UserPage() {
         {/* Card list */}
         <div className="bg-primary-foreground p-4 rounded-lg">
           <CardList
-            desc="This section features user recent published stories"
             title="Recent Published"
+            desc="This section features user recent published stories"
+            userId={user.id}
           />
         </div>
         <div className="bg-primary-foreground p-4 mb-5 rounded-lg">
-          <CardList desc="Placeholder" title="Recent Followers" />
+          <CardList
+            title="Top hit"
+            desc="This section features user most viewed stories"
+            userId={user.id}
+          />
         </div>
       </div>
 
