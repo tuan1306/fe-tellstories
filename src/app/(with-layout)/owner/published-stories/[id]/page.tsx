@@ -2,6 +2,7 @@
 
 import { StoryDetails } from "@/app/types/story";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   HoverCard,
   HoverCardContent,
@@ -10,6 +11,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { BadgeCheck } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -51,18 +53,25 @@ export default function StoryPage() {
   return (
     <div className="mt-4 h-[90vh] flex flex-col xl:flex-row gap-8">
       {/* Left */}
-      <div className="w-full xl:w-1/3 flex flex-col space-y-6 overflow-hidden">
-        <div className="bg-primary-foreground p-4 rounded-lg flex-1 overflow-hidden">
-          <div className="flex items-center justify-between mb-4">
+      <div className="w-full xl:w-1/3 flex flex-col overflow-hidden h-full">
+        <div className="bg-primary-foreground p-4 rounded-lg flex flex-col h-full overflow-hidden">
+          <div className="mb-4">
             <div className="w-full">
-              <h1 className="text-xl font-semibold">Story Overview</h1>
-              <h1 className="text-sm font-medium text-muted-foreground">
+              <h1 className="text-xl font-semibold">Story Details</h1>
+              <h1 className="text-sm text-muted-foreground">
                 Key details and metadata about this story
               </h1>
             </div>
+            <div className="pb-2 border-b mt-4">
+              <Link href={`/owner/write-story/${story.id}`}>
+                <Button className="w-full py-4 hover:bg-primary/90 transition cursor-pointer">
+                  Edit Story
+                </Button>
+              </Link>
+            </div>
           </div>
 
-          <ScrollArea className="h-[calc(90vh-120px)] pr-2">
+          <ScrollArea className="flex-1 min-h-0 pr-2">
             <div className="space-y-3">
               <div className="relative w-64 h-96 mx-auto overflow-hidden rounded-xl shadow-2xl">
                 {story.coverImageUrl?.startsWith("http") ? (
@@ -106,9 +115,8 @@ export default function StoryPage() {
               </div>
               <div className="flex items-start gap-2">
                 <span className="font-bold">Desc:</span>
-                <span>{story.description}</span>
+                <span>{story.description || "N/A"}</span>
               </div>
-
               <div className="flex items-center gap-2">
                 <span className="font-bold">Age range:</span>
                 <Badge>{story.ageRange}</Badge>
@@ -117,12 +125,18 @@ export default function StoryPage() {
                 <span className="font-bold">Reading level:</span>
                 <Badge>{story.readingLevel}</Badge>
               </div>
-              <p className="text-sm text-muted-foreground mt-4">
-                Joined on {story.createdDate?.slice(0, 10)}
-              </p>
-              <p className="text-sm text-muted-foreground mt-4">
-                Updated on {story.updatedAt?.slice(0, 10)}
-              </p>
+              <div className="flex items-center gap-2">
+                <span className="font-bold">Language:</span>
+                <Badge>{story.language}</Badge>
+              </div>
+              {/* <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold">Tag:</span>
+                      {story.tags?.map((tag, idx) => (
+                        <Badge key={idx} className="text-xs">
+                          {tag.name}
+                        </Badge>
+                      ))}
+                    </div> */}
             </div>
           </ScrollArea>
         </div>
@@ -146,7 +160,7 @@ export default function StoryPage() {
                     </div>
                   ) : (
                     <div className="flex items-center justify-center text-center">
-                      <p className="text-base text-muted-foreground text-center max-w-prose">
+                      <p className="text-base text-muted-foreground text-center max-w-prose whitespace-pre-line">
                         {panel.content}
                       </p>
                     </div>

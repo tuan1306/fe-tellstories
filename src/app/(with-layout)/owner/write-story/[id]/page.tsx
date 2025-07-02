@@ -15,6 +15,7 @@ import { StoryEditDetails } from "@/app/types/story";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { EditStorySheet } from "@/components/EditStorySheet";
+import Link from "next/link";
 
 export default function WriteStoryPage() {
   const { id } = useParams();
@@ -101,10 +102,15 @@ export default function WriteStoryPage() {
                 story={story}
                 onSuccess={() => fetchStoryById(id as string)}
               >
-                <Button className="w-full py-4 hover:bg-primary/90 transition">
+                <Button className="w-full py-4 hover:bg-primary/90 transition cursor-pointer">
                   Edit Metadata
                 </Button>
               </EditStorySheet>
+              <Link href={`/owner/published-stories/${story.id}`}>
+                <Button className="w-full py-4 hover:bg-primary/90 transition cursor-pointer mt-3">
+                  View Story
+                </Button>
+              </Link>
             </div>
           </div>
 
