@@ -20,7 +20,7 @@ const CardList = ({
   useEffect(() => {
     const fetchStories = async () => {
       try {
-        const res = await fetch(`/api/stories/user/published/${userId}`);
+        const res = await fetch(`/api/stories/user/recently/${userId}`);
         const json = await res.json();
         setStories(json.data.data || []);
       } catch (err) {

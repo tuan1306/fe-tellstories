@@ -11,7 +11,7 @@ export async function GET(
     const userId = await param.id;
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/recent-published/${userId}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/recently-published/${userId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -28,9 +28,10 @@ export async function GET(
     }
 
     const data = await res.json();
+
     return NextResponse.json({ data }, { status: 200 });
   } catch (err) {
-    console.error("GET /api/stories/user/published/[id]:", err);
+    console.error("GET /api/stories/user/recently/[id]:", err);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
