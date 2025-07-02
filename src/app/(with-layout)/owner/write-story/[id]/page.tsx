@@ -61,6 +61,7 @@ export default function WriteStoryPage() {
       ...story,
       id: story.id,
       panels: updatedPanels,
+      tags: { tagNames: [] },
     };
 
     console.log("Submitting payload:", payload);
@@ -149,7 +150,7 @@ export default function WriteStoryPage() {
                 <span className="font-bold">Author:</span>
                 <span>{story.author || "N/A"}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-start gap-2">
                 <span className="font-bold">Desc:</span>
                 <span>{story.description || "N/A"}</span>
               </div>
@@ -165,6 +166,14 @@ export default function WriteStoryPage() {
                 <span className="font-bold">Language:</span>
                 <Badge>{story.language}</Badge>
               </div>
+              {/* <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold">Tag:</span>
+                {story.tags?.map((tag, idx) => (
+                  <Badge key={idx} className="text-xs">
+                    {tag.name}
+                  </Badge>
+                ))}
+              </div> */}
             </div>
           </ScrollArea>
         </div>
