@@ -1,28 +1,40 @@
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const token = (await cookies()).get("authToken")?.value;
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/User`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const param = await params;
+    const userId = await param.id;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/ActivityLog/user-id/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
     if (!res.ok) {
-      const log = await res.text();
+      const error = await res.text();
       return NextResponse.json(
-        { message: "Failed to fetch users", error: log },
+        { message: "Failed to get user", error },
         { status: res.status }
       );
     }
 
     const data = await res.json();
+    console.log("Fetched activity log data:", data);
+
     return NextResponse.json(data, { status: 200 });
   } catch (err) {
-    console.error("GET - /api/users response:", err);
+    console.error("GET - /api/activitylog/[id] error:", err);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }

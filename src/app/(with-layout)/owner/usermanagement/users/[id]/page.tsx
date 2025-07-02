@@ -1,5 +1,6 @@
 "use client";
 
+import { ActivityLog } from "@/app/types/activitylog";
 import { UserDetails } from "@/app/types/user";
 import CardList from "@/components/CardList";
 import { EditUserSheet } from "@/components/EditUserSheet";
@@ -21,12 +22,11 @@ import { useEffect, useState } from "react";
 export default function UserPage() {
   const { id } = useParams();
   const [user, setUser] = useState<UserDetails | null>(null);
+  const [activity, setActivity] = useState<ActivityLog[]>([]);
 
   async function fetchUserById(id: string): Promise<UserDetails | null> {
     try {
-      const res = await fetch(`/api/users/${id}`, {
-        method: "GET",
-      });
+      const res = await fetch(`/api/users/${id}`);
 
       if (!res.ok) {
         const err = await res.json();
@@ -42,9 +42,22 @@ export default function UserPage() {
     }
   }
 
+  async function fetchUserActivity(userId: string) {
+    try {
+      const res = await fetch(`/api/activitylog/${userId}`);
+      if (!res.ok) throw new Error("Failed to fetch activity");
+      const json: { data: ActivityLog[] } = await res.json();
+      const logs = json.data.filter((log) => log.user.id === userId);
+      setActivity(logs);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   useEffect(() => {
     if (typeof id === "string") {
       fetchUserById(id).then(setUser);
+      fetchUserActivity(id);
     }
   }, [id]);
 
@@ -162,7 +175,7 @@ export default function UserPage() {
           </div>
         </div>
         {/* Funny User activity */}
-        <div className="bg-primary-foreground p-4 rounded-lg">
+        {/* <div className="bg-primary-foreground p-4 rounded-lg">
           <h1 className="text-xl font-semibold">User Activity</h1>
           <h1 className="text-sm font-semibold text-muted-foreground">
             This section records the user recent activity on the platform
@@ -202,6 +215,33 @@ export default function UserPage() {
                 15-06-2025 - JermaNguyen (system): User logged out
               </span>
             </div>
+          </div>
+        </div> */}
+
+        <div className="bg-primary-foreground p-4 rounded-lg">
+          <h1 className="text-xl font-semibold">User Activity</h1>
+          <h1 className="text-sm font-semibold text-muted-foreground">
+            This section records the user recent activity on the platform
+          </h1>
+          <div className="bg-card mt-4 p-5 rounded-lg">
+            <ScrollArea className="h-[210px] space-y-2 pr-4">
+              {activity.map((log) => (
+                <div key={log.id} className="flex items-center">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      log.action === "Comment" || log.action === "Rating"
+                        ? "bg-yellow-500"
+                        : log.action === "Publish"
+                        ? "bg-green-500"
+                        : "bg-red-500"
+                    }`}
+                  />
+                  <span className="pl-3 truncate max-w-full">
+                    {log.details}
+                  </span>
+                </div>
+              ))}
+            </ScrollArea>
           </div>
         </div>
 
