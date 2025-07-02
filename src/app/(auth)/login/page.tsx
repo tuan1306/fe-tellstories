@@ -31,7 +31,7 @@ export default function Login() {
     try {
       const validated = logInSchema.parse({ email, password });
 
-      const res = await fetch("/api/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(validated),
@@ -133,7 +133,7 @@ export default function Login() {
                   </Label>
                 </div>
                 <Link
-                  href="/forgotpassword"
+                  href="/forgot-password"
                   className="hover:underline cursor-pointer underline-offset-3"
                 >
                   Forgot password?
@@ -147,7 +147,7 @@ export default function Login() {
               )}
 
               <Button
-                className="w-55 h-18 mt-5 bg-[#395B8C] text-xl font-semibold shadow-[1px_8px_7px_rgba(0,0,0,0.5)] hover:cursor-pointer hover:bg-[#7b9bcb]"
+                className="w-55 h-18 mt-5 bg-[#395B8C] text-xl font-semibold shadow-[1px_8px_7px_rgba(0,0,0,0.5)] hover:cursor-pointer"
                 type="submit"
                 disabled={loading}
               >
