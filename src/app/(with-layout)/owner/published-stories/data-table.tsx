@@ -43,7 +43,7 @@ export default function DataTable({ stories }: { stories: StoryDetails[] }) {
                         className="object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-300 flex items-center justify-center text-sm text-gray-500">
+                      <div className="w-full h-full bg-muted flex items-center justify-center text-sm text-muted-foreground font-medium">
                         No Image
                       </div>
                     )}

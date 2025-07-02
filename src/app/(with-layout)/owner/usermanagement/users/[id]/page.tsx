@@ -17,6 +17,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet } from "@/components/ui/sheet";
 import { BadgeCheck } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -103,7 +104,7 @@ export default function UserPage() {
                 user={user}
                 onSuccess={() => fetchUserById(id as string).then(setUser)}
               >
-                <Button>Edit User</Button>
+                <Button className="cursor-pointer">Edit User</Button>
               </EditUserSheet>
             </Sheet>
           </div>
@@ -141,11 +142,31 @@ export default function UserPage() {
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold">Role:</span>
-              <Badge>{user.userType}</Badge>
+              <Badge
+                className={
+                  user.userType === "Admin"
+                    ? "bg-[#deac4a] text-white"
+                    : user.userType === "User"
+                    ? "bg-[#2F629A] text-white"
+                    : "bg-[#e06976] text-white"
+                }
+              >
+                {user.userType || "Unknown"}
+              </Badge>
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold">Status:</span>
-              <Badge>{user.status}</Badge>
+              <Badge
+                className={
+                  user.status === "Active"
+                    ? "bg-green-500 text-white"
+                    : user.status === "Disabled"
+                    ? "bg-yellow-500 text-white"
+                    : "bg-[#e06976] text-white"
+                }
+              >
+                {user.status || "Unknown"}
+              </Badge>{" "}
             </div>
           </div>
 
@@ -299,7 +320,11 @@ export default function UserPage() {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
                     {stories.map((story) => (
-                      <div key={story.id} className="space-y-2">
+                      <Link
+                        href={`/owner/published-stories/${story.id}`}
+                        key={story.id}
+                        className="space-y-2 block hover:opacity-80 transition"
+                      >
                         <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl bg-muted flex items-center justify-center">
                           {story.coverImageUrl?.startsWith("http") ? (
                             <Image
@@ -314,12 +339,13 @@ export default function UserPage() {
                             </span>
                           )}
                         </div>
-
                         <h1 className="text-sm font-semibold text-muted-foreground">
                           {story.author}
                         </h1>
-                        <h1 className="text-xl font-semibold">{story.title}</h1>
-                      </div>
+                        <h1 className="text-xl font-semibold truncate">
+                          {story.title}
+                        </h1>
+                      </Link>
                     ))}
                   </div>
                 )}

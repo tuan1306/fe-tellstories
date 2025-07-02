@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardFooter, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { UserRecentPublish } from "@/app/types/story";
+import Link from "next/link";
 
 const CardList = ({
   title,
@@ -38,35 +39,40 @@ const CardList = ({
         {desc}
       </h1>
       <div className="flex flex-col gap-2">
-        {stories.slice(0, 3).map((story) => (
-          <Card
-            key={story.id}
-            className="flex-row items-center justify-between gap-4 p-4"
-          >
-            <div className="relative w-12 h-12 overflow-hidden rounded-sm bg-muted flex items-center justify-center">
-              {story.coverImageUrl?.startsWith("http") ? (
-                <Image
-                  src={story.coverImageUrl}
-                  alt={story.title}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <span className="text-muted-foreground text-[10px] text-center">
-                  No Cover
-                </span>
-              )}
-            </div>
+        {stories.length === 0 ? (
+          <div className="text-muted-foreground text-sm text-center py-15 bg-card font-medium">
+            No recent stories
+          </div>
+        ) : (
+          stories.slice(0, 3).map((story) => (
+            <Link href={`/owner/published-stories/${story.id}`} key={story.id}>
+              <Card className="flex-row items-center justify-between gap-4 p-4">
+                <div className="relative w-12 h-12 overflow-hidden rounded-sm bg-muted flex items-center justify-center">
+                  {story.coverImageUrl?.startsWith("http") ? (
+                    <Image
+                      src={story.coverImageUrl}
+                      alt={story.title}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="text-muted-foreground text-[10px] text-center">
+                      No Cover
+                    </span>
+                  )}
+                </div>
 
-            <CardContent className="flex-1 p-0">
-              <CardTitle className="text-sm font-medium truncate max-w-[170px]">
-                {story.title}
-              </CardTitle>
-              <Badge variant="secondary">{story.ageRange}</Badge>
-            </CardContent>
-            <CardFooter className="p-0">100 views</CardFooter>
-          </Card>
-        ))}
+                <CardContent className="flex-1 p-0">
+                  <CardTitle className="text-sm font-medium truncate max-w-[170px]">
+                    {story.title}
+                  </CardTitle>
+                  <Badge variant="secondary">{story.ageRange}</Badge>
+                </CardContent>
+                <CardFooter className="p-0">100 views</CardFooter>
+              </Card>
+            </Link>
+          ))
+        )}
       </div>
     </div>
   );
