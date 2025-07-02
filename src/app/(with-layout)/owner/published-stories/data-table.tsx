@@ -26,14 +26,25 @@ export default function DataTable({ stories }: { stories: StoryDetails[] }) {
       />
 
       <div className="bg-card mt-4 p-5 rounded-lg h-[80vh]">
-        <ScrollArea className="w-full h-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
-            {filtered.map((story) => (
-              <Link
-                key={story.id}
-                href={`/owner/published-stories/${story.id}`}
-              >
-                <div className="space-y-2 cursor-pointer hover:opacity-90 transition">
+        {filtered.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4 animate-pulse">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="w-full aspect-[2/3] bg-muted rounded-xl" />
+                <div className="h-4 bg-muted rounded w-1/2" />
+                <div className="h-6 bg-muted rounded w-2/3" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <ScrollArea className="w-full h-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
+              {filtered.map((story) => (
+                <Link
+                  key={story.id}
+                  href={`/owner/write-story/${story.id}`}
+                  className="space-y-2 cursor-pointer hover:opacity-90 transition"
+                >
                   <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
                     {story.coverImageUrl?.startsWith("http") ? (
                       <Image
@@ -52,11 +63,11 @@ export default function DataTable({ stories }: { stories: StoryDetails[] }) {
                     {story.author || "Unknown Author"}
                   </h1>
                   <h1 className="text-xl font-semibold">{story.title}</h1>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </ScrollArea>
+                </Link>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
       </div>
     </div>
   );

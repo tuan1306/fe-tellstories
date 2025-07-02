@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PlusCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,19 +12,32 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { StoryDetails } from "@/app/types/story";
+import Link from "next/link";
 
 export default function DataTable() {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userStories, setUserStories] = useState<StoryDetails[]>([]);
+
   const router = useRouter();
 
-  const placeholderStories = [
-    { id: "new-1", title: "Add New Story", author: "Admin" },
-  ];
+  useEffect(() => {
+    fetch("/api/stories/user/published/46dcf0ac-19d2-4529-9834-20250580220b")
+      .then((res) => res.json())
+      .then((json) => {
+        const stories = Array.isArray(json.data)
+          ? json.data
+          : json.data?.data || [];
+        setUserStories(stories);
+      })
+      .catch((err) => console.error("Fetch error:", err));
+  }, []);
 
-  const filtered = placeholderStories.filter(
+  const filtered = userStories.filter(
     (story) =>
       story.title.toLowerCase().includes(search.toLowerCase()) ||
       (story.author || "").toLowerCase().includes(search.toLowerCase())
@@ -93,7 +106,7 @@ export default function DataTable() {
 
   return (
     <div className="space-y-4 mt-4">
-      <input
+      <Input
         type="text"
         placeholder="Search title or author"
         value={search}
@@ -102,11 +115,21 @@ export default function DataTable() {
       />
 
       <div className="bg-card mt-4 p-5 rounded-lg h-[80vh]">
-        <ScrollArea className="w-full h-full">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
-            {filtered.map((story) => (
+        {userStories.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4 animate-pulse">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="w-full aspect-[2/3] bg-muted rounded-xl" />
+                <div className="h-4 bg-muted rounded w-1/2" />
+                <div className="h-6 bg-muted rounded w-2/3" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <ScrollArea className="w-full h-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
+              {/* Add New Story Card */}
               <div
-                key={story.id}
                 onClick={() => setOpen(true)}
                 className="space-y-2 cursor-pointer hover:opacity-90 transition"
               >
@@ -114,16 +137,44 @@ export default function DataTable() {
                   <PlusCircle className="w-10 h-10 text-primary" />
                 </div>
                 <h1 className="text-sm font-semibold text-muted-foreground">
-                  {story.author}
+                  Super Admin
                 </h1>
-                <h1 className="text-xl font-semibold">{story.title}</h1>
+                <h1 className="text-xl font-semibold">Add New Story</h1>
               </div>
-            ))}
-          </div>
-        </ScrollArea>
+
+              {/* Actual stories */}
+              {filtered.map((story) => (
+                <Link
+                  key={story.id}
+                  href={`/owner/write-story/${story.id}`}
+                  className="space-y-2 cursor-pointer hover:opacity-90 transition"
+                >
+                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
+                    {story.coverImageUrl?.startsWith("http") ? (
+                      <Image
+                        src={story.coverImageUrl}
+                        alt={story.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center text-sm text-muted-foreground font-medium">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                  <h1 className="text-sm font-semibold text-muted-foreground">
+                    {story.author || "Unknown Author"}
+                  </h1>
+                  <h1 className="text-xl font-semibold">{story.title}</h1>
+                </Link>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
       </div>
 
-      {/* Create story title confirmation */}
+      {/* Create story dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
