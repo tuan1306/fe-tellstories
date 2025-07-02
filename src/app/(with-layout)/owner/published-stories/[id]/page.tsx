@@ -104,10 +104,11 @@ export default function StoryPage() {
                 <span className="font-bold">Author:</span>
                 <span>{story.author || "N/A"}</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-start gap-2">
                 <span className="font-bold">Desc:</span>
-                <span>{story.description?.slice(0, 10)}</span>
+                <span>{story.description}</span>
               </div>
+
               <div className="flex items-center gap-2">
                 <span className="font-bold">Age range:</span>
                 <Badge>{story.ageRange}</Badge>
@@ -129,12 +130,12 @@ export default function StoryPage() {
 
       {/* Right */}
       <div className="w-full xl:w-2/3 flex flex-col space-y-4 overflow-hidden">
-        <div className="bg-primary-foreground p-4 rounded-lg flex-1 flex flex-col overflow-hidden">
-          <ScrollArea className="flex-1 space-y-6 pr-2">
-            <div className="space-y-3">
+        <div className="bg-primary-foreground p-4 rounded-lg flex flex-col h-[90vh]">
+          <ScrollArea className="flex-1 pr-2 h-[405px]">
+            <div className="space-y-6">
               {story.panels.map((panel, i) => (
                 <div key={i} className="space-y-2">
-                  {panel.imageUrl && (
+                  {panel.imageUrl ? (
                     <div className="w-full h-60 relative rounded-md overflow-hidden shadow-md">
                       <Image
                         src={panel.imageUrl}
@@ -143,8 +144,7 @@ export default function StoryPage() {
                         className="object-cover"
                       />
                     </div>
-                  )}
-                  {!panel.imageUrl && panel.content && (
+                  ) : (
                     <div className="flex items-center justify-center text-center">
                       <p className="text-base text-muted-foreground text-center max-w-prose">
                         {panel.content}
@@ -156,7 +156,8 @@ export default function StoryPage() {
             </div>
           </ScrollArea>
 
-          <div className="pt-4 border-t mt-4">
+          {/* Fixed Audio Player */}
+          <div className="pt-4 border-t mt-4 shrink-0">
             <div className="w-full h-14 bg-gray-200 rounded-md flex items-center justify-center text-muted-foreground">
               Audio Player Here
             </div>

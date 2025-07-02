@@ -68,7 +68,8 @@ export default function UserPage() {
       const res = await fetch(`/api/stories/user/published/${userId}`);
       if (!res.ok) throw new Error("Failed to fetch stories");
       const json = await res.json();
-      setStories(json.data);
+      console.log(json);
+      setStories(json.data.data);
     } catch (err) {
       console.error(err);
     }
@@ -294,16 +295,23 @@ export default function UserPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
                     {stories.map((story) => (
                       <div key={story.id} className="space-y-2">
-                        <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
-                          <Image
-                            src={story.coverUrl || "/default-cover.jpg"}
-                            alt={story.title}
-                            fill
-                            className="object-cover"
-                          />
+                        <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl bg-muted flex items-center justify-center">
+                          {story.coverImageUrl?.startsWith("http") ? (
+                            <Image
+                              src={story.coverImageUrl}
+                              alt={story.title}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <span className="text-muted-foreground text-sm font-medium">
+                              No Cover
+                            </span>
+                          )}
                         </div>
+
                         <h1 className="text-sm font-semibold text-muted-foreground">
-                          {story.author.displayName}
+                          {story.author}
                         </h1>
                         <h1 className="text-xl font-semibold">{story.title}</h1>
                       </div>

@@ -76,7 +76,5 @@ export interface UserPublish {
   id: string;
   title: string;
   coverUrl: string;
-  author: {
-    displayName: string;
-  };
+  author: string;
 }
