@@ -1,27 +1,88 @@
-import { cookies } from "next/headers";
-import DataTable from "./data-table";
+"use client";
+
+import { useEffect, useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import Image from "next/image";
 import { StoryDetails } from "@/app/types/story";
+import Link from "next/link";
 
-export const getData = async (): Promise<StoryDetails[]> => {
-  const cookie = await cookies();
-  const cookieToken = cookie.toString();
+export default function DataTable() {
+  const [search, setSearch] = useState("");
+  const [userStories, setUserStories] = useState<StoryDetails[]>([]);
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/stories`, {
-    cache: "no-cache",
-    headers: {
-      Cookie: cookieToken,
-    },
-  });
+  useEffect(() => {
+    fetch("/api/stories/")
+      .then((res) => res.json())
+      .then((json) => {
+        const stories = Array.isArray(json.data)
+          ? json.data
+          : json.data?.data || [];
+        setUserStories(stories);
+      })
+      .catch((err) => console.error("Fetch error:", err));
+  }, []);
 
-  if (!res.ok) throw new Error("Failed to fetch users");
+  const filtered = userStories.filter(
+    (story) =>
+      story.title.toLowerCase().includes(search.toLowerCase()) ||
+      (story.author || "").toLowerCase().includes(search.toLowerCase())
+  );
 
-  const json = await res.json();
-  const fullData: StoryDetails[] = json.data;
+  return (
+    <div className="space-y-4 mt-4">
+      <Input
+        type="text"
+        placeholder="Search title or author"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="px-4 py-2 border rounded w-full"
+      />
 
-  return fullData;
-};
-
-export default async function Page() {
-  const stories = await getData();
-  return <DataTable stories={stories} />;
+      <div className="bg-card mt-4 p-5 rounded-lg h-[80vh]">
+        {userStories.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4 animate-pulse">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="w-full aspect-[2/3] bg-muted rounded-xl" />
+                <div className="h-4 bg-muted rounded w-1/2" />
+                <div className="h-6 bg-muted rounded w-2/3" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <ScrollArea className="w-full h-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
+              {filtered.map((story) => (
+                <Link
+                  key={story.id}
+                  href={`/owner/published-stories/${story.id}`}
+                  className="space-y-2 cursor-pointer hover:opacity-90 transition"
+                >
+                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
+                    {story.coverImageUrl?.startsWith("http") ? (
+                      <Image
+                        src={story.coverImageUrl}
+                        alt={story.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center text-sm text-muted-foreground font-medium">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                  <h1 className="text-sm font-semibold text-muted-foreground">
+                    {story.author || "Unknown Author"}
+                  </h1>
+                  <h1 className="text-xl font-semibold">{story.title}</h1>
+                </Link>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+      </div>
+    </div>
+  );
 }
