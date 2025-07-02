@@ -1,6 +1,7 @@
 "use client";
 
 import { ActivityLog } from "@/app/types/activitylog";
+import { UserPublish } from "@/app/types/story";
 import { UserDetails } from "@/app/types/user";
 import CardList from "@/components/CardList";
 import { EditUserSheet } from "@/components/EditUserSheet";
@@ -23,6 +24,7 @@ export default function UserPage() {
   const { id } = useParams();
   const [user, setUser] = useState<UserDetails | null>(null);
   const [activity, setActivity] = useState<ActivityLog[]>([]);
+  const [stories, setStories] = useState<UserPublish[]>([]);
 
   async function fetchUserById(id: string): Promise<UserDetails | null> {
     try {
@@ -58,6 +60,25 @@ export default function UserPage() {
     if (typeof id === "string") {
       fetchUserById(id).then(setUser);
       fetchUserActivity(id);
+    }
+  }, [id]);
+
+  async function fetchPublishedStories(userId: string) {
+    try {
+      const res = await fetch(`/api/stories/user/published/${userId}`);
+      if (!res.ok) throw new Error("Failed to fetch stories");
+      const json = await res.json();
+      setStories(json.data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  useEffect(() => {
+    if (typeof id === "string") {
+      fetchUserById(id).then(setUser);
+      fetchUserActivity(id);
+      fetchPublishedStories(id); // 👈 Add this line
     }
   }, [id]);
 
@@ -136,10 +157,13 @@ export default function UserPage() {
         </div>
         {/* Card list */}
         <div className="bg-primary-foreground p-4 rounded-lg">
-          <CardList title="Recent Published" />
+          <CardList
+            desc="This section features user recent published stories"
+            title="Recent Published"
+          />
         </div>
         <div className="bg-primary-foreground p-4 mb-5 rounded-lg">
-          <CardList title="Recent Followers" />
+          <CardList desc="Placeholder" title="Recent Followers" />
         </div>
       </div>
 
@@ -218,29 +242,36 @@ export default function UserPage() {
           </div>
         </div> */}
 
+        {/* May have room for filtering by day. */}
         <div className="bg-primary-foreground p-4 rounded-lg">
           <h1 className="text-xl font-semibold">User Activity</h1>
           <h1 className="text-sm font-semibold text-muted-foreground">
             This section records the user recent activity on the platform
           </h1>
           <div className="bg-card mt-4 p-5 rounded-lg">
-            <ScrollArea className="h-[210px] space-y-2 pr-4">
-              {activity.map((log) => (
-                <div key={log.id} className="flex items-center">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      log.action === "Comment" || log.action === "Rating"
-                        ? "bg-yellow-500"
-                        : log.action === "Publish"
-                        ? "bg-green-500"
-                        : "bg-red-500"
-                    }`}
-                  />
-                  <span className="pl-3 truncate max-w-full">
-                    {log.details}
-                  </span>
+            <ScrollArea className="h-[170px] space-y-2 pr-4">
+              {activity.length === 0 ? (
+                <div className="h-[170px] flex items-center justify-center text-muted-foreground">
+                  This user has no recent activity.
                 </div>
-              ))}
+              ) : (
+                activity.map((log) => (
+                  <div key={log.id} className="flex items-center">
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        log.action === "Comment" || log.action === "Rating"
+                          ? "bg-yellow-500"
+                          : log.action === "Publish"
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                      }`}
+                    />
+                    <span className="pl-3 truncate max-w-full">
+                      {log.details}
+                    </span>
+                  </div>
+                ))
+              )}
             </ScrollArea>
           </div>
         </div>
@@ -255,88 +286,30 @@ export default function UserPage() {
           <div className="mt-4">
             <div className="bg-card mt-4 p-5 rounded-lg">
               <ScrollArea className="w-full h-[405px]">
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
-                  <div className="space-y-2">
-                    <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
-                      <Image
-                        src="/Cover/Cover2.jpg"
-                        alt=""
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <h1 className="text-sm font-semibold text-muted-foreground">
-                      JermaNguyen
-                    </h1>
-                    <h1 className="text-xl font-semibold">
-                      Beyond the Ocean Floor
-                    </h1>
+                {stories.length === 0 ? (
+                  <div className="h-[405px] flex items-center justify-center text-muted-foreground">
+                    This user hasn’t published any stories yet.
                   </div>
-
-                  <div className="space-y-2">
-                    <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
-                      <Image
-                        src="/Cover/Cover3.jpg"
-                        alt=""
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <h1 className="text-sm font-semibold text-muted-foreground">
-                      JermaNguyen
-                    </h1>
-                    <h1 className="text-xl font-semibold">The Secret Garden</h1>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
+                    {stories.map((story) => (
+                      <div key={story.id} className="space-y-2">
+                        <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
+                          <Image
+                            src={story.coverUrl || "/default-cover.jpg"}
+                            alt={story.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <h1 className="text-sm font-semibold text-muted-foreground">
+                          {story.author.displayName}
+                        </h1>
+                        <h1 className="text-xl font-semibold">{story.title}</h1>
+                      </div>
+                    ))}
                   </div>
-
-                  <div className="space-y-2">
-                    <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
-                      <Image
-                        src="/Cover/Cover4.jpg"
-                        alt=""
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <h1 className="text-sm font-semibold text-muted-foreground">
-                      JermaNguyen
-                    </h1>
-                    <h1 className="text-xl font-semibold">
-                      Hungry For Her Wolves
-                    </h1>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
-                      <Image
-                        src="/Cover/Cover5.jpg"
-                        alt=""
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <h1 className="text-sm font-semibold text-muted-foreground">
-                      JermaNguyen
-                    </h1>
-                    <h1 className="text-xl font-semibold">Greenthumb poppy</h1>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
-                      <Image
-                        src="/Cover/Cover6.jpg"
-                        alt=""
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <h1 className="text-sm font-semibold text-muted-foreground">
-                      JermaNguyen
-                    </h1>
-                    <h1 className="text-xl font-semibold">
-                      The story of a little frog
-                    </h1>
-                  </div>
-                </div>
+                )}
               </ScrollArea>
             </div>
           </div>

@@ -50,11 +50,14 @@ const recentComment = [
   },
 ];
 
-const CardList = ({ title }: { title: string }) => {
+const CardList = ({ title, desc }: { title: string; desc: string }) => {
   const list = title === "Recent Published" ? recentPublish : recentComment;
   return (
     <div className="">
-      <h1 className="text-lg font-medium mb-6">{title}</h1>
+      <h1 className="text-lg font-medium">{title}</h1>
+      <h1 className="text-sm font-semibold text-muted-foreground mb-3">
+        {desc}
+      </h1>
       <div className="flex flex-col gap-2">
         {list.map((item) => (
           <Card

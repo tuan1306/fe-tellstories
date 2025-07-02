@@ -69,3 +69,14 @@ export type StoryEditDetails = {
     tagNames: string[];
   };
 };
+
+// User
+
+export interface UserPublish {
+  id: string;
+  title: string;
+  coverUrl: string;
+  author: {
+    displayName: string;
+  };
+}
