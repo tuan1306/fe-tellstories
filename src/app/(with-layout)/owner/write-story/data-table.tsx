@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import WritingAnimation from "@/components/misc/animated-icons/Writing";
 
 export default function DataTable() {
   const [search, setSearch] = useState("");
@@ -279,59 +280,66 @@ export default function DataTable() {
             </div>
           )}
 
-          {mode === "manual" && (
-            <>
-              <Input
-                placeholder="Story title..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <Button
-                className="w-full"
-                disabled={!title || loading}
-                onClick={handleCreate}
-              >
-                {loading ? "Creating..." : "Create Manually"}
-              </Button>
-            </>
-          )}
+          {mode === "manual" &&
+            (loading ? (
+              <div className="flex justify-center items-center h-40">
+                <WritingAnimation />
+              </div>
+            ) : (
+              <>
+                <Input
+                  placeholder="Story title..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+                <Button
+                  className="w-full"
+                  disabled={!title}
+                  onClick={handleCreate}
+                >
+                  Create Manually
+                </Button>
+              </>
+            ))}
 
-          {mode === "ai" && (
-            <>
-              <Input
-                placeholder="Story title..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+          {mode === "ai" &&
+            (loading ? (
+              <div className="flex justify-center items-center h-40">
+                <WritingAnimation />
+              </div>
+            ) : (
+              <>
+                <Input
+                  placeholder="Story title..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
 
-              <Textarea
-                className="w-full h-40"
-                placeholder="Describe what the story should be about..."
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-              />
+                <Textarea
+                  className="w-full h-40"
+                  placeholder="Describe what the story should be about..."
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                />
 
-              <Select value={ageRange} onValueChange={setAgeRange}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select age range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1-3">1-3</SelectItem>
-                  <SelectItem value="3-5">3-5</SelectItem>
-                  <SelectItem value="5-8">5-8</SelectItem>
-                  <SelectItem value="8-10">8-10</SelectItem>
-                  <SelectItem value="10+">10+</SelectItem>
-                </SelectContent>
-              </Select>
+                <Select value={ageRange} onValueChange={setAgeRange}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select age range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1-3">1-3</SelectItem>
+                    <SelectItem value="3-5">3-5</SelectItem>
+                    <SelectItem value="5-8">5-8</SelectItem>
+                    <SelectItem value="8-10">8-10</SelectItem>
+                    <SelectItem value="10+">10+</SelectItem>
+                  </SelectContent>
+                </Select>
 
-              <Button
-                disabled={!title || !prompt || loading}
-                onClick={handleAIGenerate}
-              >
-                {loading ? "Generating..." : "Generate with AI"}
-              </Button>
-            </>
-          )}
+                <Button disabled={!prompt} onClick={handleAIGenerate}>
+                  Generate with AI
+                </Button>
+              </>
+            ))}
         </DialogContent>
       </Dialog>
     </div>

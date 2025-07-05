@@ -32,6 +32,7 @@ import {
 import React from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { StoryEditDetails } from "@/app/types/story";
+import { Textarea } from "./ui/textarea";
 
 export function EditStorySheet({
   children,
@@ -198,7 +199,7 @@ export function EditStorySheet({
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Input placeholder="A tale about..." {...field} />
+                        <Textarea placeholder="A tale about..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
