@@ -15,6 +15,14 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { StoryDetails } from "@/app/types/story";
 import Link from "next/link";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function DataTable() {
   const [search, setSearch] = useState("");
@@ -22,6 +30,9 @@ export default function DataTable() {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [userStories, setUserStories] = useState<StoryDetails[]>([]);
+  const [prompt, setPrompt] = useState("");
+  const [mode, setMode] = useState<"manual" | "ai" | null>(null);
+  const [ageRange, setAgeRange] = useState<string | undefined>(undefined);
 
   const router = useRouter();
 
@@ -43,6 +54,7 @@ export default function DataTable() {
       (story.author || "").toLowerCase().includes(search.toLowerCase())
   );
 
+  // Manual
   const handleCreate = async () => {
     setLoading(true);
     try {
@@ -104,6 +116,68 @@ export default function DataTable() {
     }
   };
 
+  // AI voodoo
+  const handleAIGenerate = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/stories/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider: "Gemini",
+          prompt: prompt,
+          options: {
+            temperature: 0.8,
+            topP: 0.9,
+            topK: 30,
+            stopSequences: [],
+            seed: 123,
+            additionalSystemInstruction: `Generate a story suitable for children aged ${ageRange} with the given title.`,
+          },
+        }),
+      });
+
+      const json = await res.json();
+      const newStory = json.data?.[0];
+
+      const createRes = await fetch("/api/stories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...newStory,
+          title,
+          isAIGenerated: true,
+          isDraft: true,
+          panels: [
+            {
+              panelNumber: 1,
+              content: newStory.content,
+              imageUrl: "",
+              audioUrl: "",
+              isEndPanel: false,
+              languageCode: "en",
+            },
+          ],
+          tags: { tagNames: newStory.tags || [] },
+          coverImageUrl: "",
+          language: "ENG",
+          author: "Super Admin",
+        }),
+      });
+
+      const result = await createRes.json();
+      const newId = result?.data?.id;
+      if (!newId) throw new Error("Story creation failed");
+
+      setOpen(false);
+      router.push(`/owner/write-story/${newId}`);
+    } catch (error) {
+      console.error("AI generate error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-4 mt-4">
       <Input
@@ -128,7 +202,6 @@ export default function DataTable() {
         ) : (
           <ScrollArea className="w-full h-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
-              {/* Add New Story Card */}
               <div
                 onClick={() => setOpen(true)}
                 className="space-y-2 cursor-pointer hover:opacity-90 transition"
@@ -142,7 +215,6 @@ export default function DataTable() {
                 <h1 className="text-xl font-semibold">Add New Story</h1>
               </div>
 
-              {/* Actual stories */}
               {filtered.map((story) => (
                 <Link
                   key={story.id}
@@ -174,20 +246,92 @@ export default function DataTable() {
         )}
       </div>
 
-      {/* Create story dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(val) => {
+          setOpen(val);
+          if (!val) {
+            setMode(null);
+            setTitle("");
+            setPrompt("");
+          }
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Create New Story</DialogTitle>
           </DialogHeader>
-          <Input
-            placeholder="Story title..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-          <Button onClick={handleCreate} disabled={!title || loading}>
-            {loading ? "Creating..." : "Create and Continue"}
-          </Button>
+
+          {!mode && (
+            <div className="justify-between gap-2 space-y-2">
+              <Button
+                className="w-full cursor-pointer"
+                onClick={() => setMode("manual")}
+              >
+                Manual
+              </Button>
+              <Button
+                className="w-full cursor-pointer"
+                onClick={() => setMode("ai")}
+              >
+                AI Generate
+              </Button>
+            </div>
+          )}
+
+          {mode === "manual" && (
+            <>
+              <Input
+                placeholder="Story title..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <Button
+                className="w-full"
+                disabled={!title || loading}
+                onClick={handleCreate}
+              >
+                {loading ? "Creating..." : "Create Manually"}
+              </Button>
+            </>
+          )}
+
+          {mode === "ai" && (
+            <>
+              <Input
+                placeholder="Story title..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+
+              <Textarea
+                className="w-full h-40"
+                placeholder="Describe what the story should be about..."
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+              />
+
+              <Select value={ageRange} onValueChange={setAgeRange}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select age range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1-3">1-3</SelectItem>
+                  <SelectItem value="3-5">3-5</SelectItem>
+                  <SelectItem value="5-8">5-8</SelectItem>
+                  <SelectItem value="8-10">8-10</SelectItem>
+                  <SelectItem value="10+">10+</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Button
+                disabled={!title || !prompt || loading}
+                onClick={handleAIGenerate}
+              >
+                {loading ? "Generating..." : "Generate with AI"}
+              </Button>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

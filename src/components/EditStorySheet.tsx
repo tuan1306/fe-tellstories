@@ -78,8 +78,6 @@ export function EditStorySheet({
 
   async function onSubmit(values: z.infer<typeof addStorySchema>) {
     try {
-      if (!story?.id) throw new Error("Story ID is missing");
-
       let coverImageUrl = story?.coverImageUrl || "";
 
       // Docs: https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest_API/Using_FormData_Objects
@@ -99,6 +97,8 @@ export function EditStorySheet({
 
         form.setValue("coverImageUrl", coverImageUrl);
       }
+
+      if (!story?.id) throw new Error("Story ID is missing");
 
       const payload = {
         ...values,
@@ -252,7 +252,7 @@ export function EditStorySheet({
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Select age range" />
                           </SelectTrigger>
                         </FormControl>
