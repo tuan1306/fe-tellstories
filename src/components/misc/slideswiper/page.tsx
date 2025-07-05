@@ -1,37 +1,71 @@
 "use client";
 
-import React from "react";
-import "./swiper.css";
+import { useRef, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay } from "swiper/modules";
-import { SwiperOptions } from "swiper/types";
+import { Pagination, Navigation } from "swiper/modules";
+import { Textarea } from "@/components/ui/textarea";
 import "swiper/css";
 import "swiper/css/pagination";
+import "swiper/css/navigation";
+
+import { PanelSwiperProps } from "@/app/types/panel";
+import { SwiperOptions } from "swiper/types";
+import type { Swiper as SwiperType } from "swiper";
+import Image from "next/image";
 
 const swiperParams: SwiperOptions = {
   slidesPerView: 1,
   speed: 600,
-  preventClicks: true,
-  autoplay: {
-    delay: 3000,
-    disableOnInteraction: false,
+  pagination: {
+    type: "fraction",
   },
-  pagination: { clickable: true },
-  modules: [Pagination, Autoplay],
+  navigation: true,
+  modules: [Pagination, Navigation],
 };
 
-export default function ImageSwiper() {
+export default function PanelSwiper({
+  panels,
+  panelContents,
+  setPanelContents,
+}: PanelSwiperProps) {
+  const swiperRef = useRef<SwiperType | null>(null);
+
+  // Update Swiper layout when panels change
+  useEffect(() => {
+    swiperRef.current?.update();
+  }, [panels]);
+
   return (
     <Swiper
       {...swiperParams}
-      className="w-full h-full rounded-xl overflow-hidden cursor-grab active:cursor-grabbing"
+      className="w-full h-full rounded-xl overflow-hidden"
     >
-      <SwiperSlide>
-        <div className="relative w-full h-full">Hello World 1</div>
-        <div className="relative w-full h-full">Hello World 2</div>
-        <div className="relative w-full h-full">Hello World 3</div>
-        <div className="relative w-full h-full">Hello World 4</div>
-      </SwiperSlide>
+      {panels.map((panel, i) => (
+        <SwiperSlide key={i} className="flex justify-center items-center px-2">
+          <div className="w-full max-w-2xl mx-auto space-y-4">
+            {panel.imageUrl && (
+              <div className="w-full h-60 relative rounded-md overflow-hidden shadow-md">
+                <Image
+                  src={panel.imageUrl}
+                  alt={`Panel ${i + 1}`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <Textarea
+              value={panelContents[i] ?? ""}
+              onChange={(e) => {
+                const newContents = [...panelContents];
+                newContents[i] = e.target.value;
+                setPanelContents(newContents);
+              }}
+              placeholder="Enter panel text..."
+              className="w-full resize-none h-[60vh]"
+            />
+          </div>
+        </SwiperSlide>
+      ))}
     </Swiper>
   );
 }

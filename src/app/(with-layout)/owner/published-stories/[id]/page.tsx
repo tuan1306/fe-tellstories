@@ -3,13 +3,7 @@
 import { StoryDetails } from "@/app/types/story";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BadgeCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -94,20 +88,6 @@ export default function StoryPage() {
               <div className="flex items-center gap-2">
                 <span className="font-bold">Title:</span>
                 <span>{story.title}</span>
-                <HoverCard>
-                  <HoverCardTrigger>
-                    <BadgeCheck
-                      size={24}
-                      className="rounded-full bg-green-500/30 border border-green-500/50 p-1"
-                    />
-                  </HoverCardTrigger>
-                  <HoverCardContent>
-                    <h1 className="font-bold mb-2">Verified User</h1>
-                    <p className="text-sm text-muted-foreground">
-                      This user has verified their email account.
-                    </p>
-                  </HoverCardContent>
-                </HoverCard>
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-bold">Author:</span>

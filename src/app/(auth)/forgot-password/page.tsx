@@ -31,8 +31,30 @@ export default function ForgotPasswordPage() {
   const [otpVerified, setOtpVerified] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
 
   const router = useRouter();
+
+  async function handleResendCode() {
+    setErr("");
+    setResendLoading(true);
+    try {
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        setErr(error.message || "Failed to resend code.");
+      }
+    } catch {
+      setErr("Something went wrong while resending code.");
+    } finally {
+      setResendLoading(false);
+    }
+  }
 
   useEffect(() => {
     if (otp.length === 6) {
@@ -251,6 +273,18 @@ export default function ForgotPasswordPage() {
                     {loading && <Loader2Icon className="animate-spin mr-2" />}
                     {otpVerified ? "Reset Password" : "Request Email"}
                   </Button>
+
+                  {showOtp && !otpVerified && (
+                    <Button
+                      variant="ghost"
+                      className="text-sm underline text-white"
+                      onClick={handleResendCode}
+                      disabled={loading}
+                      type="button"
+                    >
+                      {resendLoading ? "Resending..." : "Resend Code"}
+                    </Button>
+                  )}
                 </CardFooter>
               </Card>
             </form>

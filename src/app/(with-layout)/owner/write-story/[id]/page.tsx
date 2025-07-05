@@ -4,18 +4,13 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BadgeCheck } from "lucide-react";
 import { StoryEditDetails } from "@/app/types/story";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { EditStorySheet } from "@/components/EditStorySheet";
 import Link from "next/link";
+import PanelSwiper from "@/components/misc/slideswiper/page";
+import { Plus } from "lucide-react";
 
 export default function WriteStoryPage() {
   const { id } = useParams();
@@ -135,24 +130,6 @@ export default function WriteStoryPage() {
                 <span>{story.id}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold">Title:</span>
-                <span>{story.title}</span>
-                <HoverCard>
-                  <HoverCardTrigger>
-                    <BadgeCheck
-                      size={24}
-                      className="rounded-full bg-green-500/30 border border-green-500/50 p-1"
-                    />
-                  </HoverCardTrigger>
-                  <HoverCardContent>
-                    <h1 className="font-bold mb-2">Verified User</h1>
-                    <p className="text-sm text-muted-foreground">
-                      This user has verified their email account.
-                    </p>
-                  </HoverCardContent>
-                </HoverCard>
-              </div>
-              <div className="flex items-center gap-2">
                 <span className="font-bold">Author:</span>
                 <span>{story.author || "N/A"}</span>
               </div>
@@ -186,49 +163,51 @@ export default function WriteStoryPage() {
       </div>
 
       {/* RIGHT */}
-      <div className="w-full xl:w-2/3 flex flex-col space-y-4 overflow-hidden">
-        <div className="bg-primary-foreground p-4 rounded-lg flex-1 flex flex-col overflow-hidden">
-          <ScrollArea className="flex-1 space-y-6 pr-2">
-            <div className="space-y-3">
-              {Array.isArray(story.panels) &&
-                story.panels.map((panel, i) => (
-                  <div key={i} className="space-y-2">
-                    {panel.imageUrl && (
-                      <div className="w-full h-60 relative rounded-md overflow-hidden shadow-md">
-                        <Image
-                          src={panel.imageUrl}
-                          alt={`Panel ${panel.panelNumber}`}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="flex flex-col items-center justify-center text-center min-h-32 space-y-2">
-                      <Textarea
-                        value={panelContents[i] ?? ""}
-                        onChange={(e) => {
-                          const newContents = [...panelContents];
-                          newContents[i] = e.target.value;
-                          setPanelContents(newContents);
-                        }}
-                        placeholder="Enter panel text..."
-                        className="panel-textarea w-full h-[75vh] resize-none"
-                        data-index={i}
-                      />
-                    </div>
-                  </div>
-                ))}
-            </div>
+      <div className="bg-primary-foreground p-4 rounded-lg flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-hidden flex flex-col">
+          <ScrollArea className="flex-1 pr-2">
+            <PanelSwiper
+              panels={story.panels}
+              panelContents={panelContents}
+              setPanelContents={setPanelContents}
+            />
           </ScrollArea>
 
-          <div className="pt-2 border-t mt-4">
-            <Button
-              className="w-full py-4 hover:bg-primary/90 transition"
-              onClick={handleSave}
-            >
-              Save Changes
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              if (!story) return;
+
+              const newPanelNumber = story.panels.length;
+              const newPanel = {
+                content: "",
+                imageUrl: "",
+                audioUrl: "",
+                isEndPanel: false,
+                languageCode: story.language,
+                panelNumber: newPanelNumber,
+              };
+
+              setStory({
+                ...story,
+                panels: [...story.panels, newPanel],
+              });
+
+              setPanelContents([...panelContents, ""]);
+            }}
+          >
+            <Plus /> Add Panel
+          </Button>
+        </div>
+
+        <div className="pt-2 border-t mt-4">
+          <Button
+            className="w-full py-4 hover:bg-primary/90 transition"
+            onClick={handleSave}
+          >
+            Save Changes
+          </Button>
         </div>
       </div>
     </div>
