@@ -37,8 +37,6 @@ export async function POST(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
 
-    console.log("Fetched!!! - POST story");
-
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/Story`, {
       method: "POST",
       headers: {
@@ -98,17 +96,51 @@ export async function PUT(req: NextRequest) {
     }
 
     const text = await res.text();
-    console.log("Raw response text from backend:", text);
+    const data = JSON.parse(text);
+    return NextResponse.json(data, { status: 200 });
+  } catch (err) {
+    console.error("PUT /api/stories error:", err);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
 
-    try {
-      const data = JSON.parse(text);
-      return NextResponse.json(data, { status: 200 });
-    } catch (err) {
+export async function PATCH(req: NextRequest) {
+  try {
+    const token = (await cookies()).get("authToken")?.value;
+    const body = await req.json();
+
+    if (!body.id) {
       return NextResponse.json(
-        { message: "Failed to parse JSON", raw: text },
-        { status: 500 }
+        { message: "Missing story ID" },
+        { status: 400 }
       );
     }
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/EditStoryMeta`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    if (!res.ok) {
+      const error = await res.text();
+      return NextResponse.json(
+        { message: "Failed to update story", error },
+        { status: res.status }
+      );
+    }
+
+    const text = await res.text();
+    const data = JSON.parse(text);
     return NextResponse.json(data, { status: 200 });
   } catch (err) {
     console.error("PUT /api/stories error:", err);

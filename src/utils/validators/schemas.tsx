@@ -57,4 +57,9 @@ export const addStorySchema = z.object({
   tags: z.object({
     tagNames: z.array(z.string()),
   }),
+  meta: z.object({
+    isPublished: z.boolean(),
+    isCommunity: z.boolean(),
+    isFeatured: z.boolean(),
+  }),
 });

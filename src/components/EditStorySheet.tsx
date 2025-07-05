@@ -68,6 +68,11 @@ export function EditStorySheet({
           ? story.tags.map((tag) => tag.name)
           : story?.tags?.tagNames || [],
       },
+      meta: {
+        isPublished: story?.isPublished ?? false,
+        isCommunity: story?.isCommunity ?? false,
+        isFeatured: story?.isFeatured ?? false,
+      },
     },
   });
 
@@ -95,13 +100,8 @@ export function EditStorySheet({
         form.setValue("coverImageUrl", coverImageUrl);
       }
 
-      //Bugged
-      // const uniqueTags = Array.from(
-      //   new Set(values.tags.tagNames.map((tag) => tag.trim()))
-      // );
       const payload = {
         ...values,
-        // tags: { tagNames: uniqueTags },
         coverImageUrl,
       };
 
@@ -116,6 +116,20 @@ export function EditStorySheet({
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.message || "Failed to update story");
+      }
+
+      const metaPayload = {
+        id: values.id,
+        meta: values.meta,
+      };
+      const metaRes = await fetch(`/api/stories/meta`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(metaPayload),
+      });
+      if (!metaRes.ok) {
+        const err = await metaRes.json();
+        throw new Error(err.message || "Failed to update meta");
       }
 
       const data = await res.json();
@@ -299,6 +313,81 @@ export function EditStorySheet({
                         <SelectContent>
                           <SelectItem value="ENG">ENG</SelectItem>
                           <SelectItem value="VIE">VIE</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="meta.isPublished"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Is Published</FormLabel>
+                      <Select
+                        onValueChange={(val) => field.onChange(val === "true")}
+                        value={String(field.value)}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="true">Yes</SelectItem>
+                          <SelectItem value="false">No</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="meta.isCommunity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Is Community</FormLabel>
+                      <Select
+                        onValueChange={(val) => field.onChange(val === "true")}
+                        value={String(field.value)}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="true">Yes</SelectItem>
+                          <SelectItem value="false">No</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="meta.isFeatured"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Is Featured</FormLabel>
+                      <Select
+                        onValueChange={(val) => field.onChange(val === "true")}
+                        value={String(field.value)}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="true">Yes</SelectItem>
+                          <SelectItem value="false">No</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

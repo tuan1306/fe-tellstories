@@ -68,6 +68,9 @@ export type StoryEditDetails = {
   tags: {
     tagNames: string[];
   };
+  isPublished?: boolean;
+  isCommunity?: boolean;
+  isFeatured?: boolean;
 };
 
 // User

@@ -23,9 +23,6 @@ export default function WriteStoryPage() {
       const res = await fetch(`/api/stories/${storyId}`);
       const json = await res.json();
 
-      console.log("Data:", json); // Best for seeing structure
-      console.log("Data:", JSON.stringify(json, null, 2)); // Pretty-print
-
       setStory(json.data.data);
       setPanelContents(
         (json.data.data.panels as { content: string }[]).map(
@@ -130,6 +127,10 @@ export default function WriteStoryPage() {
                 <span>{story.id}</span>
               </div>
               <div className="flex items-center gap-2">
+                <span className="font-bold">Title:</span>
+                <span>{story.title}</span>
+              </div>
+              <div className="flex items-center gap-2">
                 <span className="font-bold">Author:</span>
                 <span>{story.author || "N/A"}</span>
               </div>
@@ -149,14 +150,22 @@ export default function WriteStoryPage() {
                 <span className="font-bold">Language:</span>
                 <Badge>{story.language}</Badge>
               </div>
-              {/* <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-bold">Tag:</span>
-                {story.tags?.map((tag, idx) => (
-                  <Badge key={idx} className="text-xs">
-                    {tag.name}
-                  </Badge>
-                ))}
-              </div> */}
+              {story.tags && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-bold">Tags:</span>
+                  {Array.isArray(story.tags)
+                    ? story.tags.map((tag, id) => (
+                        <Badge key={id} className="text-xs">
+                          {tag.name}
+                        </Badge>
+                      ))
+                    : story.tags.tagNames?.map((tag, id) => (
+                        <Badge key={id} className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                </div>
+              )}
             </div>
           </ScrollArea>
         </div>
