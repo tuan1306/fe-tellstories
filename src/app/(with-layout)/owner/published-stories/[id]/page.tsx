@@ -109,14 +109,16 @@ export default function StoryPage() {
                 <span className="font-bold">Language:</span>
                 <Badge>{story.language}</Badge>
               </div>
-              {/* <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold">Tag:</span>
-                      {story.tags?.map((tag, idx) => (
-                        <Badge key={idx} className="text-xs">
-                          {tag.name}
-                        </Badge>
-                      ))}
-                    </div> */}
+              {story.tags?.length > 0 && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-bold">Tags:</span>
+                  {story.tags.map((tag, id) => (
+                    <Badge key={id} className="text-xs">
+                      {tag.name}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </div>
           </ScrollArea>
         </div>
