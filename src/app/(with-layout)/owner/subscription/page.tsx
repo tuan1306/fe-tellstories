@@ -37,18 +37,22 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import { subscriptionSchema } from "@/utils/validators/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TrendingDown, TrendingUp, UserPlus } from "lucide-react";
+import { Loader2, TrendingDown, TrendingUp, UserPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 export default function Subscription() {
+  const [isDelete, setIsDelete] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [subscriptionPackages, setSubscriptionPackages] = useState<
     SubscriptionPackage[]
   >([]);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [selectedPackage, setSelectedPackage] =
     useState<SubscriptionPackage | null>(null);
 
@@ -129,6 +133,7 @@ export default function Subscription() {
 
   const onSubmit = async (values: z.infer<typeof subscriptionSchema>) => {
     try {
+      setIsSubmitting(true);
       const method = selectedPackage ? "PUT" : "POST";
       const url = selectedPackage ? `/api/subscription` : "/api/subscription";
 
@@ -151,6 +156,39 @@ export default function Subscription() {
       fetchSubscriptions();
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedPackage) return;
+
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      setTimeout(() => setConfirmDelete(false), 3000);
+      return;
+    }
+
+    try {
+      setIsDelete(true);
+      const res = await fetch(`/api/subscription/${selectedPackage.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to delete subscription");
+
+      setShowForm(false);
+      setSelectedPackage(null);
+      fetchSubscriptions();
+    } catch (err) {
+      console.error("Delete failed:", err);
+    } finally {
+      setConfirmDelete(false);
+      setIsDelete(false);
     }
   };
 
@@ -471,14 +509,31 @@ export default function Subscription() {
 
                     <div className="flex justify-between items-center gap-2">
                       {selectedPackage && (
-                        <Button type="button" variant="destructive">
-                          Delete
+                        <Button
+                          type="button"
+                          disabled={isDelete}
+                          variant={confirmDelete ? "destructive" : "secondary"}
+                          onClick={handleDelete}
+                          className={cn(
+                            "transition-all duration-200 ease-in-out min-w-[100px] cursor-pointer flex items-center justify-center gap-1",
+                            confirmDelete ? "bg-red-600 text-white" : ""
+                          )}
+                        >
+                          {isDelete ? (
+                            <>
+                              <Loader2 className="animate-spin w-4 h-4" />
+                              <span>Deleting...</span>
+                            </>
+                          ) : (
+                            <>{confirmDelete ? "Confirm" : "Delete"}</>
+                          )}
                         </Button>
                       )}
                       <div className="ml-auto flex gap-2">
                         <Button
                           type="button"
                           variant="secondary"
+                          className="cursor-pointer"
                           onClick={() => {
                             setShowForm(false);
                             setSelectedPackage(null);
@@ -486,7 +541,14 @@ export default function Subscription() {
                         >
                           Cancel
                         </Button>
-                        <Button type="submit">
+                        <Button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="cursor-pointer flex items-center gap-2"
+                        >
+                          {isSubmitting && (
+                            <Loader2 className="animate-spin w-4 h-4" />
+                          )}
                           {selectedPackage ? "Save" : "Create"}
                         </Button>
                       </div>
@@ -501,7 +563,9 @@ export default function Subscription() {
                 <Accordion type="single" collapsible className="w-full my-4">
                   {subscriptionPackages.map((pkg, i) => (
                     <AccordionItem key={pkg.id} value={`${pkg.name}-${i}`}>
-                      <AccordionTrigger>{pkg.name} Plan</AccordionTrigger>
+                      <AccordionTrigger className="cursor-pointer">
+                        {pkg.name} Plan
+                      </AccordionTrigger>
                       <AccordionContent>
                         <div className="text-sm text-muted-foreground space-y-1">
                           <p>
