@@ -49,6 +49,9 @@ export default function Subscription() {
   const [subscriptionPackages, setSubscriptionPackages] = useState<
     SubscriptionPackage[]
   >([]);
+  const [selectedPackage, setSelectedPackage] =
+    useState<SubscriptionPackage | null>(null);
+
   const [stats, setStats] = useState({
     newAccounts: 0,
     newAccountFluct: 0,
@@ -57,6 +60,24 @@ export default function Subscription() {
     publishedStoriesFluct: 0,
     storyViews: 0,
   });
+
+  useEffect(() => {
+    if (selectedPackage) {
+      form.reset({
+        name: selectedPackage.name,
+        price: selectedPackage.price,
+        type: selectedPackage.type,
+        durationDays: selectedPackage.durationDays,
+        billingCycle: selectedPackage.billingCycle,
+        maxStories: selectedPackage.maxStories,
+        maxAIRequest: selectedPackage.maxAIRequest,
+        maxTTSRequest: selectedPackage.maxTTSRequest,
+        isActive: selectedPackage.isActive,
+        isDefault: selectedPackage.isDefault,
+      });
+      setShowForm(true);
+    }
+  }, [selectedPackage]);
 
   const form = useForm<z.infer<typeof subscriptionSchema>>({
     resolver: zodResolver(subscriptionSchema),
@@ -108,19 +129,25 @@ export default function Subscription() {
 
   const onSubmit = async (values: z.infer<typeof subscriptionSchema>) => {
     try {
-      const res = await fetch("/api/subscription", {
-        method: "POST",
+      const method = selectedPackage ? "PUT" : "POST";
+      const url = selectedPackage ? `/api/subscription` : "/api/subscription";
+
+      const payload = selectedPackage
+        ? { ...values, id: selectedPackage.id }
+        : values;
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(payload),
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to create subscription package");
-      }
+      if (!res.ok) throw new Error("Failed to save subscription package");
 
       setShowForm(false);
+      setSelectedPackage(null);
       fetchSubscriptions();
     } catch (err) {
       console.error(err);
@@ -234,6 +261,14 @@ export default function Subscription() {
                   ? "Fill in the details to create a new subscription package."
                   : "View or manage existing subscription packages below."}
               </DialogDescription>
+              {!showForm && (
+                <Button
+                  className="w-full mt-4"
+                  onClick={() => setShowForm(true)}
+                >
+                  + Create New Subscription
+                </Button>
+              )}
             </DialogHeader>
 
             <ScrollArea className="h-[60vh] pr-4">
@@ -434,15 +469,27 @@ export default function Subscription() {
                       />
                     </div>
 
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setShowForm(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button type="submit">Create</Button>
+                    <div className="flex justify-between items-center gap-2">
+                      {selectedPackage && (
+                        <Button type="button" variant="destructive">
+                          Delete
+                        </Button>
+                      )}
+                      <div className="ml-auto flex gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => {
+                            setShowForm(false);
+                            setSelectedPackage(null);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit">
+                          {selectedPackage ? "Save" : "Create"}
+                        </Button>
+                      </div>
                     </div>
                   </form>
                 </Form>
@@ -488,6 +535,14 @@ export default function Subscription() {
                             <strong>Default:</strong>{" "}
                             {pkg.isDefault ? "Yes" : "No"}
                           </p>
+
+                          <Button
+                            variant="link"
+                            className="px-0 text-sm cursor-pointer text-chart-1"
+                            onClick={() => setSelectedPackage(pkg)}
+                          >
+                            Edit subscription
+                          </Button>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
@@ -495,12 +550,6 @@ export default function Subscription() {
                 </Accordion>
               )}
             </ScrollArea>
-
-            {!showForm && (
-              <Button className="w-full mt-4" onClick={() => setShowForm(true)}>
-                + Create New Subscription
-              </Button>
-            )}
           </DialogContent>
         </Dialog>
 
