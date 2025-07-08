@@ -5,7 +5,6 @@ import { Suspense } from "react";
 import { UserDetails } from "@/app/types/user";
 
 // Remind my dumbass to return an array not a singer user.
-// For the love of god, I have to remind myself so many about cookie doesn't automatically send everywhere.
 export const getData = async (): Promise<UserDetails[]> => {
   const cookie = await cookies();
   const cookieToken = cookie.toString();

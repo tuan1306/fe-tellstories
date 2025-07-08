@@ -60,7 +60,7 @@ const items = [
   },
   {
     title: "Subscription Management",
-    url: "/owner/billing",
+    url: "/owner/subscription",
     icon: CircleDollarSign,
   },
   {
