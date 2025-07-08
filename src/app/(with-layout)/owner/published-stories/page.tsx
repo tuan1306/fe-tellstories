@@ -12,6 +12,9 @@ export default function DataTable() {
   const [search, setSearch] = useState("");
   const [userStories, setUserStories] = useState<StoryDetails[]>([]);
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<"Published" | "Pending">(
+    "Published"
+  );
 
   const toggleAge = (age: string) => {
     setSelectedAges((prev) =>
@@ -40,6 +43,9 @@ export default function DataTable() {
     .filter(
       (story) =>
         selectedAges.length === 0 || selectedAges.includes(story.ageRange || "")
+    )
+    .filter((story) =>
+      statusFilter === "Published" ? story.isPublished : !story.isPublished
     );
 
   return (
@@ -53,6 +59,30 @@ export default function DataTable() {
           onChange={(e) => setSearch(e.target.value)}
         />
         <ScrollArea>
+          <div
+            onClick={() => setStatusFilter("Published")}
+            className={`p-3 rounded-md text-sm font-medium cursor-pointer transition-colors mb-2 ${
+              statusFilter === "Published"
+                ? "bg-muted text-white"
+                : "bg-card hover:bg-muted/70"
+            }`}
+          >
+            Published Stories
+          </div>
+
+          <div
+            onClick={() => setStatusFilter("Pending")}
+            className={`p-3 rounded-md text-sm font-medium cursor-pointer transition-colors ${
+              statusFilter === "Pending"
+                ? "bg-muted text-white"
+                : "bg-card hover:bg-muted/70"
+            }`}
+          >
+            Pending Approval
+          </div>
+
+          <div className="my-3 border-t border-border" />
+
           <AgeGroupFilter selected={selectedAges} onChange={toggleAge} />
         </ScrollArea>
       </div>

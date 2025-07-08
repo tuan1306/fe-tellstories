@@ -18,6 +18,12 @@ export function AgeGroupFilter({
 
   return (
     <Collapsible defaultOpen className="group/collapsible space-y-2">
+      <Label
+        htmlFor="filter"
+        className="text-[12px] text-muted-foreground font-semibold"
+      >
+        Filter
+      </Label>
       <CollapsibleTrigger className="flex items-center w-full cursor-pointer">
         <span className="text-sm font-medium">Age Group</span>
         <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
