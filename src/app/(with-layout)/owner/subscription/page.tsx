@@ -1,5 +1,6 @@
 "use client";
 
+import { SubscriptionPackage } from "@/app/types/subscription";
 import { SubGroupChart } from "@/components/SubGroupChart";
 import {
   Accordion,
@@ -35,6 +36,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { subscriptionSchema } from "@/utils/validators/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TrendingDown, TrendingUp, UserPlus } from "lucide-react";
@@ -42,35 +44,11 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const packages = [
-  {
-    name: "Basic",
-    price: 5,
-    type: "Monthly",
-    durationDays: 30,
-    billingCycle: 1,
-    maxStories: 10,
-    maxAIRequest: 50,
-    maxTTSRequest: 100,
-    isActive: true,
-    isDefault: true,
-  },
-  {
-    name: "Premium",
-    price: 10,
-    type: "Monthly",
-    durationDays: 30,
-    billingCycle: 1,
-    maxStories: 50,
-    maxAIRequest: 200,
-    maxTTSRequest: 400,
-    isActive: true,
-    isDefault: false,
-  },
-];
-
 export default function Subscription() {
   const [showForm, setShowForm] = useState(false);
+  const [subscriptionPackages, setSubscriptionPackages] = useState<
+    SubscriptionPackage[]
+  >([]);
   const [stats, setStats] = useState({
     newAccounts: 0,
     newAccountFluct: 0,
@@ -111,6 +89,18 @@ export default function Subscription() {
           storyViews: d?.storiesViews ?? 0,
         });
       });
+  }, []);
+
+  // Get subs
+  useEffect(() => {
+    fetch("/api/subscription")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setSubscriptionPackages(data);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch subscriptions:", err));
   }, []);
 
   const onSubmit = async (values: z.infer<typeof subscriptionSchema>) => {
@@ -232,7 +222,7 @@ export default function Subscription() {
               Pricing Plans
             </Button>
           </DialogTrigger>
-          <DialogContent className="w-[700px] max-w-full">
+          <DialogContent className="w-[700px] max-w-full max-h-[80vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Subscription Package Management</DialogTitle>
               <DialogDescription>
@@ -242,177 +232,223 @@ export default function Subscription() {
               </DialogDescription>
             </DialogHeader>
 
-            {showForm ? (
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-3 mt-4 text-sm"
-                >
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Type</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="durationDays"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Duration (days)</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="billingCycle"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Billing Cycle (months)</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="maxStories"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Max Stories</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="maxAIRequest"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Max AI Requests</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="maxTTSRequest"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Max TTS Requests</FormLabel>
-                        <FormControl>
-                          <Input type="number" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="flex gap-4">
+            <ScrollArea className="h-[60vh] pr-4">
+              {showForm ? (
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-3 mt-4 text-sm p-3"
+                  >
                     <FormField
                       control={form.control}
-                      name="isActive"
+                      name="name"
                       render={({ field }) => (
-                        <FormItem className="flex items-center gap-2 space-y-0">
+                        <FormItem>
+                          <FormLabel>Name</FormLabel>
                           <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
+                            <Input {...field} />
                           </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            Active
-                          </FormLabel>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={form.control}
-                      name="isDefault"
+                      name="price"
                       render={({ field }) => (
-                        <FormItem className="flex items-center gap-2 space-y-0">
+                        <FormItem>
+                          <FormLabel>Price</FormLabel>
                           <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(e.target.valueAsNumber)
+                              }
                             />
                           </FormControl>
-                          <FormLabel className="text-sm font-normal">
-                            Default
-                          </FormLabel>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
 
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => setShowForm(false)}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit">Create</Button>
-                  </div>
-                </form>
-              </Form>
-            ) : (
-              <>
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Type</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="durationDays"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Duration (days)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(e.target.valueAsNumber)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="billingCycle"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Billing Cycle (months)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(e.target.valueAsNumber)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="maxStories"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Max Stories</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(e.target.valueAsNumber)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="maxAIRequest"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Max AI Requests</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(e.target.valueAsNumber)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="maxTTSRequest"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Max TTS Requests</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) =>
+                                field.onChange(e.target.valueAsNumber)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="flex gap-4">
+                      <FormField
+                        control={form.control}
+                        name="isActive"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center gap-2 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-sm font-normal">
+                              Active
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="isDefault"
+                        render={({ field }) => (
+                          <FormItem className="flex items-center gap-2 space-y-0">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormLabel className="text-sm font-normal">
+                              Default
+                            </FormLabel>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setShowForm(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit">Create</Button>
+                    </div>
+                  </form>
+                </Form>
+              ) : subscriptionPackages.length === 0 ? (
+                <p className="text-muted-foreground text-sm mt-4 text-center">
+                  There’s no package here :(
+                </p>
+              ) : (
                 <Accordion type="single" collapsible className="w-full my-4">
-                  {packages.map((pkg, i) => (
+                  {subscriptionPackages.map((pkg, i) => (
                     <AccordionItem key={i} value={pkg.name.toLowerCase()}>
                       <AccordionTrigger>{pkg.name} Plan</AccordionTrigger>
                       <AccordionContent>
@@ -453,14 +489,13 @@ export default function Subscription() {
                     </AccordionItem>
                   ))}
                 </Accordion>
+              )}
+            </ScrollArea>
 
-                <Button
-                  className="w-full mt-4"
-                  onClick={() => setShowForm(true)}
-                >
-                  + Create New Subscription
-                </Button>
-              </>
+            {!showForm && (
+              <Button className="w-full mt-4" onClick={() => setShowForm(true)}>
+                + Create New Subscription
+              </Button>
             )}
           </DialogContent>
         </Dialog>
