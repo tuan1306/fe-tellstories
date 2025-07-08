@@ -1,4 +1,5 @@
 export type SubscriptionPackage = {
+  id: string;
   name: string;
   price: number;
   type: string;

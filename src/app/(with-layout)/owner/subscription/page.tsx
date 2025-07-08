@@ -74,6 +74,17 @@ export default function Subscription() {
     },
   });
 
+  const fetchSubscriptions = () => {
+    fetch("/api/subscription")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data?.data)) {
+          setSubscriptionPackages(data.data);
+        }
+      })
+      .catch((err) => console.error("Failed to fetch subscriptions:", err));
+  };
+
   // For user subscription bought that week idk
   useEffect(() => {
     fetch("/api/dashboard")
@@ -91,16 +102,8 @@ export default function Subscription() {
       });
   }, []);
 
-  // Get subs
   useEffect(() => {
-    fetch("/api/subscription")
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setSubscriptionPackages(data);
-        }
-      })
-      .catch((err) => console.error("Failed to fetch subscriptions:", err));
+    fetchSubscriptions();
   }, []);
 
   const onSubmit = async (values: z.infer<typeof subscriptionSchema>) => {
@@ -118,6 +121,7 @@ export default function Subscription() {
       }
 
       setShowForm(false);
+      fetchSubscriptions();
     } catch (err) {
       console.error(err);
     }
@@ -449,7 +453,7 @@ export default function Subscription() {
               ) : (
                 <Accordion type="single" collapsible className="w-full my-4">
                   {subscriptionPackages.map((pkg, i) => (
-                    <AccordionItem key={i} value={pkg.name.toLowerCase()}>
+                    <AccordionItem key={pkg.id} value={`${pkg.name}-${i}`}>
                       <AccordionTrigger>{pkg.name} Plan</AccordionTrigger>
                       <AccordionContent>
                         <div className="text-sm text-muted-foreground space-y-1">
