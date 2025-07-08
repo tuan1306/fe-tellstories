@@ -98,7 +98,7 @@ export default function WriteStoryPage() {
                   Edit Metadata
                 </Button>
               </EditStorySheet>
-              <Link href={`/owner/published-stories/${story.id}`}>
+              <Link href={`/owner/stories/${story.id}`}>
                 <Button className="w-full py-4 hover:bg-primary/90 transition cursor-pointer mt-3">
                   View Story
                 </Button>

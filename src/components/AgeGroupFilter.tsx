@@ -17,7 +17,7 @@ export function AgeGroupFilter({
   const ageRanges = ["1-3", "3-5", "5-8", "8-10", "10+"];
 
   return (
-    <Collapsible defaultOpen className="group/collapsible space-y-2">
+    <Collapsible defaultOpen={false} className="group/collapsible space-y-2">
       <Label
         htmlFor="filter"
         className="text-[12px] text-muted-foreground font-semibold"

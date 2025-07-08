@@ -12,9 +12,9 @@ export default function DataTable() {
   const [search, setSearch] = useState("");
   const [userStories, setUserStories] = useState<StoryDetails[]>([]);
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
-  const [statusFilter, setStatusFilter] = useState<"Published" | "Pending">(
-    "Published"
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    "Published" | "Pending" | "Featured"
+  >("Published");
 
   const toggleAge = (age: string) => {
     setSelectedAges((prev) =>
@@ -44,9 +44,12 @@ export default function DataTable() {
       (story) =>
         selectedAges.length === 0 || selectedAges.includes(story.ageRange || "")
     )
-    .filter((story) =>
-      statusFilter === "Published" ? story.isPublished : !story.isPublished
-    );
+    .filter((story) => {
+      if (statusFilter === "Published") return story.isPublished;
+      if (statusFilter === "Pending") return !story.isPublished;
+      if (statusFilter === "Featured") return story.isFeatured;
+      return true;
+    });
 
   return (
     <div className="flex gap-6 mt-4 h-[90vh]">
@@ -71,8 +74,19 @@ export default function DataTable() {
           </div>
 
           <div
+            onClick={() => setStatusFilter("Featured")}
+            className={`p-3 rounded-md text-sm font-medium cursor-pointer transition-colors mb-2 ${
+              statusFilter === "Featured"
+                ? "bg-muted text-white"
+                : "bg-card hover:bg-muted/70"
+            }`}
+          >
+            Featured Stories
+          </div>
+
+          <div
             onClick={() => setStatusFilter("Pending")}
-            className={`p-3 rounded-md text-sm font-medium cursor-pointer transition-colors ${
+            className={`p-3 rounded-md text-sm font-medium cursor-pointer transition-colors mb-2 ${
               statusFilter === "Pending"
                 ? "bg-muted text-white"
                 : "bg-card hover:bg-muted/70"
@@ -105,7 +119,7 @@ export default function DataTable() {
               {filtered.map((story) => (
                 <Link
                   key={story.id}
-                  href={`/owner/published-stories/${story.id}`}
+                  href={`/owner/stories/${story.id}`}
                   className="space-y-2 cursor-pointer hover:opacity-90 transition"
                 >
                   <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
