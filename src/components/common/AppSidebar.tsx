@@ -2,8 +2,8 @@
 import {
   AlertTriangle,
   BookOpen,
-  BookOpenCheck,
   ChevronUp,
+  CircleDollarSign,
   LayoutDashboard,
   LucideMessageSquareText,
   PenBoxIcon,
@@ -12,7 +12,6 @@ import {
   Settings,
   Sparkles,
   SwatchBook,
-  Tag,
   User2,
   Users,
 } from "lucide-react";
@@ -55,14 +54,14 @@ const items = [
     icon: Users,
   },
   {
-    title: "Discount Code Management",
-    url: "/owner/discounts",
-    icon: Tag,
-  },
-  {
     title: "Sparks Management",
     url: "/owner/sparks",
     icon: Sparkles,
+  },
+  {
+    title: "Subscription Management",
+    url: "/owner/billing",
+    icon: CircleDollarSign,
   },
   {
     title: "Billing History",
@@ -85,16 +84,10 @@ const items = [
     icon: PenBoxIcon,
   },
   {
-    title: "Published Stories Management",
-    url: "/owner/published-stories",
+    title: "Stories Management",
+    url: "/owner/stories",
     icon: BookOpen,
   },
-  {
-    title: "Featured Stories Management",
-    url: "/owner/featured-stories",
-    icon: BookOpenCheck,
-  },
-
   {
     title: "Staff Log",
     url: "/owner/staff-log",

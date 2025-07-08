@@ -88,36 +88,50 @@ export default function DataTable() {
       </div>
 
       {/* RIGHT*/}
-      <ScrollArea className="w-3/4 bg-card rounded-lg p-5 h-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-          {filtered.map((story) => (
-            <Link
-              key={story.id}
-              href={`/owner/published-stories/${story.id}`}
-              className="space-y-2 cursor-pointer hover:opacity-90 transition"
-            >
-              <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
-                {story.coverImageUrl?.startsWith("http") ? (
-                  <Image
-                    src={story.coverImageUrl}
-                    alt={story.title}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-muted flex items-center justify-center text-sm text-muted-foreground font-medium">
-                    No Image
-                  </div>
-                )}
+      <div className="w-3/4 bg-card rounded-lg p-5 h-full">
+        {userStories.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4 animate-pulse">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="w-full aspect-[2/3] bg-muted rounded-xl" />
+                <div className="h-4 bg-muted rounded w-1/2" />
+                <div className="h-6 bg-muted rounded w-2/3" />
               </div>
-              <h1 className="text-sm font-semibold text-muted-foreground">
-                {story.author || "Unknown Author"}
-              </h1>
-              <h1 className="text-xl font-semibold">{story.title}</h1>
-            </Link>
-          ))}
-        </div>
-      </ScrollArea>
+            ))}
+          </div>
+        ) : (
+          <ScrollArea className="h-full w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
+              {filtered.map((story) => (
+                <Link
+                  key={story.id}
+                  href={`/owner/published-stories/${story.id}`}
+                  className="space-y-2 cursor-pointer hover:opacity-90 transition"
+                >
+                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
+                    {story.coverImageUrl?.startsWith("http") ? (
+                      <Image
+                        src={story.coverImageUrl}
+                        alt={story.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center text-sm text-muted-foreground font-medium">
+                        No Image
+                      </div>
+                    )}
+                  </div>
+                  <h1 className="text-sm font-semibold text-muted-foreground">
+                    {story.author || "Unknown Author"}
+                  </h1>
+                  <h1 className="text-xl font-semibold">{story.title}</h1>
+                </Link>
+              ))}
+            </div>
+          </ScrollArea>
+        )}
+      </div>
     </div>
   );
 }
