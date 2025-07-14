@@ -40,10 +40,23 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { subscriptionSchema } from "@/utils/validators/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, TrendingDown, TrendingUp, UserPlus } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  TrendingDown,
+  TrendingUp,
+  UserPlus,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+const recentBuyers = [
+  { name: "Alice Tran", plan: "Premium", date: "2025-06-28" },
+  { name: "Minh Pham", plan: "Basic", date: "2025-06-28" },
+  { name: "Linh Nguyen", plan: "Pro", date: "2025-06-27" },
+  { name: "John Do", plan: "Basic", date: "2025-06-26" },
+];
 
 export default function Subscription() {
   const [isDelete, setIsDelete] = useState(false);
@@ -279,7 +292,17 @@ export default function Subscription() {
         </div>
 
         <div className="bg-card p-4 rounded-lg h-full">
-          Recent sub buyer here
+          <h3 className="text-lg font-semibold mb-3">Recent Subscribers</h3>
+          <ul className="text-sm text-muted-foreground space-y-2">
+            {recentBuyers.map((buyer, i) => (
+              <li key={i} className="flex justify-between">
+                <span>{buyer.name}</span>
+                <span>
+                  {buyer.plan} • {buyer.date}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 
@@ -288,7 +311,7 @@ export default function Subscription() {
         <Dialog>
           <DialogTrigger asChild>
             <Button className="mb-4 w-full px-4 py-2 cursor-pointer">
-              Pricing Plans
+              Subscription Packages
             </Button>
           </DialogTrigger>
           <DialogContent className="w-[700px] max-w-full max-h-[80vh] flex flex-col">
@@ -301,10 +324,11 @@ export default function Subscription() {
               </DialogDescription>
               {!showForm && (
                 <Button
-                  className="w-full mt-4"
+                  className="w-full mt-4 cursor-pointer"
                   onClick={() => setShowForm(true)}
                 >
-                  + Create New Subscription
+                  <Plus />
+                  Create New Subscription
                 </Button>
               )}
             </DialogHeader>

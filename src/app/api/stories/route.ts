@@ -20,7 +20,6 @@ export async function GET() {
     }
 
     const data = await res.json();
-    console.log(data);
 
     return NextResponse.json(data, { status: 200 });
   } catch (err) {

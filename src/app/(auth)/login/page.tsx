@@ -71,7 +71,7 @@ export default function Login() {
             <div className="absolute top-6 left-6 text-white flex gap-2">
               <SwatchBook className="drop-shadow-lg/80" />
               <p className="text-xl font-bold text-shadow-lg/80">
-                StoryTeller Inc
+                TellStories Inc
               </p>
             </div>
             <div className="absolute bottom-5 left-0 right-0 text-white flex justify-center items-center">

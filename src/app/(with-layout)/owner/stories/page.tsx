@@ -4,17 +4,21 @@ import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { StoryDetails } from "@/app/types/story";
+import { PendingStoryRequest, StoryDetails } from "@/app/types/story";
 import Link from "next/link";
 import { AgeGroupFilter } from "@/components/AgeGroupFilter";
+import { PendingStory } from "@/components/PendingStory";
 
-export default function DataTable() {
+export default function StoriesManagement() {
   const [search, setSearch] = useState("");
   const [userStories, setUserStories] = useState<StoryDetails[]>([]);
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<
     "Published" | "Pending" | "Featured"
   >("Published");
+  const [pendingStories, setPendingStories] = useState<PendingStoryRequest[]>(
+    []
+  );
 
   const toggleAge = (age: string) => {
     setSelectedAges((prev) =>
@@ -32,6 +36,14 @@ export default function DataTable() {
         setUserStories(stories);
       })
       .catch((err) => console.error("Fetch error:", err));
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/stories/pending?page=1&pageSize=10")
+      .then((res) => res.json())
+      .then((data) => {
+        setPendingStories(data?.data.items || []);
+      });
   }, []);
 
   const filtered = userStories
@@ -103,7 +115,19 @@ export default function DataTable() {
 
       {/* RIGHT*/}
       <div className="w-3/4 bg-card rounded-lg p-5 h-full">
-        {userStories.length === 0 ? (
+        {statusFilter === "Pending" ? (
+          pendingStories.length === 0 ? (
+            <div className="flex items-center justify-center h-full w-full">
+              <p className="text-muted-foreground text-sm">
+                It&apos;s empty .3.
+              </p>
+            </div>
+          ) : (
+            <ScrollArea className="h-full w-full">
+              <PendingStory items={pendingStories} />
+            </ScrollArea>
+          )
+        ) : userStories.length === 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4 animate-pulse">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="space-y-2">

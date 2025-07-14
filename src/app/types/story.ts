@@ -73,6 +73,14 @@ export type StoryEditDetails = {
   isFeatured?: boolean;
 };
 
+export type PendingStoryRequest = {
+  id: string;
+  requestNotes: string;
+  status: number;
+  reviewedAt: string;
+  story: StoryDetails;
+};
+
 // User
 
 export interface UserPublish {
