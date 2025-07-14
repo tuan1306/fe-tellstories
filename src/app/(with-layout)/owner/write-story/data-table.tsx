@@ -38,12 +38,10 @@ export default function DataTable() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch("/api/stories/user/published/46dcf0ac-19d2-4529-9834-20250580220b")
+    fetch("/api/stories/me")
       .then((res) => res.json())
       .then((json) => {
-        const stories = Array.isArray(json.data)
-          ? json.data
-          : json.data?.data || [];
+        const stories = json.data?.data?.items ?? [];
         setUserStories(stories);
       })
       .catch((err) => console.error("Fetch error:", err));
@@ -131,6 +129,7 @@ export default function DataTable() {
             temperature: 0.8,
             topP: 0.9,
             topK: 30,
+            maxOutputTokens: 8000,
             stopSequences: [],
             seed: 123,
             additionalSystemInstruction: `Generate a story suitable for children aged ${ageRange} with the given title.`,
@@ -139,7 +138,7 @@ export default function DataTable() {
       });
 
       const json = await res.json();
-      const newStory = json.data?.[0];
+      const newStory = json.data[0];
 
       const createRes = await fetch("/api/stories", {
         method: "POST",

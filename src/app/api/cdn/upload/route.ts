@@ -41,6 +41,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    console.log("Received file:", {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+    });
+
     // Send link
     const data = await res.json();
     return NextResponse.json(data, { status: 200 });

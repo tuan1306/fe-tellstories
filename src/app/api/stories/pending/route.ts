@@ -10,7 +10,7 @@ export async function GET(req: Request) {
     const pageSize = searchParams.get("pageSize") || "10";
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/publish-request/all?page=${page}&pageSize=${pageSize}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/publish-request/pending?page=${page}&pageSize=${pageSize}`,
       {
         method: "GET",
         headers: {

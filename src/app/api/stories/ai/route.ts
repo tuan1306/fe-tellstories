@@ -6,8 +6,10 @@ export async function POST(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
 
+    console.log("Incoming AI request body:", JSON.stringify(body, null, 2));
+
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/GenerateStory`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/generate-story`,
       {
         method: "POST",
         headers: {
@@ -20,6 +22,9 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       const error = await res.text();
+      console.error("External API status:", res.status);
+      console.error("External API response:", error);
+
       return NextResponse.json(
         { message: "Failed to generate story", error },
         { status: res.status }
@@ -27,6 +32,8 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await res.json();
+    console.log("Parsed story response:", data);
+
     return NextResponse.json(data, { status: 200 });
   } catch (error) {
     console.error("POST /api/stories/ai error:", error);

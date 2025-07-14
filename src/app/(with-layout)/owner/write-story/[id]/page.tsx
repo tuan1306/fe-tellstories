@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+/* eslint-disable @next/next/no-img-element */
+
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
@@ -11,12 +13,28 @@ import { EditStorySheet } from "@/components/EditStorySheet";
 import Link from "next/link";
 import PanelSwiper from "@/components/misc/slideswiper/page";
 import { Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import WritingAnimation from "@/components/misc/animated-icons/Writing";
 
 export default function WriteStoryPage() {
   const { id } = useParams();
   const [story, setStory] = useState<StoryEditDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [generatingImage, setGeneratingImage] = useState(false);
   const [panelContents, setPanelContents] = useState<string[]>([]);
+  const [openImageDialog, setOpenImageDialog] = useState(false);
+  const [imageMode, setImageMode] = useState<"manual" | "ai" | null>(null);
+  const [imagePrompt, setImagePrompt] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [aiImagePreviewUrl, setAiImagePreviewUrl] = useState<string | null>(
+    null
+  );
 
   const fetchStoryById = async (storyId: string) => {
     try {
@@ -74,6 +92,69 @@ export default function WriteStoryPage() {
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !story) return;
+
+    // Upload file first
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/cdn/upload", {
+      method: "POST",
+      body: formData,
+    });
+    const json = await res.json();
+
+    if (!json.url) return alert("Upload failed");
+
+    const updatedStory = {
+      ...story,
+      coverImageUrl: json.url,
+    };
+
+    const updateRes = await fetch("/api/stories", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedStory),
+    });
+
+    if (updateRes.ok) {
+      setStory(updatedStory);
+      setOpenImageDialog(false);
+    } else {
+      alert("Failed to update story");
+    }
+  };
+
+  const handleAIImageGenerate = async () => {
+    try {
+      setGeneratingImage(true);
+      const res = await fetch("/api/stories/ai/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: imagePrompt,
+          width: 512,
+          height: 512,
+          modelId: "flux",
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`API failed: ${text}`);
+      }
+
+      const json = await res.json();
+      setAiImagePreviewUrl(json.url);
+    } catch (err) {
+      console.error("Image generation failed:", err);
+    } finally {
+      setGeneratingImage(false);
+    }
+  };
+
   if (loading) return <div className="p-4">Loading...</div>;
   if (!story) return <div className="p-4">Story not found.</div>;
 
@@ -108,7 +189,10 @@ export default function WriteStoryPage() {
 
           <ScrollArea className="flex-1 min-h-0 pr-2">
             <div className="space-y-3">
-              <div className="relative w-64 h-96 mx-auto overflow-hidden rounded-xl shadow-2xl">
+              <div
+                onClick={() => setOpenImageDialog(true)}
+                className="relative w-64 h-96 mx-auto overflow-hidden rounded-xl shadow-2xl cursor-pointer hover:opacity-70 transition"
+              >
                 {story.coverImageUrl?.startsWith("http") ? (
                   <Image
                     src={story.coverImageUrl}
@@ -118,10 +202,154 @@ export default function WriteStoryPage() {
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-300 flex items-center justify-center text-sm text-gray-500">
-                    No Image
+                    Click to Add Image
                   </div>
                 )}
               </div>
+
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+
+              <Dialog
+                open={openImageDialog}
+                onOpenChange={(val) => {
+                  setOpenImageDialog(val);
+                  if (!val) {
+                    setImageMode(null);
+                    setImagePrompt("");
+                  }
+                }}
+              >
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Update Cover Image</DialogTitle>
+                  </DialogHeader>
+
+                  {!imageMode && (
+                    <div className="space-y-2">
+                      <Button
+                        className="w-full"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Upload from Device
+                      </Button>
+                      <Button
+                        className="w-full"
+                        onClick={() => setImageMode("ai")}
+                      >
+                        Generate with AI
+                      </Button>
+                    </div>
+                  )}
+
+                  {imageMode === "ai" && (
+                    <div className="space-y-4">
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => {
+                          setImageMode(null);
+                          setAiImagePreviewUrl(null);
+                          setImagePrompt("");
+                        }}
+                      >
+                        ← Back
+                      </Button>
+
+                      <Textarea
+                        placeholder="Describe the image..."
+                        value={imagePrompt}
+                        onChange={(e) => setImagePrompt(e.target.value)}
+                      />
+
+                      {generatingImage && (
+                        <div className="w-full flex justify-center mb-2">
+                          <WritingAnimation />
+                        </div>
+                      )}
+
+                      <Button
+                        className="w-full"
+                        onClick={handleAIImageGenerate}
+                        disabled={!imagePrompt || generatingImage}
+                      >
+                        {generatingImage ? "Generating..." : "Generate Image"}
+                      </Button>
+
+                      {aiImagePreviewUrl && !generatingImage && (
+                        <>
+                          <div className="w-full">
+                            <img
+                              src={aiImagePreviewUrl}
+                              alt="AI Preview"
+                              className="w-full max-h-64 object-contain"
+                            />
+                          </div>
+                          <Button
+                            className="w-full"
+                            onClick={async () => {
+                              const imgRes = await fetch(aiImagePreviewUrl);
+                              const blob = await imgRes.blob();
+                              const file = new File(
+                                [blob],
+                                "ai-generated.png",
+                                {
+                                  type: blob.type,
+                                }
+                              );
+
+                              const formData = new FormData();
+                              formData.append("file", file);
+
+                              const uploadRes = await fetch("/api/cdn/upload", {
+                                method: "POST",
+                                body: formData,
+                              });
+                              const uploadJson = await uploadRes.json();
+
+                              if (!uploadJson.url)
+                                return alert("Upload failed");
+
+                              const updated = {
+                                ...story!,
+                                coverImageUrl: uploadJson.url,
+                                tags: {
+                                  tagNames: Array.isArray(story.tags)
+                                    ? story.tags.map((tag) => tag.name)
+                                    : story.tags?.tagNames || [],
+                                },
+                              };
+
+                              const res = await fetch("/api/stories", {
+                                method: "PUT",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(updated),
+                              });
+
+                              if (res.ok) {
+                                setStory(updated);
+                                setOpenImageDialog(false);
+                                setAiImagePreviewUrl(null);
+                                setImagePrompt("");
+                              } else {
+                                alert("Failed to update story");
+                              }
+                            }}
+                          >
+                            Use This Image
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
+
               <div className="flex items-center gap-2">
                 <span className="font-bold">ID:</span>
                 <span>{story.id}</span>

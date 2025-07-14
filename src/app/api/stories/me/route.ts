@@ -1,17 +1,15 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET() {
   try {
     const token = (await cookies()).get("authToken")?.value;
-    const param = await params;
-    const userId = await param.id;
+    if (!token) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/published/user/${userId}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/me?page=1&pageSize=1000`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -28,10 +26,9 @@ export async function GET(
     }
 
     const data = await res.json();
-
     return NextResponse.json({ data }, { status: 200 });
   } catch (err) {
-    console.error("GET /api/stories/user/published/[id]:", err);
+    console.error("GET /api/Story/me:", err);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
