@@ -75,8 +75,6 @@ export default function WriteStoryPage() {
       tags: { tagNames: [] },
     };
 
-    console.log("Submitting payload:", payload);
-
     const res = await fetch("/api/stories", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },

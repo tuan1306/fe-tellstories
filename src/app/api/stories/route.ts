@@ -96,6 +96,7 @@ export async function PUT(req: NextRequest) {
 
     const text = await res.text();
     const data = JSON.parse(text);
+
     return NextResponse.json(data, { status: 200 });
   } catch (err) {
     console.error("PUT /api/stories error:", err);

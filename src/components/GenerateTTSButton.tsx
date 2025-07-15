@@ -2,33 +2,78 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { StoryPanel } from "@/app/types/panel";
+import { StoryDetails } from "@/app/types/story";
 
-export default function GenerateTTSButton({ content }: { content: string }) {
-  const [loading, setLoading] = useState(false);
+export default function GenerateTTSButton({
+  story,
+  panel,
+}: {
+  story: StoryDetails;
+  panel: StoryPanel;
+}) {
+  const [loadingStep, setLoadingStep] = useState<
+    null | "generating" | "uploading"
+  >(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
   const generateTTS = async () => {
-    setLoading(true);
     try {
-      const res = await fetch("/api/stories/ai/tts", {
+      // Generate first
+      setLoadingStep("generating");
+      const ttsRes = await fetch("/api/stories/ai/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text: content,
+          text: panel.content,
           voiceId: "nova",
           additionalInstructions: "Read clearly for children",
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to generate audio");
+      if (!ttsRes.ok) throw new Error("TTS failed");
 
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      setAudioUrl(url);
+      // Load & Upload to CDN
+      const blob = await ttsRes.blob();
+
+      setLoadingStep("uploading");
+      const file = new File([blob], "tts.mp3", { type: "audio/mpeg" });
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch("/api/cdn/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Upload failed");
+
+      const json = await uploadRes.json();
+      const cdnUrl = json?.data?.url || json?.url;
+
+      setAudioUrl(cdnUrl);
+
+      // Update the story audio URL after upload to CDN
+      await fetch("/api/stories", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...story,
+          panels: story.panels.map((p) =>
+            p.panelNumber === panel.panelNumber ? { ...p, audioUrl: cdnUrl } : p
+          ),
+          tags: {
+            tagNames: story.tags.map((tag) => tag.name),
+          },
+        }),
+      });
     } catch (err) {
-      console.error("TTS error:", err);
+      console.error("Generate & upload error:", err);
     } finally {
-      setLoading(false);
+      setLoadingStep(null);
     }
   };
 
@@ -37,8 +82,17 @@ export default function GenerateTTSButton({ content }: { content: string }) {
       Your browser does not support the audio element.
     </audio>
   ) : (
-    <Button onClick={generateTTS} disabled={loading} className="w-full">
-      {loading ? "Generating..." : "Generate Audio"}
-    </Button>
+    <div className="w-full flex flex-col gap-2">
+      <Button onClick={generateTTS} disabled={!!loadingStep} className="w-full">
+        {loadingStep === "generating"
+          ? "Generating..."
+          : loadingStep === "uploading"
+          ? "Uploading..."
+          : "Generate Audio"}
+      </Button>
+      {loadingStep && (
+        <Progress value={loadingStep === "generating" ? 50 : 100} />
+      )}
+    </div>
   );
 }

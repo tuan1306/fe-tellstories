@@ -165,7 +165,7 @@ export default function StoryPage() {
                   Your browser does not support the audio element.
                 </audio>
               ) : (
-                <GenerateTTSButton content={story.panels[0]?.content || ""} />
+                <GenerateTTSButton story={story} panel={story.panels[0]} />
               )}
             </div>
           </div>
