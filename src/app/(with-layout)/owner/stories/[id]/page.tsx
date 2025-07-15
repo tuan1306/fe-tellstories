@@ -1,6 +1,7 @@
 "use client";
 
 import { StoryDetails } from "@/app/types/story";
+import GenerateTTSButton from "@/components/GenerateTTSButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -154,8 +155,18 @@ export default function StoryPage() {
 
           {/* Fixed Audio Player */}
           <div className="pt-4 border-t mt-4 shrink-0">
-            <div className="w-full h-14 bg-gray-200 rounded-md flex items-center justify-center text-muted-foreground">
-              Audio Player Here
+            <div className="w-full h-14 rounded-md flex items-center justify-center text-muted-foreground px-4">
+              {story.panels?.[0]?.audioUrl ? (
+                <audio
+                  controls
+                  className="w-full"
+                  src={story.panels[0].audioUrl}
+                >
+                  Your browser does not support the audio element.
+                </audio>
+              ) : (
+                <GenerateTTSButton content={story.panels[0]?.content || ""} />
+              )}
             </div>
           </div>
         </div>
