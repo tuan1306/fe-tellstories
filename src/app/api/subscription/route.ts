@@ -17,7 +17,7 @@ export async function GET() {
     if (!res.ok) {
       const log = await res.text();
       return NextResponse.json(
-        { message: "Failed to fetch users", error: log },
+        { message: "Failed to fetch subscription package", error: log },
         { status: res.status }
       );
     }

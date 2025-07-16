@@ -8,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,6 +57,16 @@ const recentBuyers = [
   { name: "Minh Pham", plan: "Basic", date: "2025-06-28" },
   { name: "Linh Nguyen", plan: "Pro", date: "2025-06-27" },
   { name: "John Do", plan: "Basic", date: "2025-06-26" },
+  { name: "David Le", plan: "Premium", date: "2025-06-26" },
+  { name: "Hannah Vu", plan: "Pro", date: "2025-06-25" },
+  { name: "Tommy Bui", plan: "Basic", date: "2025-06-25" },
+  { name: "Emily Nguyen", plan: "Premium", date: "2025-06-24" },
+  { name: "Nathan Tran", plan: "Pro", date: "2025-06-24" },
+  { name: "Sophie Ha", plan: "Basic", date: "2025-06-23" },
+  { name: "Daniel Pham", plan: "Premium", date: "2025-06-22" },
+  { name: "Olivia Mai", plan: "Pro", date: "2025-06-22" },
+  { name: "Chris Nguyen", plan: "Basic", date: "2025-06-21" },
+  { name: "Kelly Dang", plan: "Premium", date: "2025-06-21" },
 ];
 
 export default function Subscription() {
@@ -69,13 +80,21 @@ export default function Subscription() {
   const [selectedPackage, setSelectedPackage] =
     useState<SubscriptionPackage | null>(null);
 
-  const [stats, setStats] = useState({
-    newAccounts: 0,
-    newAccountFluct: 0,
-    activeAccounts: 0,
-    publishedStories: 0,
-    publishedStoriesFluct: 0,
-    storyViews: 0,
+  const [dashboardData, setDashboardData] = useState({
+    subscriptionRevenue: 0,
+    subscriptionRevenueFluct: 0,
+    subscriber: 0,
+    subscriberFluct: 0,
+    newSubscriber: 0,
+    newSubscriberFluct: 0,
+    quittedSubscriber: 0,
+    quittedSubscriberFluct: 0,
+    recentSubscribers: [] as { name: string; plan: string; date: string }[],
+    mostPopularTier: {
+      percentage: 0,
+      subscriptionName: "",
+      numberOfSubscriber: 0,
+    },
   });
 
   useEffect(() => {
@@ -125,18 +144,10 @@ export default function Subscription() {
 
   // For user subscription bought that week idk
   useEffect(() => {
-    fetch("/api/dashboard")
+    fetch("/api/subscription/dashboard")
       .then((res) => res.json())
       .then((data) => {
-        const d = data?.data;
-        setStats({
-          newAccounts: d?.newAccount ?? 0,
-          newAccountFluct: d?.newAccountFluct ?? 0,
-          activeAccounts: d?.activeAccount ?? 0,
-          publishedStories: d?.publishedStories ?? 0,
-          publishedStoriesFluct: d?.publishedStoriesFluct ?? 0,
-          storyViews: d?.storiesViews ?? 0,
-        });
+        if (data.success) setDashboardData(data.data);
       });
   }, []);
 
@@ -232,10 +243,12 @@ export default function Subscription() {
               <CardDescription>
                 Total amount of money accumulated this month
               </CardDescription>
-              <CardAction>{fluctBadge(stats.newAccountFluct)}</CardAction>
+              <CardAction>
+                {fluctBadge(dashboardData.subscriptionRevenueFluct)}
+              </CardAction>
             </CardHeader>
             <CardContent className="text-4xl">
-              <p>{stats.newAccounts.toLocaleString()}</p>
+              <p>{dashboardData.subscriptionRevenue.toLocaleString()}</p>
             </CardContent>
           </Card>
 
@@ -250,10 +263,12 @@ export default function Subscription() {
                 <CardDescription>
                   User bought subscription this week
                 </CardDescription>
-                <CardAction>{fluctBadge(stats.newAccountFluct)}</CardAction>
+                <CardAction>
+                  {fluctBadge(dashboardData.subscriberFluct)}
+                </CardAction>
               </CardHeader>
               <CardContent className="text-4xl">
-                <p>{stats.newAccounts.toLocaleString()}</p>
+                <p>{dashboardData.subscriber.toLocaleString()}</p>
               </CardContent>
             </Card>
 
@@ -264,12 +279,14 @@ export default function Subscription() {
                   New Subscriber
                 </CardTitle>
                 <CardDescription>
-                  User bought subscription this week
+                  Newly joined subscribers this month
                 </CardDescription>
-                <CardAction>{fluctBadge(stats.newAccountFluct)}</CardAction>
+                <CardAction>
+                  {fluctBadge(dashboardData.newSubscriberFluct)}
+                </CardAction>
               </CardHeader>
               <CardContent className="text-4xl">
-                <p>{stats.newAccounts.toLocaleString()}</p>
+                <p>{dashboardData.newSubscriber.toLocaleString()}</p>
               </CardContent>
             </Card>
 
@@ -277,24 +294,30 @@ export default function Subscription() {
               <CardHeader>
                 <CardTitle className="flex gap-2 text-[16px]">
                   <UserPlus />
-                  Something here
+                  Lost Subscription
                 </CardTitle>
                 <CardDescription>
-                  User bought subscription this week
+                  Users who stopped subscribing this month
                 </CardDescription>
-                <CardAction>{fluctBadge(stats.newAccountFluct)}</CardAction>
+                <CardAction>
+                  {fluctBadge(dashboardData.quittedSubscriberFluct)}
+                </CardAction>
               </CardHeader>
               <CardContent className="text-4xl">
-                <p>{stats.newAccounts.toLocaleString()}</p>
+                <p>{dashboardData.quittedSubscriber.toLocaleString()}</p>
               </CardContent>
             </Card>
           </div>
         </div>
 
         <div className="bg-card p-4 rounded-lg h-full">
-          <h3 className="text-lg font-semibold mb-3">Recent Subscribers</h3>
-          <ul className="text-sm text-muted-foreground space-y-2">
-            {recentBuyers.map((buyer, i) => (
+          <h3 className="text-lg font-semibold">Recent Subscribers</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            A list of users who recently started a subscription.
+          </p>
+
+          {/* <ul className="text-sm text-muted-foreground space-y-2">
+            {dashboardData.recentSubscribers.map((buyer, i) => (
               <li key={i} className="flex justify-between">
                 <span>{buyer.name}</span>
                 <span>
@@ -302,7 +325,39 @@ export default function Subscription() {
                 </span>
               </li>
             ))}
-          </ul>
+          </ul> */}
+          <ScrollArea className="h-40 pr-6">
+            <ul className="text-sm text-muted-foreground space-y-2">
+              {recentBuyers.map((buyer, i) => (
+                <li
+                  key={i}
+                  className="flex items-center justify-between px-4 py-2 rounded-md shadow-sm"
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTENEYf8j4k89kg7aVflbvyPX9yOBhnXXT2w&s" />
+                      <AvatarFallback className="bg-primary text-white text-sm font-semibold">
+                        {buyer.name
+                          .split(" ")
+                          .map((word) => word[0])
+                          .join("")
+                          .toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium text-white">{buyer.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {buyer.plan} Plan
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {buyer.date}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </ScrollArea>
         </div>
       </div>
 
@@ -652,8 +707,13 @@ export default function Subscription() {
             <CardDescription>Based on active subscriptions</CardDescription>
           </CardHeader>
           <CardContent className="text-2xl">
-            <p className="font-semibold text-primary">Premium</p>
-            <p className="text-muted-foreground text-sm">54 users (42%)</p>
+            <p className="font-semibold text-primary">
+              {dashboardData.mostPopularTier.subscriptionName || "None"}
+            </p>
+            <p className="text-muted-foreground text-sm">
+              {dashboardData.mostPopularTier.numberOfSubscriber} users (
+              {dashboardData.mostPopularTier.percentage}%)
+            </p>
           </CardContent>
         </Card>
       </div>
