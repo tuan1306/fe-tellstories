@@ -8,6 +8,8 @@ import { PendingStoryRequest, StoryDetails } from "@/app/types/story";
 import Link from "next/link";
 import { AgeGroupFilter } from "@/components/AgeGroupFilter";
 import { PendingStory } from "@/components/PendingStory";
+import { PanelCountFilter } from "@/components/PanelCountFilter";
+import { Badge } from "@/components/ui/badge";
 
 export default function StoriesManagement() {
   const [search, setSearch] = useState("");
@@ -16,6 +18,7 @@ export default function StoriesManagement() {
   const [statusFilter, setStatusFilter] = useState<
     "Published" | "Pending" | "Featured"
   >("Published");
+  const [panelFilter, setPanelFilter] = useState<string[]>([]);
   const [pendingStories, setPendingStories] = useState<PendingStoryRequest[]>(
     []
   );
@@ -33,6 +36,7 @@ export default function StoriesManagement() {
         const stories = Array.isArray(json.data)
           ? json.data
           : json.data?.data || [];
+        // console.log("Fetched Stories:", stories);
         setUserStories(stories);
       })
       .catch((err) => console.error("Fetch error:", err));
@@ -47,6 +51,15 @@ export default function StoriesManagement() {
   }, []);
 
   const filtered = userStories
+    .filter((story) => {
+      const panelCount = story.panels?.length || 0;
+      console.log(
+        `Story: ${story.title}, Panels: ${panelCount}, Filter: ${panelFilter}`
+      );
+      if (panelFilter.includes("Single") && panelCount === 1) return true;
+      if (panelFilter.includes("Multiple") && panelCount > 1) return true;
+      return panelFilter.length === 0; // All
+    })
     .filter(
       (story) =>
         story.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -110,6 +123,16 @@ export default function StoriesManagement() {
           <div className="my-3 border-t border-border" />
 
           <AgeGroupFilter selected={selectedAges} onChange={toggleAge} />
+          <PanelCountFilter
+            selected={panelFilter}
+            onChange={(panel) =>
+              setPanelFilter((prev) =>
+                prev.includes(panel)
+                  ? prev.filter((p) => p !== panel)
+                  : [...prev, panel]
+              )
+            }
+          />
         </ScrollArea>
       </div>
 
@@ -123,7 +146,7 @@ export default function StoriesManagement() {
               </p>
             </div>
           ) : (
-            <ScrollArea className="h-full w-full">
+            <ScrollArea className="h-full w-full pr-4">
               <PendingStory items={pendingStories} />
             </ScrollArea>
           )
@@ -138,7 +161,7 @@ export default function StoriesManagement() {
             ))}
           </div>
         ) : (
-          <ScrollArea className="h-full w-full">
+          <ScrollArea className="h-full w-full pr-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
               {filtered.map((story) => (
                 <Link
@@ -159,7 +182,19 @@ export default function StoriesManagement() {
                         No Image
                       </div>
                     )}
+
+                    {statusFilter === "Published" && story.isFeatured && (
+                      <div className="absolute top-1 right-1">
+                        <Badge
+                          variant="secondary"
+                          className="absolute top-1 right-1 bg-amber-400"
+                        >
+                          Featured
+                        </Badge>
+                      </div>
+                    )}
                   </div>
+
                   <h1 className="text-sm font-semibold text-muted-foreground">
                     {story.author || "Unknown Author"}
                   </h1>
