@@ -133,6 +133,7 @@ export default function WriteStoryPage() {
   const handleAIImageGenerate = async () => {
     try {
       setGeneratingImage(true);
+
       const res = await fetch("/api/stories/ai/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -149,10 +150,12 @@ export default function WriteStoryPage() {
         throw new Error(`API failed: ${text}`);
       }
 
-      const json = await res.json();
-      setAiImagePreviewUrl(json.url);
+      const data = await res.json();
+
+      setAiImagePreviewUrl(data.url);
     } catch (err) {
       console.error("Image generation failed:", err);
+      alert("Something went wrong while generating the image.");
     } finally {
       setGeneratingImage(false);
     }
@@ -245,7 +248,7 @@ export default function WriteStoryPage() {
                         className="w-full"
                         onClick={() => {
                           setImageMode("ai");
-                          setImagePrompt(story.description || "");
+                          setImagePrompt(story.description || ""); // Auto-fill prompt from description
                         }}
                       >
                         Generate with AI
@@ -289,6 +292,10 @@ export default function WriteStoryPage() {
 
                       {aiImagePreviewUrl && !generatingImage && (
                         <>
+                          {console.log(
+                            "aiImagePreviewUrl in render:",
+                            aiImagePreviewUrl
+                          )}
                           <div className="w-full">
                             <img
                               src={aiImagePreviewUrl}

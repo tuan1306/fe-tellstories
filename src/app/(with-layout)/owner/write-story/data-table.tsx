@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import WritingAnimation from "@/components/misc/animated-icons/Writing";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function DataTable() {
   const [search, setSearch] = useState("");
@@ -34,6 +35,8 @@ export default function DataTable() {
   const [prompt, setPrompt] = useState("");
   const [mode, setMode] = useState<"manual" | "ai" | null>(null);
   const [ageRange, setAgeRange] = useState<string | undefined>(undefined);
+  const [generateAudio, setGenerateAudio] = useState(false);
+  const [generateImage, setGenerateImage] = useState(false);
 
   const router = useRouter();
 
@@ -119,7 +122,8 @@ export default function DataTable() {
   const handleAIGenerate = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/stories/ai", {
+      // Story generation
+      const storyRes = await fetch("/api/stories/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -137,9 +141,63 @@ export default function DataTable() {
         }),
       });
 
-      const json = await res.json();
-      const newStory = json.data[0];
+      const storyJson = await storyRes.json();
+      const newStory = storyJson.data[0];
 
+      let coverImageUrl = "";
+      let audioUrl = "";
+
+      // Image Generation
+      if (generateImage) {
+        const imageRes = await fetch("/api/stories/ai/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            description: newStory.description || prompt,
+          }),
+        });
+
+        const imgBlob = await imageRes.blob();
+        const file = new File([imgBlob], "cover.png", { type: "image/png" });
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const uploadRes = await fetch("/api/cdn/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const json = await uploadRes.json();
+        coverImageUrl = json?.data?.url || json?.url;
+      }
+
+      // TTS
+      if (generateAudio) {
+        const ttsRes = await fetch("/api/stories/ai/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: newStory.title,
+            voiceId: "alloy",
+          }),
+        });
+
+        const audioBlob = await ttsRes.blob();
+        const file = new File([audioBlob], "tts.mp3", { type: "audio/mpeg" });
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const uploadRes = await fetch("/api/cdn/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const json = await uploadRes.json();
+        audioUrl = json?.data?.url || json?.url;
+      }
+
+      // Story
       const createRes = await fetch("/api/stories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -153,13 +211,13 @@ export default function DataTable() {
               panelNumber: 1,
               content: newStory.content,
               imageUrl: "",
-              audioUrl: "",
+              audioUrl,
               isEndPanel: false,
               languageCode: "en",
             },
           ],
           tags: { tagNames: newStory.tags || [] },
-          coverImageUrl: "",
+          coverImageUrl,
           language: "ENG",
           author: "Super Admin",
         }),
@@ -167,6 +225,7 @@ export default function DataTable() {
 
       const result = await createRes.json();
       const newId = result?.data?.id;
+
       if (!newId) throw new Error("Story creation failed");
 
       setOpen(false);
@@ -333,6 +392,35 @@ export default function DataTable() {
                     <SelectItem value="10+">10+</SelectItem>
                   </SelectContent>
                 </Select>
+
+                <div className="flex flex-col space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="generate-audio"
+                      checked={generateAudio}
+                      onCheckedChange={(checked) => setGenerateAudio(!!checked)}
+                    />
+                    <label
+                      htmlFor="generate-audio"
+                      className="text-sm font-medium leading-none"
+                    >
+                      Generate TTS Audio
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="generate-image"
+                      checked={generateImage}
+                      onCheckedChange={(checked) => setGenerateImage(!!checked)}
+                    />
+                    <label
+                      htmlFor="generate-image"
+                      className="text-sm font-medium leading-none"
+                    >
+                      Generate Cover Image
+                    </label>
+                  </div>
+                </div>
 
                 <Button disabled={!prompt} onClick={handleAIGenerate}>
                   Generate with AI
