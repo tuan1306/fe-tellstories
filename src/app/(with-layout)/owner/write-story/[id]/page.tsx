@@ -243,7 +243,10 @@ export default function WriteStoryPage() {
                       </Button>
                       <Button
                         className="w-full"
-                        onClick={() => setImageMode("ai")}
+                        onClick={() => {
+                          setImageMode("ai");
+                          setImagePrompt(story.description || "");
+                        }}
                       >
                         Generate with AI
                       </Button>
