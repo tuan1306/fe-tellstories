@@ -153,13 +153,37 @@ export default function DataTable() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            title,
-            description: newStory.description || prompt,
+            prompt: `Generate me a story cover image based on this title: "${title}" and this description: "${
+              newStory.description || prompt
+            }".`,
+            width: 512,
+            height: 512,
+            modelId: "flux",
           }),
         });
 
-        const imgBlob = await imageRes.blob();
+        const imageJson = await imageRes.json();
+        const base64Url = imageJson.url || imageJson.data?.url;
+
+        if (!base64Url?.startsWith("data:image/")) {
+          throw new Error("Invalid image data");
+        }
+
+        // convert base64 to Blob
+        function dataURLtoBlob(dataUrl: string) {
+          const [header, base64] = dataUrl.split(",");
+          const mime = header.match(/:(.*?);/)?.[1] || "image/png";
+          const binary = atob(base64);
+          const array = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            array[i] = binary.charCodeAt(i);
+          }
+          return new Blob([array], { type: mime });
+        }
+
+        const imgBlob = dataURLtoBlob(base64Url);
         const file = new File([imgBlob], "cover.png", { type: "image/png" });
+
         const formData = new FormData();
         formData.append("file", file);
 
