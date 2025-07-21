@@ -77,6 +77,20 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                 <span className="font-bold">Language:</span>
                 <Badge>{story.language}</Badge>
               </div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold">Story type:</span>
+                <Badge>{story.storyType}</Badge>{" "}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold">AI-Generated:</span>
+                <Badge
+                  className={
+                    story.isAIGenerated ? "bg-green-400" : "bg-red-400"
+                  }
+                >
+                  {story.isAIGenerated ? "Yes" : "No"}
+                </Badge>{" "}
+              </div>
               {story.tags?.length > 0 && (
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold">Tags:</span>

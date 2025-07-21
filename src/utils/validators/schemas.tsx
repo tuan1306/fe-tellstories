@@ -36,12 +36,11 @@ export const addStorySchema = z.object({
   author: z.string().min(1, "Author is required"),
   description: z.string(),
   isDraft: z.boolean(),
-  coverImageUrl: z.string(),
+  coverImageUrl: z.string().optional(),
   language: z.enum(["ENG", "VIE"]),
   duration: z.number(),
   ageRange: z.enum(["1-3", "3-5", "5-8", "8-10", "10+"]),
   readingLevel: z.enum(["Sơ cấp", "Trung cấp", "Nâng cao"]),
-  storyType: z.string().min(1, "Story type is required"),
   isAIGenerated: z.boolean(),
   backgroundMusicUrl: z.string(),
   panels: z.array(

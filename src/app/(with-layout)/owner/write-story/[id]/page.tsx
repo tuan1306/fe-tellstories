@@ -109,6 +109,11 @@ export default function WriteStoryPage() {
     const updatedStory = {
       ...story,
       coverImageUrl: json.url,
+      tags: {
+        tagNames: Array.isArray(story.tags)
+          ? story.tags.map((tag) => tag.name)
+          : story.tags?.tagNames || [],
+      },
     };
 
     const updateRes = await fetch("/api/stories", {
