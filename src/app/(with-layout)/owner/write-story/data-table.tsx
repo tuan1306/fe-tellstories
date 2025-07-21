@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlusCircle } from "lucide-react";
+import { Loader2Icon, PlusCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
@@ -37,6 +37,7 @@ export default function DataTable() {
   const [ageRange, setAgeRange] = useState<string | undefined>(undefined);
   const [generateAudio, setGenerateAudio] = useState(false);
   const [generateImage, setGenerateImage] = useState(false);
+  const [optimizing, setOptimizing] = useState(false);
 
   const router = useRouter();
 
@@ -261,6 +262,28 @@ export default function DataTable() {
     }
   };
 
+  const handleOptimizedPrompt = async () => {
+    setOptimizing(true);
+    try {
+      const res = await fetch("/api/stories/ai/optimize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ receivedPrompt: prompt }),
+      });
+
+      const json = await res.json();
+      const optimized = json?.data || json?.content;
+
+      if (optimized) {
+        setPrompt(optimized.trim());
+      }
+    } catch (err) {
+      console.error("Failed to optimize prompt:", err);
+    } finally {
+      setOptimizing(false);
+    }
+  };
+
   return (
     <div className="space-y-4 mt-4">
       <Input
@@ -336,7 +359,6 @@ export default function DataTable() {
           if (!val) {
             setMode(null);
             setTitle("");
-            setPrompt("");
           }
         }}
       >
@@ -403,6 +425,22 @@ export default function DataTable() {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                 />
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={!prompt || optimizing}
+                  onClick={handleOptimizedPrompt}
+                >
+                  {optimizing ? (
+                    <div className="flex items-center space-x-2">
+                      <span>Optimizing...</span>
+                      <Loader2Icon className="w-4 h-4 animate-spin" />
+                    </div>
+                  ) : (
+                    "Optimize Prompt"
+                  )}
+                </Button>
 
                 <Select value={ageRange} onValueChange={setAgeRange}>
                   <SelectTrigger className="w-[180px]">
