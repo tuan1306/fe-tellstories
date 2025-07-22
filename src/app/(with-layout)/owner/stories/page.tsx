@@ -10,6 +10,9 @@ import { AgeGroupFilter } from "@/components/AgeGroupFilter";
 import { PendingStory } from "@/components/PendingStory";
 import { PanelCountFilter } from "@/components/PanelCountFilter";
 import { Badge } from "@/components/ui/badge";
+import { LanguageFilter } from "@/components/LanguageFilter";
+import { ReadingLevelFilter } from "@/components/ReadingLevelFilter";
+import { TTSAudioFilter } from "@/components/TTSAudioFilter";
 
 export default function StoriesManagement() {
   const [search, setSearch] = useState("");
@@ -22,6 +25,29 @@ export default function StoriesManagement() {
   const [pendingStories, setPendingStories] = useState<PendingStoryRequest[]>(
     []
   );
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  const [selectedAudio, setSelectedAudio] = useState<string[]>([]);
+
+  const toggleLanguage = (lang: string) => {
+    setSelectedLanguages((prev) =>
+      prev.includes(lang) ? prev.filter((l) => l !== lang) : [...prev, lang]
+    );
+  };
+
+  const toggleLevel = (level: string) => {
+    setSelectedLevels((prev) =>
+      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
+    );
+  };
+
+  const toggleAudio = (option: string) => {
+    setSelectedAudio((prev) =>
+      prev.includes(option)
+        ? prev.filter((a) => a !== option)
+        : [...prev, option]
+    );
+  };
 
   const toggleAge = (age: string) => {
     setSelectedAges((prev) =>
@@ -60,6 +86,29 @@ export default function StoriesManagement() {
       if (panelFilter.includes("Multiple") && panelCount > 1) return true;
       return panelFilter.length === 0; // All
     })
+    .filter((story) => {
+      return (
+        selectedLanguages.length === 0 ||
+        selectedLanguages.includes(story.language || "")
+      );
+    })
+    .filter(
+      (story) =>
+        selectedLevels.length === 0 ||
+        selectedLevels.includes(story.readingLevel || "")
+    )
+    .filter((story) => {
+      if (selectedAudio.length === 0) return true;
+
+      const hasAudio = story.panels?.some(
+        (panel) => panel.audioUrl?.trim() !== ""
+      );
+      return (
+        (selectedAudio.includes("TTS") && hasAudio) ||
+        (selectedAudio.includes("Without TTS") && !hasAudio)
+      );
+    })
+
     .filter(
       (story) =>
         story.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -133,6 +182,15 @@ export default function StoriesManagement() {
               )
             }
           />
+          <LanguageFilter
+            selected={selectedLanguages}
+            onChange={toggleLanguage}
+          />
+          <ReadingLevelFilter
+            selected={selectedLevels}
+            onChange={toggleLevel}
+          />
+          <TTSAudioFilter selected={selectedAudio} onChange={toggleAudio} />
         </ScrollArea>
       </div>
 
