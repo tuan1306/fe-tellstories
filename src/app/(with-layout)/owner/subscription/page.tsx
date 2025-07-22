@@ -229,6 +229,45 @@ export default function Subscription() {
     );
   };
 
+  const SubscriptionDetails = ({ pkg }: { pkg: SubscriptionPackage }) => (
+    <div className="text-sm text-muted-foreground space-y-1">
+      <p>
+        <strong>Price:</strong> ${pkg.price}
+      </p>
+      <p>
+        <strong>Type:</strong> {pkg.type}
+      </p>
+      <p>
+        <strong>Duration:</strong> {pkg.durationDays} days
+      </p>
+      <p>
+        <strong>Billing Cycle:</strong> every {pkg.billingCycle} month(s)
+      </p>
+      <p>
+        <strong>Max Stories:</strong> {pkg.maxStories}
+      </p>
+      <p>
+        <strong>Max AI Requests:</strong> {pkg.maxAIRequest}
+      </p>
+      <p>
+        <strong>Max TTS Requests:</strong> {pkg.maxTTSRequest}
+      </p>
+      <p>
+        <strong>Active:</strong> {pkg.isActive ? "Yes" : "No"}
+      </p>
+      <p>
+        <strong>Default:</strong> {pkg.isDefault ? "Yes" : "No"}
+      </p>
+      <Button
+        variant="link"
+        className="px-0 text-sm cursor-pointer text-chart-1"
+        onClick={() => setSelectedPackage(pkg)}
+      >
+        Edit subscription
+      </Button>
+    </div>
+  );
+
   return (
     <div className="flex gap-6 mt-4 h-[90vh]">
       {/* LEFT */}
@@ -639,58 +678,55 @@ export default function Subscription() {
                   There’s no package here :(
                 </p>
               ) : (
-                <Accordion type="single" collapsible className="w-full my-4">
-                  {subscriptionPackages.map((pkg, i) => (
-                    <AccordionItem key={pkg.id} value={`${pkg.name}-${i}`}>
-                      <AccordionTrigger className="cursor-pointer">
-                        {pkg.name} Plan
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <p>
-                            <strong>Price:</strong> ${pkg.price}
-                          </p>
-                          <p>
-                            <strong>Type:</strong> {pkg.type}
-                          </p>
-                          <p>
-                            <strong>Duration:</strong> {pkg.durationDays} days
-                          </p>
-                          <p>
-                            <strong>Billing Cycle:</strong> every{" "}
-                            {pkg.billingCycle} month(s)
-                          </p>
-                          <p>
-                            <strong>Max Stories:</strong> {pkg.maxStories}
-                          </p>
-                          <p>
-                            <strong>Max AI Requests:</strong> {pkg.maxAIRequest}
-                          </p>
-                          <p>
-                            <strong>Max TTS Requests:</strong>{" "}
-                            {pkg.maxTTSRequest}
-                          </p>
-                          <p>
-                            <strong>Active:</strong>{" "}
-                            {pkg.isActive ? "Yes" : "No"}
-                          </p>
-                          <p>
-                            <strong>Default:</strong>{" "}
-                            {pkg.isDefault ? "Yes" : "No"}
-                          </p>
-
-                          <Button
-                            variant="link"
-                            className="px-0 text-sm cursor-pointer text-chart-1"
-                            onClick={() => setSelectedPackage(pkg)}
+                <div className="space-y-6 my-4">
+                  {/* Active Packages */}
+                  <div>
+                    <h3 className="text-lg font-bold text-green-500">
+                      Active Packages
+                    </h3>
+                    <Accordion type="single" collapsible className="w-full">
+                      {subscriptionPackages
+                        .filter((pkg) => pkg.isActive)
+                        .map((pkg, i) => (
+                          <AccordionItem
+                            key={pkg.id}
+                            value={`active-${pkg.name}-${i}`}
                           >
-                            Edit subscription
-                          </Button>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
+                            <AccordionTrigger className="cursor-pointer">
+                              {pkg.name} Plan
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <SubscriptionDetails pkg={pkg} />
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                    </Accordion>
+                  </div>
+
+                  {/* Inactive Packages */}
+                  <div>
+                    <h3 className="text-lg font-bold text-red-500">
+                      Inactive Packages
+                    </h3>
+                    <Accordion type="single" collapsible className="w-full">
+                      {subscriptionPackages
+                        .filter((pkg) => !pkg.isActive)
+                        .map((pkg, i) => (
+                          <AccordionItem
+                            key={pkg.id}
+                            value={`inactive-${pkg.name}-${i}`}
+                          >
+                            <AccordionTrigger className="cursor-pointer">
+                              {pkg.name} Plan
+                            </AccordionTrigger>
+                            <AccordionContent>
+                              <SubscriptionDetails pkg={pkg} />
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                    </Accordion>
+                  </div>
+                </div>
               )}
             </ScrollArea>
           </DialogContent>
