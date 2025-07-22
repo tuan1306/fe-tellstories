@@ -33,6 +33,12 @@ export async function POST(req: NextRequest) {
     const audioBlob = await res.blob();
     const audioBuffer = await audioBlob.arrayBuffer();
 
+    console.log("TTS payload:", {
+      text: body.text,
+      voiceId: body.voiceId || "alloy",
+      additionalInstructions: body.additionalInstructions || "",
+    });
+
     return new NextResponse(Buffer.from(audioBuffer), {
       status: 200,
       headers: {

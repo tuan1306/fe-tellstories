@@ -16,29 +16,55 @@ export default function GenerateTTSButton({
   const [loadingStep, setLoadingStep] = useState<
     null | "generating" | "uploading"
   >(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(
+    panel.audioUrl ?? null
+  );
+
+  const splitTextIntoChunks = (text: string, maxLength: number) => {
+    const sentences = text.match(/[^.!?]+[.!?]*/g) || [text];
+    const chunks: string[] = [];
+    let current = "";
+
+    for (const sentence of sentences) {
+      if ((current + sentence).length <= maxLength) {
+        current += sentence;
+      } else {
+        if (current) chunks.push(current.trim());
+        current = sentence;
+      }
+    }
+    if (current) chunks.push(current.trim());
+    return chunks;
+  };
 
   const generateTTS = async () => {
     try {
-      // Generate first
       setLoadingStep("generating");
-      const ttsRes = await fetch("/api/stories/ai/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: panel.content,
-          voiceId: "nova",
-          additionalInstructions: "Read clearly for children",
-        }),
-      });
 
-      if (!ttsRes.ok) throw new Error("TTS failed");
+      const chunks = splitTextIntoChunks(panel.content, 300);
+      const audioBlobs: Blob[] = [];
 
-      // Load & Upload to CDN
-      const blob = await ttsRes.blob();
+      for (const chunk of chunks) {
+        const res = await fetch("/api/stories/ai/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: chunk,
+            voiceId: "nova",
+            additionalInstructions: "Read clearly for children",
+          }),
+        });
+
+        if (!res.ok) throw new Error("TTS generation failed for chunk");
+        audioBlobs.push(await res.blob());
+      }
+
+      // Concatenate blobs
+      const fullBlob = new Blob(audioBlobs, { type: "audio/mpeg" });
 
       setLoadingStep("uploading");
-      const file = new File([blob], "tts.mp3", { type: "audio/mpeg" });
+
+      const file = new File([fullBlob], "tts.mp3", { type: "audio/mpeg" });
       const formData = new FormData();
       formData.append("file", file);
 
@@ -48,13 +74,15 @@ export default function GenerateTTSButton({
       });
 
       if (!uploadRes.ok) throw new Error("Upload failed");
-
       const json = await uploadRes.json();
       const cdnUrl = json?.data?.url || json?.url;
 
       setAudioUrl(cdnUrl);
 
-      // Update the story audio URL after upload to CDN
+      const updatedPanels = story.panels.map((p) =>
+        p.panelNumber === panel.panelNumber ? { ...p, audioUrl: cdnUrl } : p
+      );
+
       await fetch("/api/stories", {
         method: "PUT",
         headers: {
@@ -62,16 +90,14 @@ export default function GenerateTTSButton({
         },
         body: JSON.stringify({
           ...story,
-          panels: story.panels.map((p) =>
-            p.panelNumber === panel.panelNumber ? { ...p, audioUrl: cdnUrl } : p
-          ),
+          panels: updatedPanels,
           tags: {
             tagNames: story.tags.map((tag) => tag.name),
           },
         }),
       });
     } catch (err) {
-      console.error("Generate & upload error:", err);
+      console.error("TTS generation/upload error:", err);
     } finally {
       setLoadingStep(null);
     }

@@ -21,6 +21,13 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import WritingAnimation from "@/components/misc/animated-icons/Writing";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function WriteStoryPage() {
   const { id } = useParams();
@@ -31,6 +38,7 @@ export default function WriteStoryPage() {
   const [openImageDialog, setOpenImageDialog] = useState(false);
   const [imageMode, setImageMode] = useState<"manual" | "ai" | null>(null);
   const [imagePrompt, setImagePrompt] = useState("");
+  const [selectedModel, setSelectedModel] = useState("flux");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [aiImagePreviewUrl, setAiImagePreviewUrl] = useState<string | null>(
     null
@@ -134,24 +142,42 @@ export default function WriteStoryPage() {
     try {
       setGeneratingImage(true);
 
+      // Prompt Translation
+      const translationRes = await fetch("/api/stories/ai/translation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          receivedPrompt: imagePrompt || story?.description || prompt,
+        }),
+      });
+
+      if (!translationRes.ok) {
+        const text = await translationRes.text();
+        throw new Error(`Translation failed: ${text}`);
+      }
+
+      const translationData = await translationRes.json();
+      const translatedDescription =
+        translationData.text || translationData.result || translationData.data;
+
+      // Translate prompt -> Generate image
       const res = await fetch("/api/stories/ai/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt: imagePrompt,
+          translatedDescription,
           width: 512,
           height: 512,
-          modelId: "flux",
+          modelId: selectedModel,
         }),
       });
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(`API failed: ${text}`);
+        throw new Error(`Image API failed: ${text}`);
       }
 
       const data = await res.json();
-
       setAiImagePreviewUrl(data.url);
     } catch (err) {
       console.error("Image generation failed:", err);
@@ -271,10 +297,25 @@ export default function WriteStoryPage() {
                       </Button>
 
                       <Textarea
-                        placeholder="Describe the image..."
+                        placeholder="Enter a short story description to base the image on..."
                         value={imagePrompt}
                         onChange={(e) => setImagePrompt(e.target.value)}
                       />
+
+                      <Select
+                        value={selectedModel}
+                        onValueChange={setSelectedModel}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="flux">Flux</SelectItem>
+                          <SelectItem value="kontext">Kontext</SelectItem>
+                          <SelectItem value="turbo">Turbo</SelectItem>
+                          <SelectItem value="gptimage">GPTImage</SelectItem>
+                        </SelectContent>
+                      </Select>
 
                       {generatingImage && (
                         <div className="w-full flex justify-center mb-2">
@@ -292,10 +333,6 @@ export default function WriteStoryPage() {
 
                       {aiImagePreviewUrl && !generatingImage && (
                         <>
-                          {console.log(
-                            "aiImagePreviewUrl in render:",
-                            aiImagePreviewUrl
-                          )}
                           <div className="w-full">
                             <img
                               src={aiImagePreviewUrl}

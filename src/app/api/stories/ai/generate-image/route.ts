@@ -6,6 +6,16 @@ export async function POST(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
 
+    const { translatedDescription, width, height, modelId } = body;
+
+    console.log("Image generation prompt:", translatedDescription);
+
+    const prompt = `
+    A vibrant, colorful, and imaginative children's storybook **illustration** (not a book cover) based on the following story description. The image must be highly detailed and suitable for children. Do **not** include any text, letters, or titles in the image. Avoid all writing, typography, and symbols.
+
+    "${translatedDescription}"
+    `.trim();
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/polinationai/generate-image`,
       {
@@ -14,7 +24,12 @@ export async function POST(req: NextRequest) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          prompt,
+          width,
+          height,
+          modelId,
+        }),
       }
     );
 

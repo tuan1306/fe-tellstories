@@ -150,13 +150,28 @@ export default function DataTable() {
 
       // Image Generation
       if (generateImage) {
+        const descriptionToTranslate = newStory.description || prompt;
+
+        // Translation
+        const translationRes = await fetch("/api/stories/ai/translation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            receivedPrompt: descriptionToTranslate,
+          }),
+        });
+
+        const translatedJson = await translationRes.json();
+        const translatedDescription =
+          translatedJson?.data || descriptionToTranslate;
+
+        // Translation -> Generate
         const imageRes = await fetch("/api/stories/ai/generate-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            prompt: `Generate me a story cover image based on this title: "${title}" and this description: "${
-              newStory.description || prompt
-            }".`,
+            title,
+            translatedDescription,
             width: 512,
             height: 512,
             modelId: "flux",
@@ -170,7 +185,6 @@ export default function DataTable() {
           throw new Error("Invalid image data");
         }
 
-        // convert base64 to Blob
         function dataURLtoBlob(dataUrl: string) {
           const [header, base64] = dataUrl.split(",");
           const mime = header.match(/:(.*?);/)?.[1] || "image/png";
