@@ -71,6 +71,7 @@ const recentBuyers = [
 
 export default function Subscription() {
   const [isDelete, setIsDelete] = useState(false);
+  const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [subscriptionPackages, setSubscriptionPackages] = useState<
@@ -157,9 +158,21 @@ export default function Subscription() {
 
   const onSubmit = async (values: z.infer<typeof subscriptionSchema>) => {
     try {
+      // Check if we're activating and already have 3 active
+      const activeCount = subscriptionPackages.filter((p) => p.isActive).length;
+      const isActivating =
+        values.isActive && (!selectedPackage || !selectedPackage.isActive);
+
+      if (isActivating && activeCount >= 3) {
+        setFormError("Only 3 active packages are allowed.");
+        return;
+      } else {
+        setFormError("");
+      }
+
       setIsSubmitting(true);
       const method = selectedPackage ? "PUT" : "POST";
-      const url = selectedPackage ? `/api/subscription` : "/api/subscription";
+      const url = "/api/subscription";
 
       const payload = selectedPackage
         ? { ...values, id: selectedPackage.id }
@@ -587,6 +600,10 @@ export default function Subscription() {
                         </FormItem>
                       )}
                     />
+
+                    {formError && (
+                      <p className="text-red-500 text-sm mb-2">{formError}</p>
+                    )}
 
                     <div className="flex gap-4">
                       <FormField
