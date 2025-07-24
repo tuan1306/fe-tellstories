@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { EditStorySheet } from "@/components/EditStorySheet";
 import Link from "next/link";
 import PanelEditor from "@/components/misc/slideswiper/page";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +44,17 @@ export default function WriteStoryPage() {
     null
   );
   const [currentPanelIndex, setCurrentPanelIndex] = useState(0);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  useEffect(() => {
+    if (!confirmingDelete) return;
+
+    const timeout = setTimeout(() => {
+      setConfirmingDelete(false);
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, [confirmingDelete]);
 
   const fetchStoryById = async (storyId: string) => {
     try {
@@ -463,6 +474,36 @@ export default function WriteStoryPage() {
               />
             </ScrollArea>
           </ScrollArea>
+          <Button
+            variant={confirmingDelete ? "destructive" : "outline"}
+            className={`h-10 cursor-pointer px-2 text-sm transition-all duration-300 overflow-hidden ${
+              confirmingDelete ? "w-[90px]" : "w-10"
+            }`}
+            onClick={() => {
+              if (story.panels.length <= 1) return;
+              if (confirmingDelete) {
+                const updatedPanels = story.panels.filter(
+                  (_, i) => i !== currentPanelIndex
+                );
+                const updatedContents = panelContents.filter(
+                  (_, i) => i !== currentPanelIndex
+                );
+                setStory({ ...story, panels: updatedPanels });
+                setPanelContents(updatedContents);
+                setCurrentPanelIndex((prev) => Math.max(prev - 1, 0));
+                setConfirmingDelete(false);
+              } else {
+                setConfirmingDelete(true);
+              }
+            }}
+            disabled={story.panels.length <= 1}
+          >
+            {confirmingDelete ? (
+              "Confirm?"
+            ) : (
+              <Trash2 className="w-4 h-4 mx-auto text-red-400" />
+            )}
+          </Button>
 
           {story.panels.length > 1 ? (
             <div className="flex justify-between items-center w-full py-2 px-4 border rounded-md mt-4">
@@ -505,7 +546,7 @@ export default function WriteStoryPage() {
                     setCurrentPanelIndex(newPanelNumber);
                   }}
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 text-green-400" />
                 </Button>
               ) : (
                 <Button
