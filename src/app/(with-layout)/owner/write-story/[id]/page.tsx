@@ -11,8 +11,8 @@ import { StoryEditDetails } from "@/app/types/story";
 import { Button } from "@/components/ui/button";
 import { EditStorySheet } from "@/components/EditStorySheet";
 import Link from "next/link";
-import PanelSwiper from "@/components/misc/slideswiper/page";
-import { Plus } from "lucide-react";
+import PanelEditor from "@/components/misc/slideswiper/page";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -43,6 +43,7 @@ export default function WriteStoryPage() {
   const [aiImagePreviewUrl, setAiImagePreviewUrl] = useState<string | null>(
     null
   );
+  const [currentPanelIndex, setCurrentPanelIndex] = useState(0);
 
   const fetchStoryById = async (storyId: string) => {
     try {
@@ -453,42 +454,105 @@ export default function WriteStoryPage() {
       <div className="bg-primary-foreground p-4 rounded-lg flex-1 flex flex-col overflow-hidden">
         <div className="flex-1 overflow-hidden flex flex-col">
           <ScrollArea className="flex-1 pr-2">
-            <PanelSwiper
-              panels={story.panels}
-              panelContents={panelContents}
-              setPanelContents={setPanelContents}
-            />
+            <ScrollArea className="flex-1 pr-2">
+              <PanelEditor
+                panels={story.panels}
+                panelContents={panelContents}
+                setPanelContents={setPanelContents}
+                currentPanelIndex={currentPanelIndex}
+              />
+            </ScrollArea>
           </ScrollArea>
 
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => {
-              if (!story) return;
+          {story.panels.length > 1 ? (
+            <div className="flex justify-between items-center w-full py-2 px-4 border rounded-md mt-4">
+              <Button
+                variant="outline"
+                className="w-10 h-10 cursor-pointer"
+                onClick={() =>
+                  setCurrentPanelIndex((prev) => Math.max(prev - 1, 0))
+                }
+                disabled={currentPanelIndex === 0}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
 
-              const newPanelNumber = story.panels.length;
-              const newPanel = {
-                content: "",
-                imageUrl: "",
-                audioUrl: "",
-                isEndPanel: false,
-                languageCode: story.language,
-                panelNumber: newPanelNumber,
-              };
+              <div className="font-semibold text-sm">
+                Panel {currentPanelIndex + 1} of {story.panels.length}
+              </div>
 
-              setStory({
-                ...story,
-                panels: [...story.panels, newPanel],
-              });
+              {currentPanelIndex === story.panels.length - 1 ? (
+                <Button
+                  variant="outline"
+                  className="w-10 h-10 cursor-pointer"
+                  onClick={() => {
+                    const newPanelNumber = story.panels.length;
+                    const newPanel = {
+                      content: "",
+                      imageUrl: "",
+                      audioUrl: "",
+                      isEndPanel: false,
+                      languageCode: story.language,
+                      panelNumber: newPanelNumber,
+                    };
 
-              setPanelContents([...panelContents, ""]);
-            }}
-          >
-            <Plus /> Add Panel
-          </Button>
+                    setStory({
+                      ...story,
+                      panels: [...story.panels, newPanel],
+                    });
+
+                    setPanelContents([...panelContents, ""]);
+                    setCurrentPanelIndex(newPanelNumber);
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="w-10 h-10 cursor-pointer"
+                  onClick={() =>
+                    setCurrentPanelIndex((prev) =>
+                      Math.min(prev + 1, story.panels.length - 1)
+                    )
+                  }
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              className="w-full mt-4"
+              onClick={() => {
+                if (!story) return;
+
+                const newPanelNumber = story.panels.length;
+                const newPanel = {
+                  content: "",
+                  imageUrl: "",
+                  audioUrl: "",
+                  isEndPanel: false,
+                  languageCode: story.language,
+                  panelNumber: newPanelNumber,
+                };
+
+                setStory({
+                  ...story,
+                  panels: [...story.panels, newPanel],
+                });
+
+                setPanelContents([...panelContents, ""]);
+                setCurrentPanelIndex(newPanelNumber);
+              }}
+            >
+              <Plus /> Add Panel
+            </Button>
+          )}
         </div>
 
-        <div className="pt-2 border-t mt-4">
+        <div className="pt-2 border-t mt-2">
           <Button
             className="w-full py-4 hover:bg-primary/90 transition"
             onClick={handleSave}

@@ -42,9 +42,12 @@ export default function GenerateTTSButton({
       setLoadingStep("generating");
 
       const chunks = splitTextIntoChunks(panel.content, 300);
+      console.log("Chunks to TTS:", chunks);
+
       const audioBlobs: Blob[] = [];
 
-      for (const chunk of chunks) {
+      for (const [i, chunk] of chunks.entries()) {
+        console.log(`Sending chunk ${i + 1}:`, chunk);
         const res = await fetch("/api/stories/ai/tts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -55,27 +58,37 @@ export default function GenerateTTSButton({
           }),
         });
 
-        if (!res.ok) throw new Error("TTS generation failed for chunk");
-        audioBlobs.push(await res.blob());
+        if (!res.ok)
+          throw new Error(`TTS generation failed for chunk ${i + 1}`);
+        const blob = await res.blob();
+        console.log(`Received blob for chunk ${i + 1}:`, blob);
+        audioBlobs.push(blob);
       }
 
-      // Concatenate blobs
+      console.log("All audio blobs:", audioBlobs);
+
       const fullBlob = new Blob(audioBlobs, { type: "audio/mpeg" });
+      console.log("Concatenated blob:", fullBlob);
 
       setLoadingStep("uploading");
 
       const file = new File([fullBlob], "tts.mp3", { type: "audio/mpeg" });
       const formData = new FormData();
       formData.append("file", file);
+      console.log("Uploading file to /api/cdn/upload...");
 
       const uploadRes = await fetch("/api/cdn/upload", {
         method: "POST",
         body: formData,
       });
 
+      const uploadText = await uploadRes.text();
+      console.log("Upload response:", uploadText);
+
       if (!uploadRes.ok) throw new Error("Upload failed");
-      const json = await uploadRes.json();
+      const json = JSON.parse(uploadText);
       const cdnUrl = json?.data?.url || json?.url;
+      console.log("CDN URL:", cdnUrl);
 
       setAudioUrl(cdnUrl);
 
@@ -83,7 +96,8 @@ export default function GenerateTTSButton({
         p.panelNumber === panel.panelNumber ? { ...p, audioUrl: cdnUrl } : p
       );
 
-      await fetch("/api/stories", {
+      console.log("Sending PUT to /api/stories...");
+      const updateRes = await fetch("/api/stories", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -96,6 +110,8 @@ export default function GenerateTTSButton({
           },
         }),
       });
+
+      console.log("PUT /api/stories response:", await updateRes.text());
     } catch (err) {
       console.error("TTS generation/upload error:", err);
     } finally {
