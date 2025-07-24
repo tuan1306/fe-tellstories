@@ -80,6 +80,7 @@ export default function WriteStoryPage() {
     }
   }, [id]);
 
+  // Each panelContents is updated correlated to their mapped panel.
   const handleSave = async () => {
     if (!story) return;
 
@@ -527,7 +528,7 @@ export default function WriteStoryPage() {
                   variant="outline"
                   className="w-10 h-10 cursor-pointer"
                   onClick={() => {
-                    const newPanelNumber = story.panels.length;
+                    const newPanelNumber = story.panels.length + 1;
                     const newPanel = {
                       content: "",
                       imageUrl: "",
@@ -543,7 +544,7 @@ export default function WriteStoryPage() {
                     });
 
                     setPanelContents([...panelContents, ""]);
-                    setCurrentPanelIndex(newPanelNumber);
+                    setCurrentPanelIndex(newPanelNumber - 1);
                   }}
                 >
                   <Plus className="w-4 h-4 text-green-400" />
@@ -569,7 +570,7 @@ export default function WriteStoryPage() {
               onClick={() => {
                 if (!story) return;
 
-                const newPanelNumber = story.panels.length;
+                const newPanelNumber = story.panels.length + 1;
                 const newPanel = {
                   content: "",
                   imageUrl: "",
@@ -585,7 +586,7 @@ export default function WriteStoryPage() {
                 });
 
                 setPanelContents([...panelContents, ""]);
-                setCurrentPanelIndex(newPanelNumber);
+                setCurrentPanelIndex(newPanelNumber - 1);
               }}
             >
               <Plus /> Add Panel
