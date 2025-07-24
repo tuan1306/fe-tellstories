@@ -3,22 +3,19 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { StoryPanel } from "@/app/types/panel";
 import { StoryDetails } from "@/app/types/story";
 
 export default function GenerateTTSButton({
   story,
-  panel,
+  currentPanelIndex,
+  setStory,
 }: {
   story: StoryDetails;
-  panel: StoryPanel;
+  currentPanelIndex: number;
+  setStory: React.Dispatch<React.SetStateAction<StoryDetails | null>>;
 }) {
-  const [loadingStep, setLoadingStep] = useState<
-    null | "generating" | "uploading"
-  >(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(
-    panel.audioUrl ?? null
-  );
+  const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
+  const [step, setStep] = useState<null | "generating" | "uploading">(null);
 
   const splitTextIntoChunks = (text: string, maxLength: number) => {
     const sentences = text.match(/[^.!?]+[.!?]*/g) || [text];
@@ -37,66 +34,71 @@ export default function GenerateTTSButton({
     return chunks;
   };
 
-  const generateTTS = async () => {
+  const generateForAllPanels = async () => {
     try {
-      setLoadingStep("generating");
+      const updatedPanels = [...story.panels];
 
-      const chunks = splitTextIntoChunks(panel.content, 300);
-      console.log("Chunks to TTS:", chunks);
+      for (let i = 0; i < updatedPanels.length; i++) {
+        const panel = updatedPanels[i];
 
-      const audioBlobs: Blob[] = [];
+        setLoadingIndex(i);
+        setStep("generating");
 
-      for (const [i, chunk] of chunks.entries()) {
-        console.log(`Sending chunk ${i + 1}:`, chunk);
-        const res = await fetch("/api/stories/ai/tts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text: chunk,
-            voiceId: "nova",
-            additionalInstructions: "Read clearly for children",
-          }),
+        const chunks = splitTextIntoChunks(panel.content, 300);
+        const audioBlobs: Blob[] = [];
+
+        for (const chunk of chunks) {
+          const res = await fetch("/api/stories/ai/tts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              text: chunk,
+              voiceId: "nova",
+              additionalInstructions: "Read clearly for children",
+            }),
+          });
+
+          if (!res.ok) throw new Error("TTS failed");
+          const blob = await res.blob();
+          audioBlobs.push(blob);
+        }
+
+        setStep("uploading");
+
+        const fullBlob = new Blob(audioBlobs, { type: "audio/mpeg" });
+        const file = new File([fullBlob], `panel-${i}.mp3`, {
+          type: "audio/mpeg",
         });
 
-        if (!res.ok)
-          throw new Error(`TTS generation failed for chunk ${i + 1}`);
-        const blob = await res.blob();
-        console.log(`Received blob for chunk ${i + 1}:`, blob);
-        audioBlobs.push(blob);
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const uploadRes = await fetch("/api/cdn/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadText = await uploadRes.text();
+        if (!uploadRes.ok) throw new Error("Upload failed");
+
+        const json = JSON.parse(uploadText);
+        const cdnUrl = json?.data?.url || json?.url;
+
+        if (i === currentPanelIndex) {
+          setStory((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  panels: prev.panels.map((p, idx) =>
+                    idx === i ? { ...p, audioUrl: cdnUrl } : p
+                  ),
+                }
+              : prev
+          );
+        }
       }
 
-      console.log("All audio blobs:", audioBlobs);
-
-      const fullBlob = new Blob(audioBlobs, { type: "audio/mpeg" });
-      console.log("Concatenated blob:", fullBlob);
-
-      setLoadingStep("uploading");
-
-      const file = new File([fullBlob], "tts.mp3", { type: "audio/mpeg" });
-      const formData = new FormData();
-      formData.append("file", file);
-      console.log("Uploading file to /api/cdn/upload...");
-
-      const uploadRes = await fetch("/api/cdn/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const uploadText = await uploadRes.text();
-      console.log("Upload response:", uploadText);
-
-      if (!uploadRes.ok) throw new Error("Upload failed");
-      const json = JSON.parse(uploadText);
-      const cdnUrl = json?.data?.url || json?.url;
-      console.log("CDN URL:", cdnUrl);
-
-      setAudioUrl(cdnUrl);
-
-      const updatedPanels = story.panels.map((p) =>
-        p.panelNumber === panel.panelNumber ? { ...p, audioUrl: cdnUrl } : p
-      );
-
-      console.log("Sending PUT to /api/stories...");
+      // Update story with all audio URLs
       const updateRes = await fetch("/api/stories", {
         method: "PUT",
         headers: {
@@ -111,30 +113,26 @@ export default function GenerateTTSButton({
         }),
       });
 
-      console.log("PUT /api/stories response:", await updateRes.text());
+      const resultText = await updateRes.text();
+      console.log("PUT /api/stories result:", resultText);
     } catch (err) {
-      console.error("TTS generation/upload error:", err);
+      console.error("Error generating audio for all panels:", err);
     } finally {
-      setLoadingStep(null);
+      setStep(null);
+      setLoadingIndex(null);
     }
   };
 
-  return audioUrl ? (
-    <audio controls className="w-full" src={audioUrl}>
-      Your browser does not support the audio element.
-    </audio>
-  ) : (
+  return (
     <div className="w-full flex flex-col gap-2">
-      <Button onClick={generateTTS} disabled={!!loadingStep} className="w-full">
-        {loadingStep === "generating"
-          ? "Generating..."
-          : loadingStep === "uploading"
-          ? "Uploading..."
+      <Button onClick={generateForAllPanels} disabled={step !== null}>
+        {step
+          ? `Panel ${loadingIndex! + 1} - ${
+              step === "generating" ? "Generating..." : "Uploading..."
+            }`
           : "Generate Audio"}
       </Button>
-      {loadingStep && (
-        <Progress value={loadingStep === "generating" ? 50 : 100} />
-      )}
+      {step && <Progress value={step === "generating" ? 50 : 100} />}
     </div>
   );
 }

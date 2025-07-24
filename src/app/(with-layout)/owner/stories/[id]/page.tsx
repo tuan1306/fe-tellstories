@@ -9,12 +9,21 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function StoryPage() {
   const { id } = useParams();
   const [story, setStory] = useState<StoryDetails | null>(null);
   const [currentPanelIndex, setCurrentPanelIndex] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.play().catch((err) => {
+        console.warn("Autoplay blocked:", err);
+      });
+    }
+  }, [currentPanelIndex]);
 
   async function fetchStoryById(id: string): Promise<StoryDetails | null> {
     try {
@@ -185,19 +194,26 @@ export default function StoryPage() {
 
           {/* Audio Player */}
           <div className="border-t mt-2">
-            <div className="w-full h-14 rounded-md flex items-center justify-center text-muted-foreground px-4">
+            <div className="w-full h-14 rounded-md flex items-center justify-center text-muted-foreground">
               {story.panels?.[currentPanelIndex]?.audioUrl ? (
                 <audio
+                  ref={audioRef}
                   controls
-                  className="w-full"
+                  className="w-full mt-4"
                   src={story.panels[currentPanelIndex].audioUrl}
+                  onEnded={() => {
+                    if (currentPanelIndex < story.panels.length - 1) {
+                      setCurrentPanelIndex((prev) => prev + 1);
+                    }
+                  }}
                 >
                   Your browser does not support the audio element.
                 </audio>
               ) : (
                 <GenerateTTSButton
                   story={story}
-                  panel={story.panels[currentPanelIndex]}
+                  currentPanelIndex={currentPanelIndex}
+                  setStory={setStory}
                 />
               )}
             </div>
