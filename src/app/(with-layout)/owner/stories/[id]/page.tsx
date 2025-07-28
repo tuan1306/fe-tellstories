@@ -138,27 +138,25 @@ export default function StoryPage() {
 
       {/* Right */}
       <div className="w-full xl:w-2/3 flex flex-col space-y-4 overflow-hidden">
-        <div className="flex-1 overflow-hidden flex flex-col bg-primary-foreground p-4 rounded-lg h-[90vh]">
+        <div className="flex flex-col bg-primary-foreground p-4 rounded-lg max-h-[90vh] h-full">
           {/* Scrollable Content Area */}
-          <ScrollArea className="flex-1 pr-2">
-            <ScrollArea className="flex-1 pr-2">
-              <div className="flex-1 overflow-auto">
-                {story.panels[currentPanelIndex].imageUrl ? (
-                  <div className="w-full h-64 relative rounded-md overflow-hidden shadow-md mb-4">
-                    <Image
-                      src={story.panels[currentPanelIndex].imageUrl}
-                      alt={`Panel ${currentPanelIndex + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ) : (
-                  <p className="text-base text-muted-foreground text-center max-w-prose mx-auto whitespace-pre-line mt-4">
-                    {story.panels[currentPanelIndex].content}
-                  </p>
-                )}
-              </div>
-            </ScrollArea>
+          <ScrollArea className="flex-1 min-h-0 max-h-full overflow-y-auto pr-2">
+            <div>
+              {story.panels[currentPanelIndex].imageUrl ? (
+                <div className="w-full h-64 relative rounded-md overflow-hidden shadow-md mb-4">
+                  <Image
+                    src={story.panels[currentPanelIndex].imageUrl}
+                    alt={`Panel ${currentPanelIndex + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <p className="text-base text-muted-foreground text-center max-w-prose mx-auto whitespace-pre-line mt-4">
+                  {story.panels[currentPanelIndex].content}
+                </p>
+              )}
+            </div>
           </ScrollArea>
 
           {/* Pagination Controls */}
@@ -191,7 +189,6 @@ export default function StoryPage() {
               <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
-
           {/* Audio Player */}
           <div className="border-t mt-2">
             <div className="w-full h-14 rounded-md flex items-center justify-center text-muted-foreground">
