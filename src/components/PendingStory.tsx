@@ -6,7 +6,6 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -32,7 +31,6 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
     <div className="space-y-4 w-full">
       {items.map((item) => {
         const story = item.story;
-        console.log("Story:", story);
         return (
           <div
             key={item.id}
@@ -63,50 +61,6 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                 <p className="text-base">{story.description}</p>
               </div>
             </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="font-bold">Age range:</span>
-                <Badge>{story.ageRange}</Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold">Reading level:</span>
-                <Badge>{story.readingLevel}</Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold">Language:</span>
-                <Badge>{story.language}</Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold">Story type:</span>
-                <Badge>{story.storyType}</Badge>{" "}
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold">AI-Generated:</span>
-                <Badge
-                  className={
-                    story.isAIGenerated ? "bg-green-400" : "bg-red-400"
-                  }
-                >
-                  {story.isAIGenerated ? "Yes" : "No"}
-                </Badge>{" "}
-              </div>
-              {story.tags?.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-bold">Tags:</span>
-                  {story.tags.map((tag, i) => (
-                    <Badge key={i} className="text-xs">
-                      {tag.name}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <p className="text-xs text-muted-foreground">
-              Note: {item.requestNotes}
-            </p>
-
             {/* Action Dropdown */}
             <div className="absolute top-2 right-2">
               <DropdownMenu>
