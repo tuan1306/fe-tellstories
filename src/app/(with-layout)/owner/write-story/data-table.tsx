@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import WritingAnimation from "@/components/misc/animated-icons/Writing";
 import { Checkbox } from "@/components/ui/checkbox";
+import { VoicePreviewButton } from "@/components/VoicePreviewButton";
 
 export default function DataTable() {
   const [search, setSearch] = useState("");
@@ -38,6 +39,13 @@ export default function DataTable() {
   const [generateAudio, setGenerateAudio] = useState(false);
   const [generateImage, setGenerateImage] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState<string | undefined>();
+  const [selectedImageModel, setSelectedImageModel] = useState<
+    string | undefined
+  >();
+  const [selectedLanguage, setSelectedLanguage] = useState<
+    string | undefined
+  >();
 
   const router = useRouter();
 
@@ -174,7 +182,7 @@ export default function DataTable() {
             translatedDescription,
             width: 512,
             height: 512,
-            modelId: "flux",
+            modelId: selectedImageModel || "flux",
           }),
         });
 
@@ -213,12 +221,21 @@ export default function DataTable() {
 
       // TTS
       if (generateAudio) {
-        const ttsRes = await fetch("/api/stories/ai/tts", {
+        // Default fallback
+        let ttsPath = "/api/stories/ai/tts";
+
+        if (selectedLanguage === "VIE") {
+          ttsPath = "/api/stories/ai/tts/vietteltts";
+        } else if (selectedLanguage === "ENG") {
+          ttsPath = "/api/stories/ai/tts/pollinationai";
+        }
+
+        const ttsRes = await fetch(ttsPath, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             text: newStory.title,
-            voiceId: "alloy",
+            voiceId: selectedVoice || "alloy",
           }),
         });
 
@@ -469,12 +486,28 @@ export default function DataTable() {
                   </SelectContent>
                 </Select>
 
+                <div className="space-y-2">
+                  <Select
+                    value={selectedLanguage}
+                    onValueChange={setSelectedLanguage}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ENG">English</SelectItem>
+                      <SelectItem value="VIE">Vietnamese</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="flex flex-col space-y-4">
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="generate-audio"
                       checked={generateAudio}
                       onCheckedChange={(checked) => setGenerateAudio(!!checked)}
+                      disabled={!selectedLanguage}
                     />
                     <label
                       htmlFor="generate-audio"
@@ -483,18 +516,97 @@ export default function DataTable() {
                       Generate TTS Audio
                     </label>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="generate-image"
-                      checked={generateImage}
-                      onCheckedChange={(checked) => setGenerateImage(!!checked)}
-                    />
-                    <label
-                      htmlFor="generate-image"
-                      className="text-sm font-medium leading-none"
-                    >
-                      Generate Cover Image
-                    </label>
+
+                  {generateAudio && selectedLanguage === "ENG" && (
+                    <div className="space-y-2">
+                      <Select
+                        value={selectedVoice}
+                        onValueChange={setSelectedVoice}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Choose English voice" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="alloy">Neutral</SelectItem>
+                          <SelectItem value="echo">Energetic</SelectItem>
+                          <SelectItem value="fable">Warm</SelectItem>
+                          <SelectItem value="nova">Crispy</SelectItem>
+                          <SelectItem value="shimmer">
+                            Playful (Shimmer)
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  {generateAudio && selectedLanguage === "VIE" && (
+                    <div className="flex items-center space-x-2">
+                      {/* Voice selection dropdown */}
+                      <div className="w-full">
+                        <Select
+                          value={selectedVoice}
+                          onValueChange={setSelectedVoice}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Choose Vietnamese voice" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="hcm-diemmy">
+                              Female - Southern Vietnamese
+                            </SelectItem>
+                            <SelectItem value="hn-phuongtrang">
+                              Female - Northern Vietnamese
+                            </SelectItem>
+                            <SelectItem value="hcm-minhquan">
+                              Male - Southern Vietnamese
+                            </SelectItem>
+                            <SelectItem value="hn-thanhtung">
+                              Male - Northern Vietnamese
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Preview Button */}
+                      <VoicePreviewButton selectedVoice={selectedVoice} />
+                    </div>
+                  )}
+
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="generate-image"
+                        checked={generateImage}
+                        onCheckedChange={(checked) =>
+                          setGenerateImage(!!checked)
+                        }
+                      />
+                      <label
+                        htmlFor="generate-image"
+                        className="text-sm font-medium leading-none"
+                      >
+                        Generate Cover Image
+                      </label>
+                    </div>
+
+                    {generateImage && (
+                      <div className="space-y-2">
+                        <Select
+                          value={selectedImageModel}
+                          onValueChange={setSelectedImageModel}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Choose image model" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="flux">Flux</SelectItem>
+                            <SelectItem value="kontext">kontext</SelectItem>
+                            <SelectItem value="turbo">turbo</SelectItem>
+                            <SelectItem value="gptimage">gptimage</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
                   </div>
                 </div>
 

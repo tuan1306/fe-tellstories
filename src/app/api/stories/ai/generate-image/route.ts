@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     console.log("Image generation prompt:", translatedDescription);
 
     const prompt = `
-    A vibrant, colorful, and imaginative children's storybook **illustration** (not a book cover) based on the following story description. The image must be highly detailed and suitable for children. Do **not** include any text, letters, or titles in the image. Avoid all writing, typography, and symbols.
+    A imaginative children's storybook **illustration** (not a book cover) based on the following story description. The image must be highly detailed and suitable for children. Do **not** include any text, letters, or titles in the image. Avoid all writing, typography, and symbols.
 
     "${translatedDescription}"
     `.trim();
