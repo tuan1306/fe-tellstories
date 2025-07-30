@@ -68,10 +68,6 @@ export const subscriptionSchema = z.object({
   price: z.number().min(0),
   type: z.string().min(1),
   durationDays: z.number().min(1),
-  billingCycle: z.number().min(1),
-  maxStories: z.number().min(0),
-  maxAIRequest: z.number().min(0),
-  maxTTSRequest: z.number().min(0),
   isActive: z.boolean(),
   isDefault: z.boolean(),
 });

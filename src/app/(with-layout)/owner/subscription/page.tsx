@@ -105,10 +105,6 @@ export default function Subscription() {
         price: selectedPackage.price,
         type: selectedPackage.type,
         durationDays: selectedPackage.durationDays,
-        billingCycle: selectedPackage.billingCycle,
-        maxStories: selectedPackage.maxStories,
-        maxAIRequest: selectedPackage.maxAIRequest,
-        maxTTSRequest: selectedPackage.maxTTSRequest,
         isActive: selectedPackage.isActive,
         isDefault: selectedPackage.isDefault,
       });
@@ -123,10 +119,6 @@ export default function Subscription() {
       price: 0,
       type: "",
       durationDays: 0,
-      billingCycle: 0,
-      maxStories: 0,
-      maxAIRequest: 0,
-      maxTTSRequest: 0,
       isActive: false,
       isDefault: false,
     },
@@ -245,25 +237,11 @@ export default function Subscription() {
   const SubscriptionDetails = ({ pkg }: { pkg: SubscriptionPackage }) => (
     <div className="text-sm text-muted-foreground space-y-1">
       <p>
-        <strong>Price:</strong> ${pkg.price}
-      </p>
-      <p>
-        <strong>Type:</strong> {pkg.type}
+        <strong>Price:</strong>{" "}
+        {new Intl.NumberFormat("vi-VN").format(pkg.price * 1000)} VND
       </p>
       <p>
         <strong>Duration:</strong> {pkg.durationDays} days
-      </p>
-      <p>
-        <strong>Billing Cycle:</strong> every {pkg.billingCycle} month(s)
-      </p>
-      <p>
-        <strong>Max Stories:</strong> {pkg.maxStories}
-      </p>
-      <p>
-        <strong>Max AI Requests:</strong> {pkg.maxAIRequest}
-      </p>
-      <p>
-        <strong>Max TTS Requests:</strong> {pkg.maxTTSRequest}
       </p>
       <p>
         <strong>Active:</strong> {pkg.isActive ? "Yes" : "No"}
@@ -484,108 +462,10 @@ export default function Subscription() {
 
                     <FormField
                       control={form.control}
-                      name="type"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Type</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
                       name="durationDays"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Duration (days)</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              {...field}
-                              value={field.value ?? ""}
-                              onChange={(e) =>
-                                field.onChange(e.target.valueAsNumber)
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="billingCycle"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Billing Cycle (months)</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              {...field}
-                              value={field.value ?? ""}
-                              onChange={(e) =>
-                                field.onChange(e.target.valueAsNumber)
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="maxStories"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Max Stories</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              {...field}
-                              value={field.value ?? ""}
-                              onChange={(e) =>
-                                field.onChange(e.target.valueAsNumber)
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="maxAIRequest"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Max AI Requests</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              {...field}
-                              value={field.value ?? ""}
-                              onChange={(e) =>
-                                field.onChange(e.target.valueAsNumber)
-                              }
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="maxTTSRequest"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Max TTS Requests</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
