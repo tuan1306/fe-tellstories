@@ -6,8 +6,6 @@ export async function POST(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
 
-    console.log("Vietnamese voiced picked!");
-
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/viettelAI/generate-tts`,
       {

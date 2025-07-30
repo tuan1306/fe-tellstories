@@ -145,7 +145,14 @@ export default function DataTable() {
             maxOutputTokens: 8000,
             stopSequences: [],
             seed: 123,
-            additionalSystemInstruction: `Generate a story suitable for children aged ${ageRange} with the given title.`,
+            additionalSystemInstruction: `Generate a story suitable for children aged ${ageRange} with the given title.
+
+            The story must follow this structure:
+            - An opening that introduces the main character(s) and setting.
+            - A middle section with multiple story events, separated by blank lines between paragraphs. Each paragraph should describe a meaningful event or moment.
+            - A closing that wraps up the story with a lesson or emotional ending.
+
+            Use a warm, gentle, educational tone. Language should be simple and easy to understand.`,
           },
         }),
       });
@@ -221,22 +228,36 @@ export default function DataTable() {
 
       // TTS
       if (generateAudio) {
-        // Default fallback
         let ttsPath = "/api/stories/ai/tts";
+        let ttsBody: TTSBody;
 
         if (selectedLanguage === "VIE") {
           ttsPath = "/api/stories/ai/tts/vietteltts";
+          const body: ViettelTTSBody = {
+            text: newStory.content,
+            voiceID: selectedVoice || "hcm-diemmy",
+            speed: 1,
+            withoutFilter: false,
+          };
+          ttsBody = body;
         } else if (selectedLanguage === "ENG") {
           ttsPath = "/api/stories/ai/tts/pollinationai";
+          const body: PollinationTTSBody = {
+            text: newStory.content,
+            voiceId: selectedVoice || "alloy",
+          };
+          ttsBody = body;
+        } else {
+          const body: FallbackTTSBody = {
+            text: newStory.content,
+          };
+          ttsBody = body;
         }
 
         const ttsRes = await fetch(ttsPath, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text: newStory.title,
-            voiceId: selectedVoice || "alloy",
-          }),
+          body: JSON.stringify(ttsBody),
         });
 
         const audioBlob = await ttsRes.blob();
@@ -599,10 +620,10 @@ export default function DataTable() {
                             <SelectValue placeholder="Choose image model" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="flux">Flux</SelectItem>
-                            <SelectItem value="kontext">kontext</SelectItem>
-                            <SelectItem value="turbo">turbo</SelectItem>
-                            <SelectItem value="gptimage">gptimage</SelectItem>
+                            <SelectItem value="flux">Default</SelectItem>
+                            <SelectItem value="kontext">Detailed</SelectItem>
+                            <SelectItem value="turbo">Quick</SelectItem>
+                            <SelectItem value="gptimage">Creative</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
