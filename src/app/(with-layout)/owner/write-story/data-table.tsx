@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2Icon, PlusCircle } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
@@ -15,17 +15,8 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { StoryDetails } from "@/app/types/story";
 import Link from "next/link";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import WritingAnimation from "@/components/misc/animated-icons/Writing";
-import { Checkbox } from "@/components/ui/checkbox";
-import { VoicePreviewButton } from "@/components/VoicePreviewButton";
+import CreateStoryForm from "@/components/CreateStoryForm";
 
 export default function DataTable() {
   const [search, setSearch] = useState("");
@@ -35,17 +26,13 @@ export default function DataTable() {
   const [userStories, setUserStories] = useState<StoryDetails[]>([]);
   const [prompt, setPrompt] = useState("");
   const [mode, setMode] = useState<"manual" | "ai" | null>(null);
-  const [ageRange, setAgeRange] = useState<string | undefined>(undefined);
+  const [ageRange, setAgeRange] = useState<string>("");
   const [generateAudio, setGenerateAudio] = useState(false);
   const [generateImage, setGenerateImage] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
-  const [selectedVoice, setSelectedVoice] = useState<string | undefined>();
-  const [selectedImageModel, setSelectedImageModel] = useState<
-    string | undefined
-  >();
-  const [selectedLanguage, setSelectedLanguage] = useState<
-    string | undefined
-  >();
+  const [selectedVoice, setSelectedVoice] = useState<string>("");
+  const [selectedImageModel, setSelectedImageModel] = useState<string>("flux");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("ENG");
 
   const router = useRouter();
 
@@ -458,184 +445,29 @@ export default function DataTable() {
               </>
             ))}
 
-          {mode === "ai" &&
-            (loading ? (
-              <div className="flex justify-center items-center h-40">
-                <WritingAnimation />
-              </div>
-            ) : (
-              <>
-                <Input
-                  placeholder="Story title..."
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-
-                <Textarea
-                  className="w-full h-40"
-                  placeholder="Describe what the story should be about..."
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                />
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!prompt || optimizing}
-                  onClick={handleOptimizedPrompt}
-                >
-                  {optimizing ? (
-                    <div className="flex items-center space-x-2">
-                      <span>Optimizing...</span>
-                      <Loader2Icon className="w-4 h-4 animate-spin" />
-                    </div>
-                  ) : (
-                    "Optimize Prompt"
-                  )}
-                </Button>
-
-                <Select value={ageRange} onValueChange={setAgeRange}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select age range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1-3">1-3</SelectItem>
-                    <SelectItem value="3-5">3-5</SelectItem>
-                    <SelectItem value="5-8">5-8</SelectItem>
-                    <SelectItem value="8-10">8-10</SelectItem>
-                    <SelectItem value="10+">10+</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <div className="space-y-2">
-                  <Select
-                    value={selectedLanguage}
-                    onValueChange={setSelectedLanguage}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ENG">English</SelectItem>
-                      <SelectItem value="VIE">Vietnamese</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex flex-col space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="generate-audio"
-                      checked={generateAudio}
-                      onCheckedChange={(checked) => setGenerateAudio(!!checked)}
-                      disabled={!selectedLanguage}
-                    />
-                    <label
-                      htmlFor="generate-audio"
-                      className="text-sm font-medium leading-none"
-                    >
-                      Generate TTS Audio
-                    </label>
-                  </div>
-
-                  {generateAudio && selectedLanguage === "ENG" && (
-                    <div className="space-y-2">
-                      <Select
-                        value={selectedVoice}
-                        onValueChange={setSelectedVoice}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Choose English voice" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="alloy">Neutral</SelectItem>
-                          <SelectItem value="echo">Energetic</SelectItem>
-                          <SelectItem value="fable">Warm</SelectItem>
-                          <SelectItem value="nova">Crispy</SelectItem>
-                          <SelectItem value="shimmer">
-                            Playful (Shimmer)
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {generateAudio && selectedLanguage === "VIE" && (
-                    <div className="flex items-center space-x-2">
-                      {/* Voice selection dropdown */}
-                      <div className="w-full">
-                        <Select
-                          value={selectedVoice}
-                          onValueChange={setSelectedVoice}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Choose Vietnamese voice" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="hcm-diemmy">
-                              Female - Southern Vietnamese
-                            </SelectItem>
-                            <SelectItem value="hn-phuongtrang">
-                              Female - Northern Vietnamese
-                            </SelectItem>
-                            <SelectItem value="hcm-minhquan">
-                              Male - Southern Vietnamese
-                            </SelectItem>
-                            <SelectItem value="hn-thanhtung">
-                              Male - Northern Vietnamese
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Preview Button */}
-                      <VoicePreviewButton selectedVoice={selectedVoice} />
-                    </div>
-                  )}
-
-                  <div className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="generate-image"
-                        checked={generateImage}
-                        onCheckedChange={(checked) =>
-                          setGenerateImage(!!checked)
-                        }
-                      />
-                      <label
-                        htmlFor="generate-image"
-                        className="text-sm font-medium leading-none"
-                      >
-                        Generate Cover Image
-                      </label>
-                    </div>
-
-                    {generateImage && (
-                      <div className="space-y-2">
-                        <Select
-                          value={selectedImageModel}
-                          onValueChange={setSelectedImageModel}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Choose image model" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="flux">Default</SelectItem>
-                            <SelectItem value="kontext">Detailed</SelectItem>
-                            <SelectItem value="turbo">Quick</SelectItem>
-                            <SelectItem value="gptimage">Creative</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <Button disabled={!prompt} onClick={handleAIGenerate}>
-                  Generate with AI
-                </Button>
-              </>
-            ))}
+          {mode === "ai" && (
+            <CreateStoryForm
+              title={title}
+              setTitle={setTitle}
+              prompt={prompt}
+              setPrompt={setPrompt}
+              ageRange={ageRange}
+              setAgeRange={setAgeRange}
+              selectedLanguage={selectedLanguage}
+              setSelectedLanguage={setSelectedLanguage}
+              generateAudio={generateAudio}
+              setGenerateAudio={setGenerateAudio}
+              selectedVoice={selectedVoice}
+              setSelectedVoice={setSelectedVoice}
+              generateImage={generateImage}
+              setGenerateImage={setGenerateImage}
+              selectedImageModel={selectedImageModel}
+              setSelectedImageModel={setSelectedImageModel}
+              optimizing={optimizing}
+              handleOptimizedPrompt={handleOptimizedPrompt}
+              handleAIGenerate={handleAIGenerate}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
