@@ -17,23 +17,6 @@ export default function GenerateTTSButton({
   const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
   const [step, setStep] = useState<null | "generating" | "uploading">(null);
 
-  const splitTextIntoChunks = (text: string, maxLength: number) => {
-    const sentences = text.match(/[^.!?]+[.!?]*/g) || [text];
-    const chunks: string[] = [];
-    let current = "";
-
-    for (const sentence of sentences) {
-      if ((current + sentence).length <= maxLength) {
-        current += sentence;
-      } else {
-        if (current) chunks.push(current.trim());
-        current = sentence;
-      }
-    }
-    if (current) chunks.push(current.trim());
-    return chunks;
-  };
-
   const generateForAllPanels = async () => {
     try {
       const updatedPanels = [...story.panels];
@@ -44,29 +27,23 @@ export default function GenerateTTSButton({
         setLoadingIndex(i);
         setStep("generating");
 
-        const chunks = splitTextIntoChunks(panel.content, 300);
-        const audioBlobs: Blob[] = [];
+        const ttsRes = await fetch("/api/stories/ai/tts/pollinationai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: panel.content,
+            voiceId: "nova",
+            additionalInstructions: "Read clearly for children",
+          }),
+        });
 
-        for (const chunk of chunks) {
-          const res = await fetch("/api/stories/ai/tts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text: chunk,
-              voiceId: "nova",
-              additionalInstructions: "Read clearly for children",
-            }),
-          });
+        if (!ttsRes.ok) throw new Error("TTS failed");
 
-          if (!res.ok) throw new Error("TTS failed");
-          const blob = await res.blob();
-          audioBlobs.push(blob);
-        }
+        const audioBlob = await ttsRes.blob();
 
         setStep("uploading");
 
-        const fullBlob = new Blob(audioBlobs, { type: "audio/mpeg" });
-        const file = new File([fullBlob], `panel-${i}.mp3`, {
+        const file = new File([audioBlob], `panel-${i}.mp3`, {
           type: "audio/mpeg",
         });
 
@@ -84,6 +61,8 @@ export default function GenerateTTSButton({
         const json = JSON.parse(uploadText);
         const cdnUrl = json?.data?.url || json?.url;
 
+        updatedPanels[i].audioUrl = cdnUrl;
+
         if (i === currentPanelIndex) {
           setStory((prev) =>
             prev
@@ -98,7 +77,7 @@ export default function GenerateTTSButton({
         }
       }
 
-      // Update story with all audio URLs
+      // Save story with all audio URLs
       const updateRes = await fetch("/api/stories", {
         method: "PUT",
         headers: {
