@@ -81,6 +81,14 @@ export type PendingStoryRequest = {
   story: StoryDetails;
 };
 
+export type PublishedStories = {
+  id: string;
+  title: string;
+  author?: string | null;
+  coverImageUrl?: string;
+  isFeatured?: boolean;
+};
+
 // User
 
 export interface UserPublish {

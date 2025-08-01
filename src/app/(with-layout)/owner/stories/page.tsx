@@ -10,6 +10,12 @@ import { LanguageFilter } from "@/components/LanguageFilter";
 import { ReadingLevelFilter } from "@/components/ReadingLevelFilter";
 import { TTSAudioFilter } from "@/components/TTSAudioFilter";
 import ManageStoryGrid from "@/components/ManageStoryGrid";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+} from "@/components/ui/pagination";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function StoriesManagement() {
   const [search, setSearch] = useState("");
@@ -25,6 +31,9 @@ export default function StoriesManagement() {
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   const [selectedAudio, setSelectedAudio] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 9; // Match your backend default
+  const [totalPages, setTotalPages] = useState(1); // From API response
 
   const toggleLanguage = (lang: string) => {
     setSelectedLanguages((prev) =>
@@ -127,6 +136,26 @@ export default function StoriesManagement() {
       return true;
     });
 
+  // Pagination
+  useEffect(() => {
+    if (statusFilter === "Published" || statusFilter === "Featured") {
+      // eslint-disable-next-line prefer-const
+      let endpoint =
+        statusFilter === "Published"
+          ? `/api/stories/published?page=${currentPage}&pageSize=${pageSize}`
+          : `/api/stories/featured?page=${currentPage}&pageSize=${pageSize}`;
+
+      fetch(endpoint)
+        .then((res) => res.json())
+        .then((json) => {
+          const stories = json?.data?.items || [];
+          setUserStories(stories);
+          setTotalPages(json?.data?.totalPages || 1);
+        })
+        .catch((err) => console.error("Fetch error:", err));
+    }
+  }, [statusFilter, currentPage]);
+
   return (
     <div className="flex gap-6 mt-4 h-[90vh]">
       {/* LEFT */}
@@ -198,12 +227,50 @@ export default function StoriesManagement() {
 
       {/* RIGHT*/}
       <div className="w-3/4 bg-card rounded-lg p-5 h-full">
-        <ManageStoryGrid
-          stories={userStories}
-          statusFilter={statusFilter}
-          pendingStories={pendingStories}
-          filtered={filtered}
-        />
+        <div className="flex flex-col h-full">
+          <div className="flex-1 overflow-hidden">
+            <ManageStoryGrid
+              stories={userStories}
+              statusFilter={statusFilter}
+              pendingStories={pendingStories}
+              filtered={filtered}
+            />
+          </div>
+
+          {statusFilter !== "Pending" && (
+            <div className="flex justify-center mt-4">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <button
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage <= 1}
+                      className="p-2 rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-default cursor-pointer"
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </button>
+                  </PaginationItem>
+
+                  <PaginationItem>
+                    <span className="text-sm font-medium px-4">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                  </PaginationItem>
+
+                  <PaginationItem>
+                    <button
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage >= totalPages}
+                      className="p-2 rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-default cursor-pointer"
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </button>
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -5,22 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import Link from "next/link";
 import { PendingStory } from "./PendingStory";
-import { PendingStoryRequest } from "@/app/types/story";
+import { PendingStoryRequest, PublishedStories } from "@/app/types/story";
 import { Loader2Icon } from "lucide-react";
 
-type Story = {
-  id: string;
-  title: string;
-  author?: string | null;
-  coverImageUrl?: string;
-  isFeatured?: boolean;
-};
-
 type Props = {
-  stories: Story[];
+  stories: PublishedStories[];
   statusFilter: "Pending" | "Published" | "Featured";
   pendingStories: PendingStoryRequest[];
-  filtered: Story[];
+  filtered: PublishedStories[];
 };
 
 export default function ManageStoryGrid({
