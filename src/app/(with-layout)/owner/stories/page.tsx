@@ -8,32 +8,38 @@ import { AgeGroupFilter } from "@/components/AgeGroupFilter";
 import { PanelCountFilter } from "@/components/PanelCountFilter";
 import { LanguageFilter } from "@/components/LanguageFilter";
 import { ReadingLevelFilter } from "@/components/ReadingLevelFilter";
-import { TTSAudioFilter } from "@/components/TTSAudioFilter";
+// import { TTSAudioFilter } from "@/components/TTSAudioFilter";
 import ManageStoryGrid from "@/components/ManageStoryGrid";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
 } from "@/components/ui/pagination";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2Icon } from "lucide-react";
 
 export default function StoriesManagement() {
+  // Stories
   const [search, setSearch] = useState("");
   const [userStories, setUserStories] = useState<StoryDetails[]>([]);
+  const [pendingStories, setPendingStories] = useState<PendingStoryRequest[]>(
+    []
+  );
+
+  // Filter
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<
     "Published" | "Pending" | "Featured"
   >("Published");
   const [panelFilter, setPanelFilter] = useState<string[]>([]);
-  const [pendingStories, setPendingStories] = useState<PendingStoryRequest[]>(
-    []
-  );
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
-  const [selectedAudio, setSelectedAudio] = useState<string[]>([]);
+  // const [selectedAudio, setSelectedAudio] = useState<string[]>([]);
+
+  // Paging
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 9; // Match your backend default
-  const [totalPages, setTotalPages] = useState(1); // From API response
+  const pageSize = 9;
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const toggleLanguage = (lang: string) => {
     setSelectedLanguages((prev) =>
@@ -47,13 +53,13 @@ export default function StoriesManagement() {
     );
   };
 
-  const toggleAudio = (option: string) => {
-    setSelectedAudio((prev) =>
-      prev.includes(option)
-        ? prev.filter((a) => a !== option)
-        : [...prev, option]
-    );
-  };
+  // const toggleAudio = (option: string) => {
+  //   setSelectedAudio((prev) =>
+  //     prev.includes(option)
+  //       ? prev.filter((a) => a !== option)
+  //       : [...prev, option]
+  //   );
+  // };
 
   const toggleAge = (age: string) => {
     setSelectedAges((prev) =>
@@ -63,20 +69,24 @@ export default function StoriesManagement() {
 
   useEffect(() => {
     if (statusFilter === "Published" || statusFilter === "Featured") {
-      let endpoint = "/api/stories/";
+      const endpoint =
+        statusFilter === "Published"
+          ? `/api/stories/published?page=${currentPage}&pageSize=${pageSize}`
+          : `/api/stories/featured?page=${currentPage}&pageSize=${pageSize}`;
 
-      if (statusFilter === "Published") endpoint = "/api/stories/published";
-      else if (statusFilter === "Featured") endpoint = "/api/stories/featured";
+      setLoading(true);
 
       fetch(endpoint)
         .then((res) => res.json())
         .then((json) => {
           const stories = json?.data?.items || [];
           setUserStories(stories);
+          setTotalPages(json?.data?.totalPages || 1);
         })
-        .catch((err) => console.error("Fetch error:", err));
+        .catch((err) => console.error("Fetch error:", err))
+        .finally(() => setLoading(false)); // END loading
     }
-  }, [statusFilter]);
+  }, [statusFilter, currentPage]);
 
   useEffect(() => {
     if (statusFilter === "Pending") {
@@ -108,17 +118,17 @@ export default function StoriesManagement() {
         selectedLevels.length === 0 ||
         selectedLevels.includes(story.readingLevel || "")
     )
-    .filter((story) => {
-      if (selectedAudio.length === 0) return true;
+    // .filter((story) => {
+    //   if (selectedAudio.length === 0) return true;
 
-      const hasAudio = story.panels?.some(
-        (panel) => panel.audioUrl?.trim() !== ""
-      );
-      return (
-        (selectedAudio.includes("TTS") && hasAudio) ||
-        (selectedAudio.includes("Without TTS") && !hasAudio)
-      );
-    })
+    //   const hasAudio = story.panels?.some(
+    //     (panel) => panel.audioUrl?.trim() !== ""
+    //   );
+    //   return (
+    //     (selectedAudio.includes("TTS") && hasAudio) ||
+    //     (selectedAudio.includes("Without TTS") && !hasAudio)
+    //   );
+    // })
 
     .filter(
       (story) =>
@@ -139,8 +149,7 @@ export default function StoriesManagement() {
   // Pagination
   useEffect(() => {
     if (statusFilter === "Published" || statusFilter === "Featured") {
-      // eslint-disable-next-line prefer-const
-      let endpoint =
+      const endpoint =
         statusFilter === "Published"
           ? `/api/stories/published?page=${currentPage}&pageSize=${pageSize}`
           : `/api/stories/featured?page=${currentPage}&pageSize=${pageSize}`;
@@ -221,7 +230,7 @@ export default function StoriesManagement() {
             selected={selectedLevels}
             onChange={toggleLevel}
           />
-          <TTSAudioFilter selected={selectedAudio} onChange={toggleAudio} />
+          {/* <TTSAudioFilter selected={selectedAudio} onChange={toggleAudio} /> */}
         </ScrollArea>
       </div>
 
@@ -229,12 +238,18 @@ export default function StoriesManagement() {
       <div className="w-3/4 bg-card rounded-lg p-5 h-full">
         <div className="flex flex-col h-full">
           <div className="flex-1 overflow-hidden">
-            <ManageStoryGrid
-              stories={userStories}
-              statusFilter={statusFilter}
-              pendingStories={pendingStories}
-              filtered={filtered}
-            />
+            {loading ? (
+              <div className="flex items-center justify-center h-full w-full">
+                <Loader2Icon className="w-15 h-15 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <ManageStoryGrid
+                stories={userStories}
+                statusFilter={statusFilter}
+                pendingStories={pendingStories}
+                filtered={filtered}
+              />
+            )}
           </div>
 
           {statusFilter !== "Pending" && (
@@ -261,7 +276,7 @@ export default function StoriesManagement() {
                     <button
                       onClick={() => setCurrentPage(currentPage + 1)}
                       disabled={currentPage >= totalPages}
-                      className="p-2 rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-default cursor-pointer"
+                      className="p-2 rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-default disabled:bg- cursor-pointer"
                     >
                       <ChevronRight className="h-6 w-6" />
                     </button>

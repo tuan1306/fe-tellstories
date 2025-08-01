@@ -16,7 +16,6 @@ type Props = {
 };
 
 export default function ManageStoryGrid({
-  stories,
   statusFilter,
   pendingStories,
   filtered,
@@ -32,14 +31,6 @@ export default function ManageStoryGrid({
           <PendingStory items={pendingStories} />
         </div>
       </ScrollArea>
-    );
-  }
-
-  if (stories.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-full w-full">
-        <Loader2Icon className="w-15 h-15 animate-spin text-muted-foreground" />
-      </div>
     );
   }
 
