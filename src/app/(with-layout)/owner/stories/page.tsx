@@ -3,16 +3,13 @@
 import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import Image from "next/image";
 import { PendingStoryRequest, StoryDetails } from "@/app/types/story";
-import Link from "next/link";
 import { AgeGroupFilter } from "@/components/AgeGroupFilter";
-import { PendingStory } from "@/components/PendingStory";
 import { PanelCountFilter } from "@/components/PanelCountFilter";
-import { Badge } from "@/components/ui/badge";
 import { LanguageFilter } from "@/components/LanguageFilter";
 import { ReadingLevelFilter } from "@/components/ReadingLevelFilter";
 import { TTSAudioFilter } from "@/components/TTSAudioFilter";
+import ManageStoryGrid from "@/components/ManageStoryGrid";
 
 export default function StoriesManagement() {
   const [search, setSearch] = useState("");
@@ -56,32 +53,37 @@ export default function StoriesManagement() {
   };
 
   useEffect(() => {
-    fetch("/api/stories/")
-      .then((res) => res.json())
-      .then((json) => {
-        const stories = Array.isArray(json.data)
-          ? json.data
-          : json.data?.data || [];
-        // console.log("Fetched Stories:", stories);
-        setUserStories(stories);
-      })
-      .catch((err) => console.error("Fetch error:", err));
-  }, []);
+    if (statusFilter === "Published" || statusFilter === "Featured") {
+      let endpoint = "/api/stories/";
+
+      if (statusFilter === "Published") endpoint = "/api/stories/published";
+      else if (statusFilter === "Featured") endpoint = "/api/stories/featured";
+
+      fetch(endpoint)
+        .then((res) => res.json())
+        .then((json) => {
+          const stories = json?.data?.items || [];
+          setUserStories(stories);
+        })
+        .catch((err) => console.error("Fetch error:", err));
+    }
+  }, [statusFilter]);
 
   useEffect(() => {
-    fetch("/api/stories/pending?page=1&pageSize=10")
-      .then((res) => res.json())
-      .then((data) => {
-        setPendingStories(data?.data.items || []);
-      });
-  }, []);
+    if (statusFilter === "Pending") {
+      fetch("/api/stories/pending?page=1&pageSize=10")
+        .then((res) => res.json())
+        .then((data) => {
+          // console.log("Pending API Response", data);
+          setPendingStories(data?.data.items || []);
+        })
+        .catch((err) => console.error("Pending fetch error:", err));
+    }
+  }, [statusFilter]);
 
   const filtered = userStories
     .filter((story) => {
       const panelCount = story.panels?.length || 0;
-      console.log(
-        `Story: ${story.title}, Panels: ${panelCount}, Filter: ${panelFilter}`
-      );
       if (panelFilter.includes("Single") && panelCount === 1) return true;
       if (panelFilter.includes("Multiple") && panelCount > 1) return true;
       return panelFilter.length === 0; // All
@@ -196,72 +198,12 @@ export default function StoriesManagement() {
 
       {/* RIGHT*/}
       <div className="w-3/4 bg-card rounded-lg p-5 h-full">
-        {statusFilter === "Pending" ? (
-          pendingStories.length === 0 ? (
-            <div className="flex items-center justify-center h-full w-full">
-              <p className="text-muted-foreground text-sm">
-                It&apos;s empty .3.
-              </p>
-            </div>
-          ) : (
-            <ScrollArea className="h-full w-full pr-4">
-              <PendingStory items={pendingStories} />
-            </ScrollArea>
-          )
-        ) : userStories.length === 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4 animate-pulse">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="space-y-2">
-                <div className="w-full aspect-[2/3] bg-muted rounded-xl" />
-                <div className="h-4 bg-muted rounded w-1/2" />
-                <div className="h-6 bg-muted rounded w-2/3" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <ScrollArea className="h-full w-full pr-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-              {filtered.map((story) => (
-                <Link
-                  key={story.id}
-                  href={`/owner/stories/${story.id}`}
-                  className="space-y-2 cursor-pointer hover:opacity-90 transition"
-                >
-                  <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
-                    {story.coverImageUrl?.startsWith("http") ? (
-                      <Image
-                        src={story.coverImageUrl}
-                        alt={story.title}
-                        fill
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center text-sm text-muted-foreground font-medium">
-                        No Image
-                      </div>
-                    )}
-
-                    {statusFilter === "Published" && story.isFeatured && (
-                      <div className="absolute top-1 right-1">
-                        <Badge
-                          variant="secondary"
-                          className="absolute top-1 right-1 bg-amber-400"
-                        >
-                          Featured
-                        </Badge>
-                      </div>
-                    )}
-                  </div>
-
-                  <h1 className="text-sm font-semibold text-muted-foreground">
-                    {story.author || "Unknown Author"}
-                  </h1>
-                  <h1 className="text-xl font-semibold">{story.title}</h1>
-                </Link>
-              ))}
-            </div>
-          </ScrollArea>
-        )}
+        <ManageStoryGrid
+          stories={userStories}
+          statusFilter={statusFilter}
+          pendingStories={pendingStories}
+          filtered={filtered}
+        />
       </div>
     </div>
   );

@@ -6,22 +6,22 @@ export async function GET(request: Request) {
     const token = (await cookies()).get("authToken")?.value;
 
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get("query");
     const page = searchParams.get("page") || "1";
     const pageSize = searchParams.get("pageSize") || "10";
+    const isCommunity = searchParams.get("isCommunity");
 
-    if (!query) {
-      return NextResponse.json(
-        { message: "Missing query parameter" },
-        { status: 400 }
-      );
+    const queryParams = new URLSearchParams({
+      page,
+      pageSize,
+    });
+
+    if (isCommunity !== null) {
+      queryParams.append("isCommunity", isCommunity);
     }
 
     const url = `${
       process.env.NEXT_PUBLIC_API_BASE_URL
-    }/Story/search/${encodeURIComponent(
-      query
-    )}?page=${page}&pageSize=${pageSize}`;
+    }/Story/featured?${queryParams.toString()}`;
 
     const res = await fetch(url, {
       headers: {
@@ -30,17 +30,17 @@ export async function GET(request: Request) {
     });
 
     if (!res.ok) {
-      const log = await res.text();
+      const errorText = await res.text();
       return NextResponse.json(
-        { message: "Failed to search stories", error: log },
+        { message: "Failed to fetch featured stories", error: errorText },
         { status: res.status }
       );
     }
 
     const data = await res.json();
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json(data);
   } catch (err) {
-    console.error("GET - /api/story/search response:", err);
+    console.error("Error fetching featured stories:", err);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
