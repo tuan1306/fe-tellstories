@@ -240,6 +240,7 @@ export default function Subscription() {
         <strong>Price:</strong>{" "}
         {new Intl.NumberFormat("vi-VN").format(pkg.price * 1000)} VND
       </p>
+
       <p>
         <strong>Duration:</strong> {pkg.durationDays} days
       </p>

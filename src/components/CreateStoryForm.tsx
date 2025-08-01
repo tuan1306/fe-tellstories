@@ -149,10 +149,12 @@ export default function AIGenerationForm({
                 <SelectValue placeholder="Choose Vietnamese voice" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hcm-diemmy">Female - South</SelectItem>
-                <SelectItem value="hn-phuongtrang">Female - North</SelectItem>
-                <SelectItem value="hcm-minhquan">Male - South</SelectItem>
-                <SelectItem value="hn-thanhtung">Male - North</SelectItem>
+                <SelectItem value="hcm-diemmy">Female - Southern</SelectItem>
+                <SelectItem value="hn-phuongtrang">
+                  Female - Northern
+                </SelectItem>
+                <SelectItem value="hcm-minhquan">Male - Southern</SelectItem>
+                <SelectItem value="hn-thanhtung">Male - Northern</SelectItem>
               </SelectContent>
             </Select>
             <VoicePreviewButton selectedVoice={selectedVoice} />
@@ -191,7 +193,7 @@ export default function AIGenerationForm({
         )}
       </div>
 
-      <Button disabled={!prompt} onClick={handleAIGenerate}>
+      <Button disabled={!prompt || optimizing} onClick={handleAIGenerate}>
         {optimizing ? (
           <div className="flex items-center space-x-2">
             <span>Generating...</span>

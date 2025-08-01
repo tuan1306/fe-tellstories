@@ -79,12 +79,9 @@ export async function POST(req: NextRequest) {
       const audioBlob = await res.blob();
       const buffer = await audioBlob.arrayBuffer();
       audioBuffers.push(new Uint8Array(buffer));
-      console.log(
-        `[TTS] Chunk ${i + 1} audio buffer size: ${buffer.byteLength} bytes`
-      );
     }
 
-    // Merge all buffers
+    // Concat
     const totalLength = audioBuffers.reduce((acc, b) => acc + b.length, 0);
     const concatenated = new Uint8Array(totalLength);
     let offset = 0;
@@ -92,10 +89,6 @@ export async function POST(req: NextRequest) {
       concatenated.set(b, offset);
       offset += b.length;
     }
-
-    console.log(
-      `[TTS] Concatenated audio size: ${totalLength} bytes. Sending response.`
-    );
 
     return new NextResponse(Buffer.from(concatenated.buffer), {
       status: 200,

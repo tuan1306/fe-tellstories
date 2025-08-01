@@ -22,13 +22,13 @@ export default function DataTable() {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
-  const [loading, setLoading] = useState(false);
   const [userStories, setUserStories] = useState<StoryDetails[]>([]);
   const [prompt, setPrompt] = useState("");
   const [mode, setMode] = useState<"manual" | "ai" | null>(null);
   const [ageRange, setAgeRange] = useState<string>("");
   const [generateAudio, setGenerateAudio] = useState(false);
   const [generateImage, setGenerateImage] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState<string>("");
   const [selectedImageModel, setSelectedImageModel] = useState<string>("flux");
@@ -54,7 +54,7 @@ export default function DataTable() {
 
   // Manual
   const handleCreate = async () => {
-    setLoading(true);
+    setGenerating(true);
     try {
       const res = await fetch("/api/stories", {
         method: "POST",
@@ -110,13 +110,13 @@ export default function DataTable() {
     } catch (err) {
       console.error("Failed to create story:", err);
     } finally {
-      setLoading(false);
+      setGenerating(false);
     }
   };
 
   // AI voodoo
   const handleAIGenerate = async () => {
-    setLoading(true);
+    setGenerating(true);
     try {
       // Story generation
       const storyRes = await fetch("/api/stories/ai", {
@@ -297,7 +297,7 @@ export default function DataTable() {
     } catch (error) {
       console.error("AI generate error:", error);
     } finally {
-      setLoading(false);
+      setGenerating(false);
     }
   };
 
@@ -424,7 +424,7 @@ export default function DataTable() {
           )}
 
           {mode === "manual" &&
-            (loading ? (
+            (generating ? (
               <div className="flex justify-center items-center h-40">
                 <WritingAnimation />
               </div>
