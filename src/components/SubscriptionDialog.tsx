@@ -163,9 +163,6 @@ export const SubscriptionDialog = ({
       <p>
         <strong>Active:</strong> {pkg.isActive ? "Yes" : "No"}
       </p>
-      <p>
-        <strong>Default:</strong> {pkg.isDefault ? "Yes" : "No"}
-      </p>
       <Button
         variant="link"
         className="px-0 text-sm cursor-pointer text-chart-1"
@@ -202,12 +199,12 @@ export const SubscriptionDialog = ({
           )}
         </DialogHeader>
 
-        <ScrollArea className="h-[60vh] pr-4">
+        <ScrollArea className="h-[40vh] pr-4">
           {showForm ? (
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-3 mt-4 text-sm p-3"
+                className="space-y-3 text-sm p-3"
               >
                 {/* Form Fields */}
                 <FormField
@@ -282,23 +279,6 @@ export const SubscriptionDialog = ({
                         </FormControl>
                         <FormLabel className="text-sm font-normal">
                           Active
-                        </FormLabel>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="isDefault"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center gap-2 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          Default
                         </FormLabel>
                       </FormItem>
                     )}

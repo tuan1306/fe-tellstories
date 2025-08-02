@@ -19,6 +19,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import Link from "next/link";
 
 export function RecentSubscribersList({
   recentSubscribers,
@@ -48,20 +49,30 @@ export function RecentSubscribersList({
               className="flex items-center justify-between px-4 py-2 rounded-md shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src={recentSub.user.avatarUrl} />
-                  <AvatarFallback className="bg-primary text-white text-sm font-semibold">
-                    {recentSub.user.displayName
-                      .split(" ")
-                      .map((word) => word[0])
-                      .join("")
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <Link
+                  href={`usermanagement/users/${recentSub.user.id}`}
+                  className="flex items-center gap-3 hover:opacity-80 transition"
+                >
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={recentSub.user.avatarUrl} />
+                    <AvatarFallback className="bg-primary text-white text-sm font-semibold">
+                      {recentSub.user.displayName
+                        .split(" ")
+                        .map((word) => word[0])
+                        .join("")
+                        .toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
                 <div>
-                  <p className="font-medium text-white">
-                    {recentSub.user.displayName}
-                  </p>
+                  <Link
+                    href={`usermanagement/users/${recentSub.user.id}`}
+                    className="flex items-center gap-3 hover:opacity-80 transition"
+                  >
+                    <p className="font-medium text-white">
+                      {recentSub.user.displayName}
+                    </p>
+                  </Link>
                   <p className="text-xs text-muted-foreground">
                     {recentSub.subscriptionName} Plan
                   </p>
@@ -109,10 +120,15 @@ export function RecentSubscribersList({
 
           {selectedSub && (
             <div className="z-10 space-y-2 text-sm text-muted-foreground">
-              <p>
-                <strong className="text-slate-300">User:</strong>{" "}
-                {selectedSub.user.displayName}
-              </p>
+              <div className="flex items-center gap-2">
+                <strong className="text-slate-300">User:</strong>
+                <Link
+                  href={`usermanagement/users/${selectedSub.user.id}`}
+                  className="flex items-center gap-3 hover:opacity-80 transition"
+                >
+                  {selectedSub.user.displayName}
+                </Link>
+              </div>
 
               <div className="flex items-center gap-2">
                 <strong className="text-slate-300">Plan:</strong>
@@ -122,30 +138,30 @@ export function RecentSubscribersList({
               </div>
 
               <p>
-                <strong className="text-slate-300">Price:</strong> 30,000 VND
+                <strong className="text-slate-300">Price: </strong>30,000 VND
               </p>
 
               <p>
-                <strong className="text-slate-300">Duration:</strong> 30 days
+                <strong className="text-slate-300">Duration: </strong>30 days
               </p>
 
               <p>
-                <strong className="text-slate-300">Subscribed on:</strong> July
+                <strong className="text-slate-300">Subscribed on: </strong> July
                 30, 2025
               </p>
 
               <p>
-                <strong className="text-slate-300">Original Expiry:</strong>
+                <strong className="text-slate-300">Original Expiry: </strong>
                 August 29, 2025
               </p>
 
               <p>
-                <strong className="text-slate-300">Expires on:</strong> October
+                <strong className="text-slate-300">Expires on: </strong> October
                 29, 2025
               </p>
 
               <p>
-                <strong className="text-slate-300">Days Remaining:</strong> 27
+                <strong className="text-slate-300">Days Remaining: </strong> 27
                 days
               </p>
             </div>
