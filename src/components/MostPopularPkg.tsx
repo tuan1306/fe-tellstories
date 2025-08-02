@@ -34,7 +34,7 @@ export const MostPopularPkg = ({
           {subscriptionName || "None"}
         </p>
         <p className="text-muted-foreground text-sm">
-          {numberOfSubscriber} users ({percentage}%)
+          {numberOfSubscriber} users ({percentage.toFixed(2)}%)
         </p>
       </CardContent>
     </Card>

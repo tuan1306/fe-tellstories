@@ -67,7 +67,7 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
           </CardDescription>
           <CardAction>{fluctBadge(data.subscriptionRevenueFluct)}</CardAction>
         </CardHeader>
-        <CardContent className="text-4xl">
+        <CardContent className="text-4xl font-semibold">
           <p>{data.subscriptionRevenue.toLocaleString()} VND</p>
         </CardContent>
       </Card>
