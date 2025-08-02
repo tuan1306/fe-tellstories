@@ -15,7 +15,7 @@ import {
   PaginationContent,
   PaginationItem,
 } from "@/components/ui/pagination";
-import { ChevronLeft, ChevronRight, Loader2Icon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 export default function StoriesManagement() {
   // Stories
@@ -240,7 +240,7 @@ export default function StoriesManagement() {
           <div className="flex-1 overflow-hidden">
             {loading ? (
               <div className="flex items-center justify-center h-full w-full">
-                <Loader2Icon className="w-15 h-15 animate-spin text-muted-foreground" />
+                <Loader2 className="w-15 h-15 animate-spin text-muted-foreground" />
               </div>
             ) : (
               <ManageStoryGrid

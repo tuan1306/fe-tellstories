@@ -11,3 +11,12 @@ export type SubscriptionPackage = {
   isActive: boolean;
   isDefault: boolean;
 };
+
+export type RecentSubscriber = {
+  user: {
+    id: string;
+    displayName: string;
+    avatarUrl: string;
+  };
+  subscriptionName: string;
+};
