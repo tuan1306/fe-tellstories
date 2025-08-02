@@ -36,8 +36,8 @@ export default function StoriesManagement() {
   // const [selectedAudio, setSelectedAudio] = useState<string[]>([]);
 
   // Paging
+  const pageSize = 12;
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 9;
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 

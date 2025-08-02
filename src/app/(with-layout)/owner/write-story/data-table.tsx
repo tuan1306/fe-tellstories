@@ -247,18 +247,23 @@ export default function DataTable() {
           body: JSON.stringify(ttsBody),
         });
 
-        const audioBlob = await ttsRes.blob();
-        const file = new File([audioBlob], "tts.mp3", { type: "audio/mpeg" });
-        const formData = new FormData();
-        formData.append("file", file);
+        // Check for server error
+        if (!ttsRes.ok) {
+          console.error(`TTS generation failed with status ${ttsRes.status}`);
+        } else {
+          const audioBlob = await ttsRes.blob();
+          const file = new File([audioBlob], "tts.mp3", { type: "audio/mpeg" });
+          const formData = new FormData();
+          formData.append("file", file);
 
-        const uploadRes = await fetch("/api/cdn/upload", {
-          method: "POST",
-          body: formData,
-        });
+          const uploadRes = await fetch("/api/cdn/upload", {
+            method: "POST",
+            body: formData,
+          });
 
-        const json = await uploadRes.json();
-        audioUrl = json?.data?.url || json?.url;
+          const json = await uploadRes.json();
+          audioUrl = json?.data?.url || json?.url;
+        }
       }
 
       // Story
@@ -445,29 +450,34 @@ export default function DataTable() {
               </>
             ))}
 
-          {mode === "ai" && (
-            <CreateStoryForm
-              title={title}
-              setTitle={setTitle}
-              prompt={prompt}
-              setPrompt={setPrompt}
-              ageRange={ageRange}
-              setAgeRange={setAgeRange}
-              selectedLanguage={selectedLanguage}
-              setSelectedLanguage={setSelectedLanguage}
-              generateAudio={generateAudio}
-              setGenerateAudio={setGenerateAudio}
-              selectedVoice={selectedVoice}
-              setSelectedVoice={setSelectedVoice}
-              generateImage={generateImage}
-              setGenerateImage={setGenerateImage}
-              selectedImageModel={selectedImageModel}
-              setSelectedImageModel={setSelectedImageModel}
-              optimizing={optimizing}
-              handleOptimizedPrompt={handleOptimizedPrompt}
-              handleAIGenerate={handleAIGenerate}
-            />
-          )}
+          {mode === "ai" &&
+            (generating ? (
+              <div className="flex justify-center items-center h-40">
+                <WritingAnimation />
+              </div>
+            ) : (
+              <CreateStoryForm
+                title={title}
+                setTitle={setTitle}
+                prompt={prompt}
+                setPrompt={setPrompt}
+                ageRange={ageRange}
+                setAgeRange={setAgeRange}
+                selectedLanguage={selectedLanguage}
+                setSelectedLanguage={setSelectedLanguage}
+                generateAudio={generateAudio}
+                setGenerateAudio={setGenerateAudio}
+                selectedVoice={selectedVoice}
+                setSelectedVoice={setSelectedVoice}
+                generateImage={generateImage}
+                setGenerateImage={setGenerateImage}
+                selectedImageModel={selectedImageModel}
+                setSelectedImageModel={setSelectedImageModel}
+                optimizing={optimizing}
+                handleOptimizedPrompt={handleOptimizedPrompt}
+                handleAIGenerate={handleAIGenerate}
+              />
+            ))}
         </DialogContent>
       </Dialog>
     </div>

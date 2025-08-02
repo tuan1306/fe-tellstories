@@ -12,9 +12,11 @@ export async function POST(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
     const { receivedPrompt } = await req.json();
 
-    console.log("ReceivedPrompt: " + receivedPrompt);
+    // console.log("ReceivedPrompt: " + receivedPrompt);
 
     let prompt = receivedPrompt;
+
+    console.log("Is the prompt received Vietnamese:", isVietnamese(prompt));
 
     if (isVietnamese(receivedPrompt)) {
       prompt = `Tối ưu hóa prompt sau đây cho việc tạo truyện, chỉ trả lời nội dung prompt thôi, phần prompt dưới 400 từ bằng tiếng Việt, không cần trả lời tôi: ${receivedPrompt}`;
