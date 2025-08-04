@@ -35,7 +35,7 @@ export function StoryCoverImageDialog({
   const [open, setOpen] = useState(false);
   const [imageMode, setImageMode] = useState<"manual" | "ai" | null>(null);
   const [imagePrompt, setImagePrompt] = useState("");
-  const [selectedModel, setSelectedModel] = useState("flux");
+  const [selectedStyle, setSelectedStyle] = useState("cartoonish");
   const [aiImagePreviewUrl, setAiImagePreviewUrl] = useState<string | null>(
     null
   );
@@ -44,7 +44,6 @@ export function StoryCoverImageDialog({
   const [croppedImageUrl, setCroppedImageUrl] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
@@ -52,6 +51,15 @@ export function StoryCoverImageDialog({
   const onCropComplete = useCallback((_: Area, croppedArea: Area) => {
     setCroppedAreaPixels(croppedArea);
   }, []);
+
+  // Key and value typeshiii
+  const styleTemplates: Record<string, string> = {
+    cartoonish: "A cartoon-style illustration, colorful and exaggerated.",
+    realistic: "A realistic and lifelike visual style.",
+    anime: "A expressive anime-inspired illustration style.",
+    sketch: "A black-and-white pencil sketch style, rough and artistic.",
+    watercolor: "An artistic watercolor painting style.",
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -105,29 +113,37 @@ export function StoryCoverImageDialog({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           receivedPrompt: imagePrompt || story?.description || "",
+          storyContext: story?.panels[0].content,
         }),
       });
 
       if (!translationRes.ok) throw new Error("Prompt translation failed");
 
-      const { text: translatedDescription } = await translationRes.json();
+      // Prompt stuff
+      const translatedRaw = await translationRes.json();
+      const translatedDescription = translatedRaw.data.replace(/^"|"$/g, "");
+      console.log("✅ Translated Prompt:", translatedDescription);
+
+      const colorStyle = styleTemplates[selectedStyle];
 
       const imageRes = await fetch("/api/stories/ai/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          translatedDescription,
+          translatedDescription: translatedDescription,
+          colorStyle: colorStyle,
           width: 512,
           height: 512,
-          modelId: selectedModel,
         }),
       });
 
       if (!imageRes.ok) throw new Error("Image generation failed");
 
       const data = await imageRes.json();
+
+      // If url string exist -> use the picture.
       setAiImagePreviewUrl(data.url);
-      setCroppedImageUrl(null);
+      setCroppedImageUrl(data.url);
     } catch (err) {
       console.error(err);
       alert("Failed to generate image.");
@@ -143,7 +159,6 @@ export function StoryCoverImageDialog({
       aiImagePreviewUrl,
       croppedAreaPixels
     );
-
     const previewUrl = URL.createObjectURL(croppedBlob);
     setCroppedImageUrl(previewUrl);
     setCropping(false);
@@ -244,7 +259,6 @@ export function StoryCoverImageDialog({
 
           {imageMode === "ai" && (
             <div className="flex gap-4 max-h-[600px]">
-              {/* Prompt Area */}
               <div className="flex-1 space-y-4">
                 <Button
                   variant="outline"
@@ -266,15 +280,16 @@ export function StoryCoverImageDialog({
                   className="min-h-[250px]"
                 />
 
-                <Select value={selectedModel} onValueChange={setSelectedModel}>
+                <Select value={selectedStyle} onValueChange={setSelectedStyle}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a model" />
+                    <SelectValue placeholder="Select a style" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="flux">Flux</SelectItem>
-                    <SelectItem value="kontext">Kontext</SelectItem>
-                    <SelectItem value="turbo">Turbo</SelectItem>
-                    <SelectItem value="gptimage">GPTImage</SelectItem>
+                    {Object.entries(styleTemplates).map(([key]) => (
+                      <SelectItem key={key} value={key}>
+                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
 
@@ -287,16 +302,18 @@ export function StoryCoverImageDialog({
                 </Button>
 
                 {croppedImageUrl && (
-                  <Button className="w-full" onClick={handleFinalUpload}>
-                    Use This Image
+                  <Button
+                    className="w-full"
+                    onClick={handleFinalUpload}
+                    disabled={generatingImage}
+                  >
+                    {generatingImage ? "Please wait..." : "Use This Image"}
                   </Button>
                 )}
               </div>
 
-              {/* Divider */}
               <div className="w-[4px] bg-slate-700 rounded-2xl" />
 
-              {/* Preview Area */}
               <div className="flex-1 flex items-center justify-center">
                 {croppedImageUrl ? (
                   <button
@@ -335,7 +352,6 @@ export function StoryCoverImageDialog({
         </DialogContent>
       </Dialog>
 
-      {/* Cropping Dialog */}
       {cropping && aiImagePreviewUrl && (
         <Dialog open={cropping} onOpenChange={setCropping}>
           <DialogContent className="sm:max-w-3xl">

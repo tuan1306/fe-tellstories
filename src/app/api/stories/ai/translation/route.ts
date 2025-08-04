@@ -4,14 +4,20 @@ import { cookies } from "next/headers";
 export async function POST(req: NextRequest) {
   try {
     const token = (await cookies()).get("authToken")?.value;
-    const { receivedPrompt } = await req.json();
+    const { receivedPrompt, storyContext } = await req.json();
 
     // console.log("ReceivedPrompt: " + receivedPrompt);
 
-    const prompt = `
-    Translate the following Vietnamese children's story description into clear, concise English. Keep all key characters, objects, events, and actions intact so the AI understands the story's core content. Do not explain or annotate. Only return the English translation.
+    const combinedPrompt = storyContext
+      ? `${receivedPrompt.trim()}\n\nAdditional context:\n${storyContext.trim()}`
+      : receivedPrompt;
 
-    "${receivedPrompt}"
+    const prompt = `
+    Translate and summarize the following Vietnamese children's story description into clear, concise English suitable for AI image generation. Focus on the essential characters, events, and objects. Keep the tone imaginative but remove unnecessary details.
+
+    The final result should be no longer than 150 tokens (approximately 110–120 words). Do not explain or annotate. Only return the summarized English translation.
+
+    "${combinedPrompt}"
     `;
 
     const res = await fetch(
@@ -31,7 +37,7 @@ export async function POST(req: NextRequest) {
             TopK: 40,
             StopSequences: ["Kết thúc dịch"],
             AdditionalSystemInstruction:
-              "Chỉ trả về bản dịch tiếng Anh rõ ràng, cô đọng, làm nổi bật các sự kiện, đồ vật, nhân vật trong văn bản gốc.",
+              "Only return a clear and concise English translation that highlights the events, objects, and characters in the original text.",
           },
         }),
       }
