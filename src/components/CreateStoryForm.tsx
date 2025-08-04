@@ -29,8 +29,8 @@ interface Props {
   setSelectedVoice: (val: string) => void;
   generateImage: boolean;
   setGenerateImage: (val: boolean) => void;
-  selectedImageModel: string;
-  setSelectedImageModel: (val: string) => void;
+  selectedStyle: string;
+  setSelectedStyle: (val: string) => void;
   optimizing: boolean;
   handleOptimizedPrompt: () => void;
   handleAIGenerate: () => void;
@@ -51,8 +51,8 @@ export default function AIGenerationForm({
   setSelectedVoice,
   generateImage,
   setGenerateImage,
-  selectedImageModel,
-  setSelectedImageModel,
+  selectedStyle,
+  setSelectedStyle,
   optimizing,
   handleOptimizedPrompt,
   handleAIGenerate,
@@ -137,7 +137,7 @@ export default function AIGenerationForm({
               <SelectItem value="echo">Energetic</SelectItem>
               <SelectItem value="fable">Warm</SelectItem>
               <SelectItem value="nova">Crispy</SelectItem>
-              <SelectItem value="shimmer">Playful (Shimmer)</SelectItem>
+              <SelectItem value="shimmer">Playful</SelectItem>
             </SelectContent>
           </Select>
         )}
@@ -176,18 +176,16 @@ export default function AIGenerationForm({
         </div>
 
         {generateImage && (
-          <Select
-            value={selectedImageModel}
-            onValueChange={setSelectedImageModel}
-          >
+          <Select value={selectedStyle} onValueChange={setSelectedStyle}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Choose image model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="flux">Default</SelectItem>
-              <SelectItem value="kontext">Detailed</SelectItem>
-              <SelectItem value="turbo">Quick</SelectItem>
-              <SelectItem value="gptimage">Creative</SelectItem>
+              <SelectItem value="cartoonish">Cartoonish</SelectItem>
+              <SelectItem value="realistic">Realistic</SelectItem>
+              <SelectItem value="anime">Anime</SelectItem>
+              <SelectItem value="sketch">Sketch</SelectItem>
+              <SelectItem value="watercolor">Watercolor</SelectItem>
             </SelectContent>
           </Select>
         )}

@@ -31,7 +31,7 @@ export default function DataTable() {
   const [generating, setGenerating] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState<string>("");
-  const [selectedImageModel, setSelectedImageModel] = useState<string>("flux");
+  const [selectedStyle, setSelectedStyle] = useState<string>("cartoonish");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("ENG");
 
   const router = useRouter();
@@ -129,7 +129,7 @@ export default function DataTable() {
             temperature: 0.8,
             topP: 0.9,
             topK: 30,
-            maxOutputTokens: 8000,
+            maxOutputTokens: 1500,
             stopSequences: [],
             seed: 123,
             additionalSystemInstruction: `Generate a story suitable for children aged ${ageRange} with the given title.
@@ -145,14 +145,14 @@ export default function DataTable() {
       });
 
       const storyJson = await storyRes.json();
-      const newStory = storyJson.data[0];
+      const newStory = storyJson.data;
 
       let coverImageUrl = "";
       let audioUrl = "";
 
       // Image Generation
       if (generateImage) {
-        const descriptionToTranslate = newStory.description || prompt;
+        const descriptionToTranslate = newStory.content || prompt;
 
         // Translation
         const translationRes = await fetch("/api/stories/ai/translation", {
@@ -174,9 +174,10 @@ export default function DataTable() {
           body: JSON.stringify({
             title,
             translatedDescription,
+            colorStyle: selectedStyle,
             width: 512,
             height: 512,
-            modelId: selectedImageModel || "flux",
+            modelId: "flux",
           }),
         });
 
@@ -471,8 +472,8 @@ export default function DataTable() {
                 setSelectedVoice={setSelectedVoice}
                 generateImage={generateImage}
                 setGenerateImage={setGenerateImage}
-                selectedImageModel={selectedImageModel}
-                setSelectedImageModel={setSelectedImageModel}
+                selectedStyle={selectedStyle}
+                setSelectedStyle={setSelectedStyle}
                 optimizing={optimizing}
                 handleOptimizedPrompt={handleOptimizedPrompt}
                 handleAIGenerate={handleAIGenerate}

@@ -8,6 +8,14 @@ export async function POST(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
 
+    const styleTemplates: Record<string, string> = {
+      cartoonish: "A cartoon-style illustration, colorful and exaggerated.",
+      realistic: "A realistic and lifelike visual style.",
+      anime: "A expressive anime-inspired illustration style.",
+      sketch: "A black-and-white pencil sketch style, rough and artistic.",
+      watercolor: "An artistic watercolor painting style.",
+    };
+
     const {
       translatedDescription,
       colorStyle,
@@ -19,12 +27,15 @@ export async function POST(req: NextRequest) {
     // console.log("Translated Description:", translatedDescription);
     // console.log("Color Style:", colorStyle);
 
+    const styleDescription =
+      styleTemplates[colorStyle] || "A general colorful illustration";
+
     const prompt = `
     A imaginative children's storybook **illustration** (not a book cover) based on the following story description. The image must be highly detailed and suitable for children. Do **not** include any text, letters, or titles in the image. Avoid all writing, typography, and symbols.
 
     "${translatedDescription}"
 
-    With this color sytle: "${colorStyle}"
+    With this color style: "${styleDescription}"
     `.trim();
 
     console.log("Finalized prompt:", prompt);

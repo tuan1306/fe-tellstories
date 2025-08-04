@@ -52,15 +52,6 @@ export function StoryCoverImageDialog({
     setCroppedAreaPixels(croppedArea);
   }, []);
 
-  // Key and value typeshiii
-  const styleTemplates: Record<string, string> = {
-    cartoonish: "A cartoon-style illustration, colorful and exaggerated.",
-    realistic: "A realistic and lifelike visual style.",
-    anime: "A expressive anime-inspired illustration style.",
-    sketch: "A black-and-white pencil sketch style, rough and artistic.",
-    watercolor: "An artistic watercolor painting style.",
-  };
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -124,7 +115,7 @@ export function StoryCoverImageDialog({
       const translatedDescription = translatedRaw.data.replace(/^"|"$/g, "");
       console.log("✅ Translated Prompt:", translatedDescription);
 
-      const colorStyle = styleTemplates[selectedStyle];
+      const colorStyle = selectedStyle;
 
       const imageRes = await fetch("/api/stories/ai/generate-image", {
         method: "POST",
@@ -285,11 +276,11 @@ export function StoryCoverImageDialog({
                     <SelectValue placeholder="Select a style" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(styleTemplates).map(([key]) => (
-                      <SelectItem key={key} value={key}>
-                        {key.charAt(0).toUpperCase() + key.slice(1)}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="cartoonish">Cartoonish</SelectItem>
+                    <SelectItem value="realistic">Realistic</SelectItem>
+                    <SelectItem value="anime">Anime</SelectItem>
+                    <SelectItem value="sketch">Sketch</SelectItem>
+                    <SelectItem value="watercolor">Watercolor</SelectItem>
                   </SelectContent>
                 </Select>
 
