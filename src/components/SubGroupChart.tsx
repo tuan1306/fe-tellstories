@@ -18,37 +18,36 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { SubscriberBySubscriptions } from "@/app/types/subscription";
 
-export const description = "A donut chart with text";
+type SubGroupChartProps = {
+  data: SubscriberBySubscriptions[];
+};
 
-const chartData = [
-  { plan: "Basic", subscribers: 275, fill: "var(--chart-1)" },
-  { plan: "Pro", subscribers: 200, fill: "var(--chart-2)" },
-  { plan: "Premium", subscribers: 287, fill: "var(--chart-3)" },
-];
+export function SubGroupChart({ data }: SubGroupChartProps) {
+  const chartData = React.useMemo(() => {
+    const colors = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)"];
+    return data.map((item, index) => ({
+      plan: item.subscriptionName,
+      subscribers: item.numberOfSubscriber,
+      fill: colors[index % colors.length],
+    }));
+  }, [data]);
 
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Basic",
-    color: "var(--chart-1)",
-  },
-  safari: {
-    label: "Pro",
-    color: "var(--chart-2)",
-  },
-  firefox: {
-    label: "Premium",
-    color: "var(--chart-3)",
-  },
-} satisfies ChartConfig;
-
-export function SubGroupChart() {
   const totalSub = React.useMemo(() => {
     return chartData.reduce((acc, curr) => acc + curr.subscribers, 0);
-  }, []);
+  }, [chartData]);
+
+  const chartConfig = React.useMemo(() => {
+    const config: ChartConfig = {};
+    chartData.forEach((item, index) => {
+      config[`tier${index}`] = {
+        label: item.plan,
+        color: item.fill,
+      };
+    });
+    return config;
+  }, [chartData]);
 
   return (
     <Card className="flex flex-col">
@@ -68,8 +67,8 @@ export function SubGroupChart() {
             />
             <Pie
               data={chartData}
-              dataKey="subscribers" // rename this to 'subscribers' in the data if needed
-              nameKey="plan" // rename this to 'plan' in the data if needed
+              dataKey="subscribers"
+              nameKey="plan"
               innerRadius={60}
               strokeWidth={5}
             >

@@ -1,6 +1,6 @@
 "use client";
 
-import { SubscriptionPackage } from "@/app/types/subscription";
+import { DashboardData, SubscriptionPackage } from "@/app/types/subscription";
 import { MostPopularPkg } from "@/components/MostPopularPkg";
 import { RecentSubscribersList } from "@/components/RecentSubscribersList";
 import { SubGroupChart } from "@/components/SubGroupChart";
@@ -15,23 +15,17 @@ export default function Subscription() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [dashboardData, setDashboardData] = useState({
+  const [dashboardData, setDashboardData] = useState<DashboardData>({
     subscriptionRevenue: 0,
-    subscriptionRevenueFluct: 0,
+    subscriptionRevenueFluct: null,
     subscriber: 0,
-    subscriberFluct: 0,
+    subscriberFluct: null,
     newSubscriber: 0,
-    newSubscriberFluct: 0,
+    newSubscriberFluct: null,
     quittedSubscriber: 0,
-    quittedSubscriberFluct: 0,
-    recentSubscribers: [] as {
-      user: {
-        id: string;
-        displayName: string;
-        avatarUrl: string;
-      };
-      subscriptionName: string;
-    }[],
+    quittedSubscriberFluct: null,
+    recentSubscribers: [],
+    subscriberBySubscriptions: [],
     mostPopularTier: {
       percentage: 0,
       subscriptionName: "",
@@ -50,7 +44,6 @@ export default function Subscription() {
       .catch((err) => console.error("Failed to fetch subscriptions:", err));
   };
 
-  // For user subscription bought that week idk
   useEffect(() => {
     setIsLoading(true);
     fetch("/api/subscription/dashboard")
@@ -86,12 +79,12 @@ export default function Subscription() {
       </div>
 
       {/* RIGHT */}
-      <div className="w-1/4 bg-card p-4 rounded-lg">
+      <div className="w-1/4 bg-card p-4 rounded-lg space-y-4">
         <SubscriptionDialog
           subscriptionPackages={subscriptionPackages}
           fetchSubscriptions={fetchSubscriptions}
         />
-        <SubGroupChart />
+        <SubGroupChart data={dashboardData.subscriberBySubscriptions} />
         <MostPopularPkg
           subscriptionName={dashboardData.mostPopularTier.subscriptionName}
           numberOfSubscriber={dashboardData.mostPopularTier.numberOfSubscriber}
