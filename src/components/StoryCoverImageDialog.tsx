@@ -1,8 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
+import Cropper, { Area } from "react-easy-crop";
+import { getCroppedImg } from "@/lib/cropImage";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -38,7 +40,18 @@ export function StoryCoverImageDialog({
     null
   );
   const [generatingImage, setGeneratingImage] = useState(false);
+  const [cropping, setCropping] = useState(false);
+  const [croppedImageUrl, setCroppedImageUrl] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+
+  const onCropComplete = useCallback((_: Area, croppedArea: Area) => {
+    setCroppedAreaPixels(croppedArea);
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -55,9 +68,13 @@ export function StoryCoverImageDialog({
     const json = await res.json();
     if (!json.url) return alert("Upload failed");
 
+    await updateStoryCover(json.url);
+  };
+
+  const updateStoryCover = async (url: string) => {
     const updatedStory = {
       ...story,
-      coverImageUrl: json.url,
+      coverImageUrl: url,
       tags: {
         tagNames: Array.isArray(story.tags)
           ? story.tags.map((tag) => tag.name)
@@ -92,9 +109,8 @@ export function StoryCoverImageDialog({
       });
 
       if (!translationRes.ok) throw new Error("Prompt translation failed");
-      const translationData = await translationRes.json();
-      const translatedDescription =
-        translationData.text || translationData.result || translationData.data;
+
+      const { text: translatedDescription } = await translationRes.json();
 
       const imageRes = await fetch("/api/stories/ai/generate-image", {
         method: "POST",
@@ -108,8 +124,10 @@ export function StoryCoverImageDialog({
       });
 
       if (!imageRes.ok) throw new Error("Image generation failed");
+
       const data = await imageRes.json();
       setAiImagePreviewUrl(data.url);
+      setCroppedImageUrl(null);
     } catch (err) {
       console.error(err);
       alert("Failed to generate image.");
@@ -118,12 +136,25 @@ export function StoryCoverImageDialog({
     }
   };
 
-  const handleUseGeneratedImage = async () => {
-    if (!aiImagePreviewUrl) return;
+  const handleCropConfirm = async () => {
+    if (!aiImagePreviewUrl || !croppedAreaPixels) return;
 
-    const imgRes = await fetch(aiImagePreviewUrl);
-    const blob = await imgRes.blob();
-    const file = new File([blob], "ai-generated.png", { type: blob.type });
+    const croppedBlob = await getCroppedImg(
+      aiImagePreviewUrl,
+      croppedAreaPixels
+    );
+
+    const previewUrl = URL.createObjectURL(croppedBlob);
+    setCroppedImageUrl(previewUrl);
+    setCropping(false);
+  };
+
+  const handleFinalUpload = async () => {
+    if (!croppedImageUrl) return;
+
+    const res = await fetch(croppedImageUrl);
+    const blob = await res.blob();
+    const file = new File([blob], "cropped.png", { type: "image/png" });
 
     const formData = new FormData();
     formData.append("file", file);
@@ -136,30 +167,12 @@ export function StoryCoverImageDialog({
     const uploadJson = await uploadRes.json();
     if (!uploadJson.url) return alert("Upload failed");
 
-    const updated = {
-      ...story,
-      coverImageUrl: uploadJson.url,
-      tags: {
-        tagNames: Array.isArray(story.tags)
-          ? story.tags.map((tag) => tag.name)
-          : story.tags?.tagNames || [],
-      },
-    };
+    await updateStoryCover(uploadJson.url);
 
-    const res = await fetch("/api/stories", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updated),
-    });
-
-    if (res.ok) {
-      onUpdate(updated);
-      setOpen(false);
-      setAiImagePreviewUrl(null);
-      setImagePrompt("");
-    } else {
-      alert("Failed to update story");
-    }
+    setImagePrompt("");
+    setAiImagePreviewUrl(null);
+    setCroppedImageUrl(null);
+    setImageMode(null);
   };
 
   return (
@@ -198,10 +211,13 @@ export function StoryCoverImageDialog({
             setImageMode(null);
             setImagePrompt("");
             setAiImagePreviewUrl(null);
+            setCroppedImageUrl(null);
           }
         }}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent
+          className={imageMode === "ai" ? "sm:max-w-4xl" : "sm:max-w-md"}
+        >
           <DialogHeader>
             <DialogTitle>Update Cover Image</DialogTitle>
           </DialogHeader>
@@ -227,69 +243,125 @@ export function StoryCoverImageDialog({
           )}
 
           {imageMode === "ai" && (
-            <div className="space-y-4">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  setImageMode(null);
-                  setAiImagePreviewUrl(null);
-                  setImagePrompt("");
-                }}
-              >
-                ← Back
-              </Button>
+            <div className="flex gap-4 max-h-[600px]">
+              {/* Prompt Area */}
+              <div className="flex-1 space-y-4">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    setImageMode(null);
+                    setAiImagePreviewUrl(null);
+                    setCroppedImageUrl(null);
+                    setImagePrompt("");
+                  }}
+                >
+                  ← Back
+                </Button>
 
-              <Textarea
-                placeholder="Enter a short story description..."
-                value={imagePrompt}
-                onChange={(e) => setImagePrompt(e.target.value)}
-              />
+                <Textarea
+                  placeholder="Enter a short story description..."
+                  value={imagePrompt}
+                  onChange={(e) => setImagePrompt(e.target.value)}
+                  className="min-h-[250px]"
+                />
 
-              <Select value={selectedModel} onValueChange={setSelectedModel}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a model" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="flux">Flux</SelectItem>
-                  <SelectItem value="kontext">Kontext</SelectItem>
-                  <SelectItem value="turbo">Turbo</SelectItem>
-                  <SelectItem value="gptimage">GPTImage</SelectItem>
-                </SelectContent>
-              </Select>
+                <Select value={selectedModel} onValueChange={setSelectedModel}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="flux">Flux</SelectItem>
+                    <SelectItem value="kontext">Kontext</SelectItem>
+                    <SelectItem value="turbo">Turbo</SelectItem>
+                    <SelectItem value="gptimage">GPTImage</SelectItem>
+                  </SelectContent>
+                </Select>
 
-              {generatingImage && (
-                <div className="w-full flex justify-center mb-2">
-                  <WritingAnimation />
-                </div>
-              )}
+                <Button
+                  className="w-full"
+                  onClick={handleAIImageGenerate}
+                  disabled={!imagePrompt || generatingImage}
+                >
+                  {generatingImage ? "Generating..." : "Generate Image"}
+                </Button>
 
-              <Button
-                className="w-full"
-                onClick={handleAIImageGenerate}
-                disabled={!imagePrompt || generatingImage}
-              >
-                {generatingImage ? "Generating..." : "Generate Image"}
-              </Button>
+                {croppedImageUrl && (
+                  <Button className="w-full" onClick={handleFinalUpload}>
+                    Use This Image
+                  </Button>
+                )}
+              </div>
 
-              {aiImagePreviewUrl && !generatingImage && (
-                <>
-                  <div className="w-full">
+              {/* Divider */}
+              <div className="w-[4px] bg-slate-700 rounded-2xl" />
+
+              {/* Preview Area */}
+              <div className="flex-1 flex items-center justify-center">
+                {croppedImageUrl ? (
+                  <button
+                    onClick={() => setCropping(true)}
+                    className="focus:outline-none"
+                  >
+                    <img
+                      src={croppedImageUrl}
+                      alt="Cropped Preview"
+                      className="max-w-full max-h-[500px] object-contain border rounded-lg shadow hover:opacity-80 transition"
+                    />
+                  </button>
+                ) : aiImagePreviewUrl && !generatingImage ? (
+                  <button
+                    onClick={() => setCropping(true)}
+                    className="focus:outline-none"
+                  >
                     <img
                       src={aiImagePreviewUrl}
                       alt="AI Preview"
-                      className="w-full max-h-64 object-contain"
+                      className="max-w-full max-h-[500px] object-contain border rounded-lg shadow hover:opacity-80 transition"
                     />
+                  </button>
+                ) : (
+                  <div className="w-full flex justify-center items-center text-sm text-gray-500 text-center">
+                    {generatingImage ? (
+                      <WritingAnimation />
+                    ) : (
+                      <p>Your preview image will be here.</p>
+                    )}
                   </div>
-                  <Button className="w-full" onClick={handleUseGeneratedImage}>
-                    Use This Image
-                  </Button>
-                </>
-              )}
+                )}
+              </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Cropping Dialog */}
+      {cropping && aiImagePreviewUrl && (
+        <Dialog open={cropping} onOpenChange={setCropping}>
+          <DialogContent className="sm:max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>Crop Image</DialogTitle>
+            </DialogHeader>
+            <div className="relative w-full h-[500px] bg-black">
+              <Cropper
+                image={aiImagePreviewUrl}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+              />
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" onClick={() => setCropping(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCropConfirm}>Crop and Preview</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 }
