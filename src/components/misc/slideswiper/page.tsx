@@ -81,12 +81,12 @@ export default function PanelEditor({
     setIsImproving(true);
 
     try {
-      const res = await fetch("/api/stories/ai/custom-adjust", {
+      const res = await fetch("/api/stories/ai/improve/custom-adjust", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           inputText: selectedText,
-          instruction,
+          customInstruction: instruction,
         }),
       });
 

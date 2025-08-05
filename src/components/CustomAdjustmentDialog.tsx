@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 interface Props {
   open: boolean;
@@ -30,16 +31,19 @@ export default function CustomAdjustmentDialog({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          Provide instructions for adjusting the selected text.
+          <DialogTitle>Provide instructions</DialogTitle>
         </DialogHeader>
+
         <p className="text-muted-foreground text-sm">
           Selected: <em>{selectedText}</em>
         </p>
+
         <Textarea
           placeholder="e.g., Make it sound more adventurous..."
           value={instruction}
           onChange={(e) => setInstruction(e.target.value)}
         />
+
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="ghost" onClick={onClose}>
             Cancel
