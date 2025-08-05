@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
+function isVietnamese(text: string): boolean {
+  return /[àáảãạăằắẳẵặâầấẩẫậđèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]/i.test(
+    text
+  );
+}
+
 export async function POST(req: NextRequest) {
   try {
     const token = (await cookies()).get("authToken")?.value;
@@ -15,15 +21,23 @@ export async function POST(req: NextRequest) {
     }
 
     const isSingleWord = inputText.trim().split(/\s+/).length === 1;
+    const isVietnameseLang = isVietnamese(inputText);
 
-    console.log("Is this a single word? " + isSingleWord);
+    const languageNote = isVietnameseLang
+      ? "Respond in Vietnamese."
+      : "Respond in English.";
 
     const prompt = isSingleWord
-      ? `You're a helpful writing assistant. Suggest 1 vivid and expressive word replacements for the word "${inputText}", suitable for a children's story. Keep suggestions age-appropriate and imaginative.`
+      ? `You're a helpful writing assistant. Suggest 1 vivid and expressive word replacement for the word "${inputText}", suitable for a children's story. Keep suggestions age-appropriate and imaginative. ${languageNote}`
       : `You are a creative assistant helping polish children's story panels. Improve the following text by making it more vivid, expressive, and natural. Keep the original meaning, characters, and events intact. Do not summarize or rewrite the whole story—just improve clarity and storytelling.
 
-    Text:
-    "${inputText}"`;
+      Text: "${inputText}"
+
+      ${languageNote}`;
+
+    const additionalSystemInstruction = isSingleWord
+      ? "You provide child-friendly, creative replacements for single words. Do not use capitalization or formatting."
+      : `You are enhancing individual children's story panels. Keep the meaning but improve the emotional tone, clarity, and vocabulary while keeping it age-appropriate. Do NOT include bold, italic, underline, or any kind of formatting. Return plain text only.`;
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/ask`,
@@ -37,14 +51,11 @@ export async function POST(req: NextRequest) {
           provider: "Gemini",
           prompt,
           options: {
-            temperature: 0.7,
+            temperature: 0.8,
             topP: 0.9,
             topK: 40,
             stopSequences: [],
-            additionalSystemInstruction: isSingleWord
-              ? "You provide child-friendly, creative replacements for single words. Do not use capitalization or formatting."
-              : `You are enhancing individual children's story panels. Keep the meaning but improve the emotional tone, clarity, and vocabulary while keeping it age-appropriate. 
-              Do NOT include bold, italic, underline, or any kind of formatting. Return plain text only.`,
+            additionalSystemInstruction,
           },
         }),
       }
@@ -62,7 +73,10 @@ export async function POST(req: NextRequest) {
     const data = await res.json();
     console.log("External API response JSON:", data);
 
-    return NextResponse.json({ ...data, isSingleWord }, { status: 200 });
+    return NextResponse.json(
+      { ...data, isSingleWord, isVietnamese: isVietnameseLang },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("POST /api/stories/ai/improve error:", error);
     return NextResponse.json(

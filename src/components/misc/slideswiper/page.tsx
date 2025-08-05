@@ -4,13 +4,8 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { PanelSwiperProps } from "@/app/types/panel";
-import {
-  ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
-} from "@/components/ui/context-menu";
 import { Loader2 } from "lucide-react";
+import PanelContextMenu from "@/components/PanelContextMenu";
 
 interface PanelEditorProps extends PanelSwiperProps {
   currentPanelIndex: number;
@@ -74,6 +69,53 @@ export default function PanelEditor({
     }
   };
 
+  const handleCustomAdjustment = async (instruction: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const { selectionStart, selectionEnd, value } = textarea;
+    const selectedText = value.substring(selectionStart, selectionEnd) || value;
+
+    if (!selectedText.trim()) return;
+
+    setIsImproving(true);
+
+    try {
+      const res = await fetch("/api/stories/ai/custom-adjust", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          inputText: selectedText,
+          instruction,
+        }),
+      });
+
+      const data = await res.json();
+      const improvedText = data.data ?? selectedText;
+
+      const updatedContent =
+        value.substring(0, selectionStart) +
+        improvedText +
+        value.substring(selectionEnd);
+
+      setPanelContents((prev) => {
+        const updated = [...prev];
+        updated[currentPanelIndex] = updatedContent;
+        return updated;
+      });
+
+      setTimeout(() => {
+        const pos = selectionStart + improvedText.length;
+        textarea.setSelectionRange(pos, pos);
+        textarea.focus();
+      }, 0);
+    } catch (err) {
+      console.error("[Custom Adjust API] Error:", err);
+    } finally {
+      setIsImproving(false);
+    }
+  };
+
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
     setPanelContents((prev) => {
@@ -82,6 +124,15 @@ export default function PanelEditor({
       return updated;
     });
   };
+
+  const textarea = textareaRef.current;
+  const fullText = panelContents[currentPanelIndex] ?? "";
+
+  // Checking non-null, actually selected from head to toe and uhh extract.
+  const selectedText =
+    textarea && textarea.selectionStart !== textarea.selectionEnd
+      ? fullText.substring(textarea.selectionStart, textarea.selectionEnd)
+      : "";
 
   return (
     <div className="space-y-4 w-full max-w-2xl mx-auto p-4 rounded-xl shadow-sm">
@@ -96,33 +147,28 @@ export default function PanelEditor({
         </div>
       )}
 
-      <ContextMenu>
-        <ContextMenuTrigger>
-          <div className="relative w-full h-[60vh]">
-            {/* Loading */}
-            {isImproving && (
-              <div className="absolute inset-0 z-20 bg-muted/80 backdrop-blur-sm rounded-md flex items-center justify-center">
-                <Loader2 className="animate-spin h-10 w-10 text-muted-foreground" />
-              </div>
-            )}
-
-            <Textarea
-              ref={textareaRef}
-              value={panelContents[currentPanelIndex] ?? ""}
-              onChange={handleTextChange}
-              placeholder="Enter panel content..."
-              className="w-full h-full rounded-md resize-none text-base"
-              disabled={isImproving}
-            />
-          </div>
-        </ContextMenuTrigger>
-
-        <ContextMenuContent className="mt-3">
-          <ContextMenuItem onClick={handleImproveWithAI}>
-            ✨ Improve with AI assist
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
+      <PanelContextMenu
+        selectedText={selectedText}
+        onImprove={handleImproveWithAI}
+        onCustomAdjust={handleCustomAdjustment}
+        disabled={isImproving}
+      >
+        <div className="relative w-full h-[60vh]">
+          {isImproving && (
+            <div className="absolute inset-0 z-20 bg-muted/80 backdrop-blur-sm rounded-md flex items-center justify-center">
+              <Loader2 className="animate-spin h-10 w-10 text-muted-foreground" />
+            </div>
+          )}
+          <Textarea
+            ref={textareaRef}
+            value={panelContents[currentPanelIndex] ?? ""}
+            onChange={handleTextChange}
+            placeholder="Enter panel content..."
+            className="w-full h-full rounded-md resize-none text-base"
+            disabled={isImproving}
+          />
+        </div>
+      </PanelContextMenu>
     </div>
   );
 }
