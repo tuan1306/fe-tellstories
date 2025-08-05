@@ -80,7 +80,7 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
               Total Subscriber
             </CardTitle>
             <CardDescription>
-              User bought subscription this week
+              User bought subscription this month
             </CardDescription>
             <CardAction>{fluctBadge(data.subscriberFluct)}</CardAction>
           </CardHeader>

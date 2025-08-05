@@ -24,6 +24,7 @@ export default function Subscription() {
     newSubscriberFluct: null,
     quittedSubscriber: 0,
     quittedSubscriberFluct: null,
+    subscriberBySubscriptionsFluct: null,
     recentSubscribers: [],
     subscriberBySubscriptions: [],
     mostPopularTier: {
@@ -84,7 +85,11 @@ export default function Subscription() {
           subscriptionPackages={subscriptionPackages}
           fetchSubscriptions={fetchSubscriptions}
         />
-        <SubGroupChart data={dashboardData.subscriberBySubscriptions} />
+        <SubGroupChart
+          data={dashboardData.subscriberBySubscriptions}
+          fluctuation={dashboardData.subscriberBySubscriptionsFluct}
+        />
+
         <MostPopularPkg
           subscriptionName={dashboardData.mostPopularTier.subscriptionName}
           numberOfSubscriber={dashboardData.mostPopularTier.numberOfSubscriber}

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { TrendingUp } from "lucide-react";
+import { Minus, TrendingUp } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 
 import {
@@ -19,12 +19,14 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { SubscriberBySubscriptions } from "@/app/types/subscription";
+import { Badge } from "./ui/badge";
 
 type SubGroupChartProps = {
   data: SubscriberBySubscriptions[];
+  fluctuation: number | null;
 };
 
-export function SubGroupChart({ data }: SubGroupChartProps) {
+export function SubGroupChart({ data, fluctuation }: SubGroupChartProps) {
   const chartData = React.useMemo(() => {
     const colors = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)"];
     return data.map((item, index) => ({
@@ -105,10 +107,23 @@ export function SubGroupChart({ data }: SubGroupChartProps) {
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 leading-none font-medium">
-          Growth of 5.2% in subscriptions <TrendingUp className="h-4 w-4" />
-        </div>
+      <CardFooter className="flex flex-col items-start gap-2 text-sm">
+        {typeof fluctuation === "number" ? (
+          <div className="flex items-center gap-2 leading-none font-medium">
+            {fluctuation >= 0 ? "Growth" : "Drop"} of{" "}
+            {Math.abs(fluctuation).toFixed(1)}% in subscriptions
+            <TrendingUp className="h-4 w-4" />
+          </div>
+        ) : (
+          <span className="flex items-center gap-2 text-sm text-muted-foreground">
+            Current fluctuation rate
+            <Badge variant="outline" className="text-muted-foreground">
+              <Minus className="w-4 h-4 mr-1" />
+              N/A
+            </Badge>
+          </span>
+        )}
+
         <div className="text-muted-foreground leading-none">
           Based on currently active subscription plans
         </div>
