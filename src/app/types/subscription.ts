@@ -54,3 +54,14 @@ export type SubscriberBySubscriptions = {
   subscriptionName: string;
   numberOfSubscriber: number;
 };
+
+export interface SubscriptionDetail {
+  user: string;
+  plan: string;
+  price: number;
+  duration: number;
+  subscribedOn: string;
+  originalEndDate: string | null;
+  expiriesOn: string;
+  dayRemaining: number;
+}

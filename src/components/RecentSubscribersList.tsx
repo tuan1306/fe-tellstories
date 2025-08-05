@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { RecentSubscriber } from "@/app/types/subscription";
+import { RecentSubscriber, SubscriptionDetail } from "@/app/types/subscription";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,10 +16,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { MoreHorizontal } from "lucide-react";
+import { Loader2, MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import Link from "next/link";
+
+const formatDate = (date?: string | null) => {
+  if (!date) return "N/A";
+  const d = new Date(date);
+  return isNaN(d.getTime())
+    ? "Invalid Date"
+    : `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}/${d.getFullYear()}`;
+};
 
 export function RecentSubscribersList({
   recentSubscribers,
@@ -28,10 +38,27 @@ export function RecentSubscribersList({
 }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedSub, setSelectedSub] = useState<RecentSubscriber | null>(null);
+  const [subscriptionDetail, setSubscriptionDetail] =
+    useState<SubscriptionDetail | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
 
-  const handleViewDetails = (subscriber: RecentSubscriber) => {
+  const handleViewDetails = async (subscriber: RecentSubscriber) => {
     setSelectedSub(subscriber);
     setOpenDialog(true);
+    setLoadingDetail(true);
+    setSubscriptionDetail(null);
+
+    try {
+      const res = await fetch(`/api/subscription/user/${subscriber.user.id}`);
+      const json = await res.json();
+      if (json.success && json.data) {
+        setSubscriptionDetail(json.data as SubscriptionDetail);
+      }
+    } catch (error) {
+      console.error("Failed to fetch subscription detail:", error);
+    } finally {
+      setLoadingDetail(false);
+    }
   };
 
   return (
@@ -79,7 +106,6 @@ export function RecentSubscribersList({
                 </div>
               </div>
 
-              {/* Dropdown Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -107,7 +133,6 @@ export function RecentSubscribersList({
       {/* details */}
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="pt-6 overflow-hidden">
-          {/* funny circles */}
           <div className="absolute top-0 right-0 z-0">
             <div className="absolute -top-[140px] -right-[140px] w-[280px] h-[280px] rounded-full bg-[#1A293F] rotate-45 shadow-2xl/40" />
             <div className="absolute -top-[160px] -right-[160px] w-[280px] h-[280px] rounded-full bg-[#293E5C] rotate-45 shadow-xl/20" />
@@ -118,53 +143,63 @@ export function RecentSubscribersList({
             <DialogTitle>Subscription Details</DialogTitle>
           </DialogHeader>
 
-          {selectedSub && (
+          {loadingDetail ? (
+            <div className="z-10 flex items-center justify-center h-32 text-muted-foreground">
+              <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+          ) : subscriptionDetail ? (
             <div className="z-10 space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <strong className="text-slate-300">User:</strong>
                 <Link
-                  href={`usermanagement/users/${selectedSub.user.id}`}
+                  href={`usermanagement/users/${selectedSub?.user.id}`}
                   className="flex items-center gap-3 hover:opacity-80 transition"
                 >
-                  {selectedSub.user.displayName}
+                  {selectedSub?.user.displayName}
                 </Link>
               </div>
 
               <div className="flex items-center gap-2">
                 <strong className="text-slate-300">Plan:</strong>
                 <Badge className="bg-amber-300 text-slate-800">
-                  {selectedSub.subscriptionName}
+                  {subscriptionDetail.plan}
                 </Badge>
               </div>
 
               <p>
-                <strong className="text-slate-300">Price: </strong>30,000 VND
+                <strong className="text-slate-300">Price: </strong>
+                {subscriptionDetail.price.toLocaleString()} VND
               </p>
 
               <p>
-                <strong className="text-slate-300">Duration: </strong>30 days
+                <strong className="text-slate-300">Duration: </strong>
+                {subscriptionDetail.duration} days
               </p>
 
               <p>
-                <strong className="text-slate-300">Subscribed on: </strong> July
-                30, 2025
+                <strong className="text-slate-300">Subscribed on: </strong>
+                {formatDate(subscriptionDetail.subscribedOn)}
               </p>
 
               <p>
                 <strong className="text-slate-300">Original Expiry: </strong>
-                August 29, 2025
+                {formatDate(subscriptionDetail.originalEndDate)}
               </p>
 
               <p>
-                <strong className="text-slate-300">Expires on: </strong> October
-                29, 2025
+                <strong className="text-slate-300">Expires on: </strong>
+                {formatDate(subscriptionDetail.expiriesOn)}
               </p>
 
               <p>
-                <strong className="text-slate-300">Days Remaining: </strong> 27
-                days
+                <strong className="text-slate-300">Days Remaining: </strong>
+                {subscriptionDetail.dayRemaining} days
               </p>
             </div>
+          ) : (
+            <p className="z-10 text-sm text-muted-foreground">
+              No data available.
+            </p>
           )}
         </DialogContent>
       </Dialog>

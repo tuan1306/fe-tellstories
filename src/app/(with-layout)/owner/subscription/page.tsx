@@ -1,13 +1,14 @@
 "use client";
 
-import { DashboardData, SubscriptionPackage } from "@/app/types/subscription";
-import { MostPopularPkg } from "@/components/MostPopularPkg";
-import { RecentSubscribersList } from "@/components/RecentSubscribersList";
-import { SubGroupChart } from "@/components/SubGroupChart";
-import { SubscriptionDialog } from "@/components/SubscriptionDialog";
-import { SubscriptionMetrics } from "@/components/SubscriptionMetrics";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+
+import { DashboardData, SubscriptionPackage } from "@/app/types/subscription";
+import { SubscriptionMetrics } from "@/components/SubscriptionMetrics";
+import { RecentSubscribersList } from "@/components/RecentSubscribersList";
+import { SubscriptionDialog } from "@/components/SubscriptionDialog";
+import { SubGroupChart } from "@/components/SubGroupChart";
+import { MostPopularPkg } from "@/components/MostPopularPkg";
 
 export default function Subscription() {
   const [subscriptionPackages, setSubscriptionPackages] = useState<
@@ -24,16 +25,17 @@ export default function Subscription() {
     newSubscriberFluct: null,
     quittedSubscriber: 0,
     quittedSubscriberFluct: null,
+    subscriberBySubscriptions: [],
     subscriberBySubscriptionsFluct: null,
     recentSubscribers: [],
-    subscriberBySubscriptions: [],
     mostPopularTier: {
-      percentage: 0,
       subscriptionName: "",
       numberOfSubscriber: 0,
+      percentage: 0,
     },
   });
 
+  // Fetch subscription packages
   const fetchSubscriptions = () => {
     fetch("/api/subscription")
       .then((res) => res.json())
@@ -45,18 +47,21 @@ export default function Subscription() {
       .catch((err) => console.error("Failed to fetch subscriptions:", err));
   };
 
+  // Fetch dashboard data
   useEffect(() => {
     setIsLoading(true);
+
     fetch("/api/subscription/dashboard")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
+        if (data?.success) {
           setDashboardData(data.data);
         }
       })
       .finally(() => setIsLoading(false));
   }, []);
 
+  // Fetch subscription packages
   useEffect(() => {
     fetchSubscriptions();
   }, []);
@@ -85,6 +90,7 @@ export default function Subscription() {
           subscriptionPackages={subscriptionPackages}
           fetchSubscriptions={fetchSubscriptions}
         />
+
         <SubGroupChart
           data={dashboardData.subscriberBySubscriptions}
           fluctuation={dashboardData.subscriberBySubscriptionsFluct}
