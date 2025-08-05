@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-const MAX_CHUNK_LENGTH = 300;
+const MAX_CHUNK_LENGTH = 450;
 
 function splitTextIntoChunks(text: string, maxLength: number): string[] {
   const sentences = text.match(/[^.!?]+[.!?]*/g) || [text];
@@ -43,6 +43,13 @@ export async function POST(req: NextRequest) {
     // Generation
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
+
+      // Cooldown 10s for every 5 chunk.
+      if (i > 0 && i % 5 === 0) {
+        console.log(`[TTS] Cooldown rn at chunk ${i}`);
+        await new Promise((resolve) => setTimeout(resolve, 10_000));
+      }
+
       console.log(
         `[TTS] Generating audio for chunk ${i + 1}/${chunks.length}:`,
         chunk
