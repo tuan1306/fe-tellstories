@@ -132,7 +132,7 @@ export default function DataTable() {
             maxOutputTokens: 1500,
             stopSequences: [],
             seed: 123,
-            additionalSystemInstruction: `Generate a story suitable for children aged ${ageRange} with the given title.
+            additionalSystemInstruction: `Generate a story suitable for children aged 6-8 with the given title.
 
             The story must follow this structure:
             - An opening that introduces the main character(s) and setting.
@@ -141,10 +141,12 @@ export default function DataTable() {
 
             Use a warm, gentle, educational tone. Language should be simple and easy to understand.`,
           },
+          history: [],
         }),
       });
 
       const storyJson = await storyRes.json();
+
       const newStory = storyJson.data;
 
       let coverImageUrl = "";
@@ -289,7 +291,7 @@ export default function DataTable() {
           tags: { tagNames: newStory.tags || [] },
           coverImageUrl,
           language: "ENG",
-          author: "Super Admin",
+          author: "Admin",
         }),
       });
 

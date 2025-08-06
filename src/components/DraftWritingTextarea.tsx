@@ -1,0 +1,24 @@
+"use client";
+
+import { Textarea } from "@/components/ui/textarea";
+
+interface DraftWritingTextareaProps {
+  draftContent: string;
+  onChange: (value: string) => void;
+}
+
+export function DraftWritingTextarea({
+  draftContent,
+  onChange,
+}: DraftWritingTextareaProps) {
+  return (
+    <div className="flex flex-col h-full">
+      <label className="text-sm font-medium mb-2 block">Draft writings</label>
+      <Textarea
+        className="h-[37%] w-full resize-none"
+        value={draftContent}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  );
+}

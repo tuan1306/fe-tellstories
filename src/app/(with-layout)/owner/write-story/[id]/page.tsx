@@ -21,6 +21,10 @@ export default function WriteStoryPage() {
   const [currentPanelIndex, setCurrentPanelIndex] = useState(0);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
+  // Draft, because when the user changed their mind to use the picture + panel mode.
+  const [showDraftOnly, setShowDraftOnly] = useState(false);
+  const [draftContent, setDraftContent] = useState("");
+
   useEffect(() => {
     if (!confirmingDelete) return;
 
@@ -97,17 +101,25 @@ export default function WriteStoryPage() {
           <StoryMetadataCard
             story={story}
             onMetadataUpdate={() => fetchStoryById(id as string)}
+            showDraftOnly={showDraftOnly}
+            draftContent={draftContent}
+            setDraftContent={setDraftContent}
+            onBack={() => setShowDraftOnly(false)}
+            onEnterDraft={() => setShowDraftOnly(true)}
           />
 
-          <ScrollArea className="flex-1 min-h-0 pr-2">
-            <div className="space-y-3">
-              <StoryCoverImageDialog
-                story={story}
-                onUpdate={(updated) => setStory(updated)}
-              />
-              <StoryMetadataDetails story={story} />
-            </div>
-          </ScrollArea>
+          {/* Disable if drafting appears */}
+          {!showDraftOnly && (
+            <ScrollArea className="flex-1 min-h-0 pr-2">
+              <div className="space-y-3">
+                <StoryCoverImageDialog
+                  story={story}
+                  onUpdate={(updated) => setStory(updated)}
+                />
+                <StoryMetadataDetails story={story} />
+              </div>
+            </ScrollArea>
+          )}
         </div>
       </div>
 
@@ -221,6 +233,13 @@ export default function WriteStoryPage() {
               onClick={() => {
                 if (!story) return;
 
+                // Concat every panels into 1 drafted page.
+                const combinedText =
+                  story.panels?.map((p) => p.content).join("\n\n") || "";
+                setDraftContent(combinedText);
+                setShowDraftOnly(true);
+
+                // Still the pagination for "picture mode" only
                 const newPanelNumber = story.panels.length + 1;
                 const newPanel = {
                   content: "",
@@ -240,7 +259,7 @@ export default function WriteStoryPage() {
                 setCurrentPanelIndex(newPanelNumber - 1);
               }}
             >
-              <Plus /> Add Panel
+              <Plus /> Đổi thành truyện tranh
             </Button>
           )}
         </div>

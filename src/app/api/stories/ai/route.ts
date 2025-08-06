@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
 
-    console.log("Incoming AI request body:", JSON.stringify(body, null, 2));
+    console.log("Sending to external API: \n", JSON.stringify(body, null, 2));
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/chat/generate-story`,
