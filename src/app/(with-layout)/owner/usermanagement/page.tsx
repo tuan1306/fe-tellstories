@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { UserDetails } from "@/app/types/user";
 
 // Remind my dumbass to return an array not a singer user.
-export const getData = async (): Promise<UserDetails[]> => {
+const getData = async (): Promise<UserDetails[]> => {
   const cookie = await cookies();
   const cookieToken = cookie.toString();
 
