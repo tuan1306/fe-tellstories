@@ -38,6 +38,22 @@ export default function WriteStoryPage() {
     return () => clearTimeout(timeout);
   }, [confirmingDelete]);
 
+  // Load the drafted content & the state
+  useEffect(() => {
+    if (story?.id) {
+      const savedDraft = localStorage.getItem(`draft-content-${story.id}`);
+      if (savedDraft) {
+        setDraftContent(savedDraft);
+      }
+
+      const savedVisualMode = localStorage.getItem(`visual-mode-${story.id}`);
+      if (savedVisualMode === "true") {
+        setVisualMode(true);
+        setShowDraftOnly(true);
+      }
+    }
+  }, [story?.id]);
+
   const fetchStoryById = async (storyId: string) => {
     try {
       const res = await fetch(`/api/stories/${storyId}`);
@@ -214,6 +230,41 @@ export default function WriteStoryPage() {
                   <Plus className="w-4 h-4 text-green-400" />
                   Thêm trang
                 </Button>
+
+                {/* Revert to classic mode */}
+                <Button
+                  variant="outline"
+                  className="h-10 cursor-pointer text-amber-300 hover:text-amber-300"
+                  onClick={() => {
+                    // Remove visual mode and draft flags from local storage
+                    localStorage.removeItem(`visual-mode-${story.id}`);
+                    localStorage.removeItem(`draft-content-${story.id}`);
+
+                    setVisualMode(false);
+                    setShowDraftOnly(false);
+
+                    // Merge all panel contents into one string
+                    const mergedContent = story.panels
+                      .map((panel) => panel.content?.trim() || "")
+                      .filter(Boolean)
+                      .join("\n\n");
+
+                    const updatedFirstPanel = {
+                      ...story.panels[0],
+                      content: mergedContent,
+                    };
+
+                    setStory({
+                      ...story,
+                      panels: [updatedFirstPanel],
+                    });
+
+                    setPanelContents([mergedContent]);
+                    setCurrentPanelIndex(0);
+                  }}
+                >
+                  Trở về chế độ truyện chữ
+                </Button>
               </div>
 
               {/* Pagination */}
@@ -258,6 +309,10 @@ export default function WriteStoryPage() {
                 const combinedText =
                   story.panels?.map((p) => p.content).join("\n\n") || "";
                 setDraftContent(combinedText);
+                localStorage.setItem(`draft-content-${story.id}`, combinedText);
+
+                // Stay in visual mode upon reload
+                localStorage.setItem(`visual-mode-${story.id}`, "true");
 
                 // Change the mode
                 setVisualMode(true);

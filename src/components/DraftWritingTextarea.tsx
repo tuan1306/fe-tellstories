@@ -15,7 +15,7 @@ export function DraftWritingTextarea({
     <div className="flex flex-col h-full">
       <label className="text-sm font-medium mb-2 block">Bài viết nháp</label>
       <Textarea
-        className="h-[37%] w-full resize-none"
+        className="h-[67vh] w-full resize-none"
         value={draftContent}
         onChange={(e) => onChange(e.target.value)}
       />
