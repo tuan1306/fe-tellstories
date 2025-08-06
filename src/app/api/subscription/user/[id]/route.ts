@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = (await cookies()).get("authToken")?.value;
-    const { id } = params;
+    const id = (await params).id;
 
     if (!id) {
       return NextResponse.json(

@@ -3,12 +3,11 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = (await cookies()).get("authToken")?.value;
-    const param = await params;
-    const storyId = await param.id;
+    const storyId = (await params).id;
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/${storyId}`,

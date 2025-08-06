@@ -3,14 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = (await cookies()).get("authToken")?.value;
 
-    // Must wait for param, I don't even know why NextJS do this.
-    const param = await params;
-    const userId = await param.id;
+    const userId = (await params).id;
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/by-id/${userId}`,
@@ -44,13 +42,12 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
-    const param = await params;
-    const userId = await param.id;
+    const userId = (await params).id;
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/update/${userId}`,
@@ -85,13 +82,17 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = (await cookies()).get("authToken")?.value;
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/delete/${params.id}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/delete/${
+        (
+          await params
+        ).id
+      }`,
       {
         method: "DELETE",
         headers: {
