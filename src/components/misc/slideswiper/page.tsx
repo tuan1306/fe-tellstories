@@ -231,14 +231,40 @@ export default function PanelEditor({
     <div className="space-y-4 w-full max-w-2xl mx-auto shadow-sm overflow-y-auto">
       {visualMode && (
         <div className="space-y-2">
-          <div className="w-full mb-4">
-            <h1 className="text-xl font-semibold">
-              Trang soạn thảo truyện tranh
-            </h1>
-            <h1 className="text-sm text-muted-foreground">
-              Truyện bạn sáng tác sẽ nằm ở đây
-            </h1>
+          <div className="w-full mb-4 flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-semibold">
+                Trang soạn thảo truyện tranh
+              </h1>
+              <h1 className="text-sm text-muted-foreground">
+                Truyện bạn sáng tác sẽ nằm ở đây
+              </h1>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleToggleRecording}
+              className={`flex items-center gap-2 px-3 py-1 text-sm rounded-md transition-colors ${
+                listening
+                  ? "bg-red-500 text-white"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {listening ? (
+                <>
+                  <MicOff className="w-4 h-4" />
+                  <span className="text-sm not-italic">Đang ghi âm</span>
+                </>
+              ) : (
+                <>
+                  <Mic className="w-4 h-4" />
+                  <span className="text-sm">Ghi âm</span>
+                </>
+              )}
+            </button>
           </div>
+
+          {/* Image Display */}
           {panel.imageUrl ? (
             <div className="w-full h-40 relative rounded-md overflow-hidden shadow-md">
               <Image
