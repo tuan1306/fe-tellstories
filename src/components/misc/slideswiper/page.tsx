@@ -57,15 +57,20 @@ export default function PanelEditor({
   }, [transcript, listening, currentPanelIndex, setPanelContents]);
 
   // If the panel is 1 => remove on visual mode.
+  // Only run once on mount or when visualMode first turns true
   useEffect(() => {
     if (visualMode && currentPanelIndex === 0) {
-      setPanelContents((prev) => {
-        const updated = [...prev];
-        updated[0] = "";
-        return updated;
-      });
+      const firstPanelEmpty = !panelContents[0]?.trim();
+      if (firstPanelEmpty) {
+        setPanelContents((prev) => {
+          const updated = [...prev];
+          updated[0] = "";
+          return updated;
+        });
+      }
     }
-  }, [visualMode, currentPanelIndex, setPanelContents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleImproveWithAI = async () => {
     const textarea = textareaRef.current;
