@@ -4,12 +4,14 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { PanelSwiperProps } from "@/app/types/panel";
-import { Loader2 } from "lucide-react";
+import { Loader2, ImagePlus } from "lucide-react";
 import PanelContextMenu from "@/components/PanelContextMenu";
 
 interface PanelEditorProps extends PanelSwiperProps {
   currentPanelIndex: number;
   setPanelContents: React.Dispatch<React.SetStateAction<string[]>>;
+  visualMode: boolean; // <-- NEW prop to track visual panel mode
+  onImageChange?: (index: number, imageUrl: string) => void;
 }
 
 export default function PanelEditor({
@@ -17,6 +19,8 @@ export default function PanelEditor({
   panelContents,
   setPanelContents,
   currentPanelIndex,
+  visualMode,
+  onImageChange,
 }: PanelEditorProps) {
   const panel = panels[currentPanelIndex];
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -35,7 +39,6 @@ export default function PanelEditor({
 
     try {
       const requestBody = { inputText: selectedText };
-
       const res = await fetch("/api/stories/ai/improve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -56,7 +59,7 @@ export default function PanelEditor({
         return updated;
       });
 
-      // Restore cursor
+      //Restore cursor
       setTimeout(() => {
         const pos = selectionStart + improvedText.length;
         textarea.setSelectionRange(pos, pos);
@@ -125,25 +128,54 @@ export default function PanelEditor({
     });
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.[0]) return;
+    const file = e.target.files[0];
+
+    // In production, you'd upload to server or storage and get URL
+    const imageUrl = URL.createObjectURL(file);
+
+    if (onImageChange) {
+      onImageChange(currentPanelIndex, imageUrl);
+    }
+  };
+
   const textarea = textareaRef.current;
   const fullText = panelContents[currentPanelIndex] ?? "";
-
-  // Checking non-null, actually selected from head to toe and uhh extract.
   const selectedText =
     textarea && textarea.selectionStart !== textarea.selectionEnd
       ? fullText.substring(textarea.selectionStart, textarea.selectionEnd)
       : "";
 
   return (
-    <div className="space-y-4 w-full max-w-2xl mx-auto p-4 rounded-xl shadow-sm">
-      {panel.imageUrl && (
-        <div className="w-full h-60 relative rounded-md overflow-hidden shadow-md">
-          <Image
-            src={panel.imageUrl}
-            alt={`Panel ${currentPanelIndex + 1}`}
-            fill
-            className="object-cover"
-          />
+    <div className="space-y-4 w-full max-w-2xl mx-auto p-4 rounded-xl shadow-sm overflow-y-auto">
+      {visualMode && (
+        <div className="space-y-2">
+          {panel.imageUrl ? (
+            <div className="w-full h-40 relative rounded-md overflow-hidden shadow-md">
+              <Image
+                src={panel.imageUrl}
+                alt={`Panel ${currentPanelIndex + 1}`}
+                fill
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-full h-40 flex items-center justify-center border-2 border-dashed rounded-md">
+              {" "}
+              {/* was h-60 */}
+              <label className="flex flex-col items-center cursor-pointer">
+                <ImagePlus className="w-8 h-8 mb-2 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Add Image</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+              </label>
+            </div>
+          )}
         </div>
       )}
 
@@ -153,7 +185,9 @@ export default function PanelEditor({
         onCustomAdjust={handleCustomAdjustment}
         disabled={isImproving}
       >
-        <div className="relative w-full h-[60vh]">
+        <div
+          className={`relative w-full ${visualMode ? "h-[35vh]" : "h-[60vh]"}`}
+        >
           {isImproving && (
             <div className="absolute inset-0 z-20 bg-muted/80 backdrop-blur-sm rounded-md flex items-center justify-center">
               <Loader2 className="animate-spin h-10 w-10 text-muted-foreground" />

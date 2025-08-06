@@ -25,6 +25,9 @@ export default function WriteStoryPage() {
   const [showDraftOnly, setShowDraftOnly] = useState(false);
   const [draftContent, setDraftContent] = useState("");
 
+  // Mode changing
+  const [visualMode, setVisualMode] = useState(false);
+
   useEffect(() => {
     if (!confirmingDelete) return;
 
@@ -101,6 +104,7 @@ export default function WriteStoryPage() {
           <StoryMetadataCard
             story={story}
             onMetadataUpdate={() => fetchStoryById(id as string)}
+            visualMode={visualMode}
             showDraftOnly={showDraftOnly}
             draftContent={draftContent}
             setDraftContent={setDraftContent}
@@ -109,17 +113,15 @@ export default function WriteStoryPage() {
           />
 
           {/* Disable if drafting appears */}
-          {!showDraftOnly && (
-            <ScrollArea className="flex-1 min-h-0 pr-2">
-              <div className="space-y-3">
-                <StoryCoverImageDialog
-                  story={story}
-                  onUpdate={(updated) => setStory(updated)}
-                />
-                <StoryMetadataDetails story={story} />
-              </div>
-            </ScrollArea>
-          )}
+          <ScrollArea className="flex-1 min-h-0 pr-2">
+            <div className="space-y-3">
+              <StoryCoverImageDialog
+                story={story}
+                onUpdate={(updated) => setStory(updated)}
+              />
+              <StoryMetadataDetails story={story} />
+            </div>
+          </ScrollArea>
         </div>
       </div>
 
@@ -128,11 +130,18 @@ export default function WriteStoryPage() {
         <div className="flex-1 overflow-hidden flex flex-col">
           <ScrollArea className="flex-1 pr-2">
             <ScrollArea className="flex-1 pr-2">
+              {/* Each index represent each url differentiate from panels. */}
               <PanelEditor
                 panels={story.panels}
                 panelContents={panelContents}
                 setPanelContents={setPanelContents}
                 currentPanelIndex={currentPanelIndex}
+                visualMode={visualMode}
+                onImageChange={(index, url) => {
+                  const updatedPanels = [...story.panels];
+                  updatedPanels[index].imageUrl = url;
+                  setStory({ ...story, panels: updatedPanels });
+                }}
               />
             </ScrollArea>
           </ScrollArea>
@@ -237,6 +246,9 @@ export default function WriteStoryPage() {
                 const combinedText =
                   story.panels?.map((p) => p.content).join("\n\n") || "";
                 setDraftContent(combinedText);
+
+                // Change the mode
+                setVisualMode(true);
                 setShowDraftOnly(true);
 
                 // Still the pagination for "picture mode" only

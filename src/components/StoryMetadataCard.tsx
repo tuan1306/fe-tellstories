@@ -10,6 +10,7 @@ import { ArrowLeft } from "lucide-react";
 interface StoryMetadataCardProps {
   story: StoryEditDetails;
   onMetadataUpdate: () => void;
+  visualMode: boolean;
   showDraftOnly: boolean;
   draftContent: string;
   setDraftContent: (val: string) => void;
@@ -20,14 +21,15 @@ interface StoryMetadataCardProps {
 export function StoryMetadataCard({
   story,
   onMetadataUpdate,
-  showDraftOnly,
+  visualMode,
   draftContent,
+  showDraftOnly,
   setDraftContent,
   onBack,
   onEnterDraft,
 }: StoryMetadataCardProps) {
   // Draft writing view
-  if (showDraftOnly) {
+  if (visualMode && showDraftOnly) {
     return (
       <div className="mb-4">
         <div className="w-full mb-4">
@@ -74,12 +76,14 @@ export function StoryMetadataCard({
           </Button>
         </Link>
 
-        <Button
-          className="w-full py-4 hover:bg-primary/90 transition cursor-pointer mt-3"
-          onClick={onEnterDraft}
-        >
-          Back to Draft Writing
-        </Button>
+        {visualMode && (
+          <Button
+            className="w-full py-4 hover:bg-primary/90 transition cursor-pointer mt-3"
+            onClick={onEnterDraft}
+          >
+            Back to Draft Writing
+          </Button>
+        )}
       </div>
     </div>
   );
