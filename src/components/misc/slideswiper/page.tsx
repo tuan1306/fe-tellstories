@@ -148,9 +148,17 @@ export default function PanelEditor({
       : "";
 
   return (
-    <div className="space-y-4 w-full max-w-2xl mx-auto p-4 rounded-xl shadow-sm overflow-y-auto">
+    <div className="space-y-4 w-full max-w-2xl mx-auto shadow-sm overflow-y-auto">
       {visualMode && (
         <div className="space-y-2">
+          <div className="w-full mb-4">
+            <h1 className="text-xl font-semibold">
+              Trang soạn thảo truyện tranh
+            </h1>
+            <h1 className="text-sm text-muted-foreground">
+              Truyện bạn sáng tác sẽ nằm ở đây
+            </h1>
+          </div>
           {panel.imageUrl ? (
             <div className="w-full h-40 relative rounded-md overflow-hidden shadow-md">
               <Image
@@ -162,11 +170,11 @@ export default function PanelEditor({
             </div>
           ) : (
             <div className="w-full h-40 flex items-center justify-center border-2 border-dashed rounded-md">
-              {" "}
-              {/* was h-60 */}
               <label className="flex flex-col items-center cursor-pointer">
                 <ImagePlus className="w-8 h-8 mb-2 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Add Image</span>
+                <span className="text-sm font-semibold text-muted-foreground">
+                  Thêm ảnh
+                </span>
                 <input
                   type="file"
                   accept="image/*"
@@ -186,7 +194,7 @@ export default function PanelEditor({
         disabled={isImproving}
       >
         <div
-          className={`relative w-full ${visualMode ? "h-[35vh]" : "h-[60vh]"}`}
+          className={`relative w-full ${visualMode ? "h-[30vh]" : "h-[60vh]"}`}
         >
           {isImproving && (
             <div className="absolute inset-0 z-20 bg-muted/80 backdrop-blur-sm rounded-md flex items-center justify-center">
@@ -197,7 +205,7 @@ export default function PanelEditor({
             ref={textareaRef}
             value={panelContents[currentPanelIndex] ?? ""}
             onChange={handleTextChange}
-            placeholder="Enter panel content..."
+            placeholder="Nhập nội dung truyện của trang này"
             className="w-full h-full rounded-md resize-none text-base"
             disabled={isImproving}
           />

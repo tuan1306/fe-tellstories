@@ -147,58 +147,50 @@ export default function WriteStoryPage() {
           </ScrollArea>
 
           {/* Navigation */}
-          <Button
-            variant={confirmingDelete ? "destructive" : "outline"}
-            className={`h-10 cursor-pointer px-2 text-sm transition-all duration-300 overflow-hidden ${
-              confirmingDelete ? "w-[90px]" : "w-10"
-            }`}
-            onClick={() => {
-              if (story.panels.length <= 1) return;
-              if (confirmingDelete) {
-                const updatedPanels = story.panels.filter(
-                  (_, i) => i !== currentPanelIndex
-                );
-                const updatedContents = panelContents.filter(
-                  (_, i) => i !== currentPanelIndex
-                );
-                setStory({ ...story, panels: updatedPanels });
-                setPanelContents(updatedContents);
-                setCurrentPanelIndex((prev) => Math.max(prev - 1, 0));
-                setConfirmingDelete(false);
-              } else {
-                setConfirmingDelete(true);
-              }
-            }}
-            disabled={story.panels.length <= 1}
-          >
-            {confirmingDelete ? (
-              "Confirm?"
-            ) : (
-              <Trash2 className="w-4 h-4 mx-auto text-red-400" />
-            )}
-          </Button>
-
           {story.panels.length > 1 ? (
-            <div className="flex justify-between items-center w-full py-2 px-4 border rounded-md mt-4">
-              <Button
-                variant="outline"
-                className="w-10 h-10 cursor-pointer"
-                onClick={() =>
-                  setCurrentPanelIndex((prev) => Math.max(prev - 1, 0))
-                }
-                disabled={currentPanelIndex === 0}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
+            <div className="mt-4 space-y-3">
+              <div className="flex gap-2">
+                {/* Delete */}
+                <Button
+                  variant={confirmingDelete ? "destructive" : "outline"}
+                  className={`h-10 cursor-pointer px-2 text-sm transition-all duration-300 overflow-hidden text-red-400 hover:text-red-400 ${
+                    confirmingDelete
+                      ? "w-[120px] text-white hover:text-white"
+                      : "w-20"
+                  }`}
+                  onClick={() => {
+                    if (story.panels.length <= 1) return;
+                    if (confirmingDelete) {
+                      const updatedPanels = story.panels.filter(
+                        (_, i) => i !== currentPanelIndex
+                      );
+                      const updatedContents = panelContents.filter(
+                        (_, i) => i !== currentPanelIndex
+                      );
+                      setStory({ ...story, panels: updatedPanels });
+                      setPanelContents(updatedContents);
+                      setCurrentPanelIndex((prev) => Math.max(prev - 1, 0));
+                      setConfirmingDelete(false);
+                    } else {
+                      setConfirmingDelete(true);
+                    }
+                  }}
+                  disabled={story.panels.length <= 1}
+                >
+                  {confirmingDelete ? (
+                    "Xác nhận?"
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 text-red-400 mr-1" />
+                      Xóa
+                    </>
+                  )}
+                </Button>
 
-              <div className="font-semibold text-sm">
-                Panel {currentPanelIndex + 1} of {story.panels.length}
-              </div>
-
-              {currentPanelIndex === story.panels.length - 1 ? (
+                {/* Add */}
                 <Button
                   variant="outline"
-                  className="w-10 h-10 cursor-pointer"
+                  className="w-30 h-10 cursor-pointer flex justify-center items-center text-green-400 hover:text-green-400"
                   onClick={() => {
                     const newPanelNumber = story.panels.length + 1;
                     const newPanel = {
@@ -220,8 +212,27 @@ export default function WriteStoryPage() {
                   }}
                 >
                   <Plus className="w-4 h-4 text-green-400" />
+                  Thêm trang
                 </Button>
-              ) : (
+              </div>
+
+              {/* Pagination */}
+              <div className="flex justify-between items-center w-full py-2 px-4 border rounded-md">
+                <Button
+                  variant="outline"
+                  className="w-10 h-10 cursor-pointer"
+                  onClick={() =>
+                    setCurrentPanelIndex((prev) => Math.max(prev - 1, 0))
+                  }
+                  disabled={currentPanelIndex === 0}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+
+                <div className="font-semibold text-sm">
+                  Trang {currentPanelIndex + 1} trên {story.panels.length}
+                </div>
+
                 <Button
                   variant="outline"
                   className="w-10 h-10 cursor-pointer"
@@ -230,10 +241,11 @@ export default function WriteStoryPage() {
                       Math.min(prev + 1, story.panels.length - 1)
                     )
                   }
+                  disabled={currentPanelIndex === story.panels.length - 1}
                 >
                   <ChevronRight className="w-4 h-4" />
                 </Button>
-              )}
+              </div>
             </div>
           ) : (
             <Button
@@ -281,7 +293,7 @@ export default function WriteStoryPage() {
             className="w-full py-4 hover:bg-primary/90 transition"
             onClick={handleSave}
           >
-            Save Changes
+            Lưu truyện
           </Button>
         </div>
       </div>

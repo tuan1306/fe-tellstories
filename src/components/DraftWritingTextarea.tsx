@@ -13,7 +13,7 @@ export function DraftWritingTextarea({
 }: DraftWritingTextareaProps) {
   return (
     <div className="flex flex-col h-full">
-      <label className="text-sm font-medium mb-2 block">Draft writings</label>
+      <label className="text-sm font-medium mb-2 block">Bài viết nháp</label>
       <Textarea
         className="h-[37%] w-full resize-none"
         value={draftContent}

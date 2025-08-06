@@ -33,9 +33,9 @@ export function StoryMetadataCard({
     return (
       <div className="mb-4">
         <div className="w-full mb-4">
-          <h1 className="text-xl font-semibold">Draft Writings</h1>
+          <h1 className="text-xl font-semibold">Trang viết nháp</h1>
           <h1 className="text-sm text-muted-foreground">
-            Temporary draft of previous writing
+            Bản viết nháp tạm thời của truyện viết trước
           </h1>
         </div>
 
@@ -44,7 +44,7 @@ export function StoryMetadataCard({
           onClick={onBack}
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to Story Details
+          Quay lại thông tin truyện
         </Button>
 
         <DraftWritingTextarea
@@ -81,7 +81,7 @@ export function StoryMetadataCard({
             className="w-full py-4 hover:bg-primary/90 transition cursor-pointer mt-3"
             onClick={onEnterDraft}
           >
-            Back to Draft Writing
+            Quay lại trang viết nháp
           </Button>
         )}
       </div>
