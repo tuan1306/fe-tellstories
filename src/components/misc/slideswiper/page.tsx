@@ -1,16 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { PanelSwiperProps } from "@/app/types/panel";
-import { Loader2, ImagePlus } from "lucide-react";
+import { Loader2, ImagePlus, MicOff, Mic } from "lucide-react";
 import PanelContextMenu from "@/components/PanelContextMenu";
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
 
 interface PanelEditorProps extends PanelSwiperProps {
   currentPanelIndex: number;
   setPanelContents: React.Dispatch<React.SetStateAction<string[]>>;
-  visualMode: boolean; // <-- NEW prop to track visual panel mode
+  visualMode: boolean;
   onImageChange?: (index: number, imageUrl: string) => void;
 }
 
@@ -25,6 +28,31 @@ export default function PanelEditor({
   const panel = panels[currentPanelIndex];
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isImproving, setIsImproving] = useState(false);
+
+  // This will support for every browser if I install polyfill, but rn idk how.
+
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  // console.log("Transcript:", transcript);
+  // console.log("Listening:", listening);
+
+  // const wasListeningRef = useRef(false);
+
+  useEffect(() => {
+    if (listening) {
+      setPanelContents((prev) => {
+        // Create a new array so that React can "re-render" based on mutation of array differences.
+        const updated = [...prev];
+        updated[currentPanelIndex] = transcript;
+        return updated;
+      });
+    }
+  }, [transcript, listening, currentPanelIndex, setPanelContents]);
 
   const handleImproveWithAI = async () => {
     const textarea = textareaRef.current;
@@ -140,6 +168,58 @@ export default function PanelEditor({
     }
   };
 
+  // Inserting the post recording
+  const insertTranscript = () => {
+    if (!transcript.trim()) return;
+
+    // Get the current selected area of the textarea
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const { selectionStart, selectionEnd, value } = textarea;
+
+    // Based on the selected area, we replace that word based on the transcript
+    // By concat the first + transcript + end
+    const updatedValue =
+      value.substring(0, selectionStart) +
+      transcript +
+      value.substring(selectionEnd);
+
+    // Same thing did here.
+    setPanelContents((prev) => {
+      const updated = [...prev];
+      updated[currentPanelIndex] = updatedValue;
+      return updated;
+    });
+
+    setTimeout(() => {
+      const cursorPos = selectionStart + transcript.length;
+      textarea.focus();
+      textarea.setSelectionRange(cursorPos, cursorPos);
+    }, 0);
+
+    resetTranscript();
+  };
+
+  const handleToggleRecording = () => {
+    if (!browserSupportsSpeechRecognition) {
+      alert("Trình duyệt không hỗ trợ nhận diện giọng nói.");
+      return;
+    }
+
+    // I'll add more language when needed.
+    if (listening) {
+      SpeechRecognition.stopListening();
+      insertTranscript();
+    } else {
+      resetTranscript();
+      SpeechRecognition.startListening({
+        continuous: false,
+        language: "vi-VN",
+      });
+    }
+  };
+
   const textarea = textareaRef.current;
   const fullText = panelContents[currentPanelIndex] ?? "";
   const selectedText =
@@ -184,6 +264,39 @@ export default function PanelEditor({
               </label>
             </div>
           )}
+        </div>
+      )}
+
+      {!visualMode && (
+        <div className="flex w-full mb-4 items-center justify-between">
+          <div>
+            <h1 className="text-xl font-semibold">Trang soạn thảo truyện</h1>
+            <h1 className="text-sm text-muted-foreground">
+              Truyện bạn sáng tác sẽ nằm ở đây
+            </h1>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleToggleRecording}
+            className={`flex items-center gap-2 px-3 py-1 text-sm rounded-md transition-colors ${
+              listening
+                ? "bg-red-500 text-white"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {listening ? (
+              <>
+                <MicOff className="w-4 h-4" />
+                <span className="text-sm not-italic">Đang ghi âm</span>
+              </>
+            ) : (
+              <>
+                <Mic className="w-4 h-4" />
+                <span className="text-sm">Ghi âm</span>
+              </>
+            )}
+          </button>
         </div>
       )}
 
