@@ -147,7 +147,7 @@ export default function WriteStoryPage() {
           </ScrollArea>
 
           {/* Navigation */}
-          {story.panels.length > 1 ? (
+          {story.panels.length > 1 || visualMode ? (
             <div className="mt-4 space-y-3">
               <div className="flex gap-2">
                 {/* Delete */}
@@ -280,7 +280,7 @@ export default function WriteStoryPage() {
                 });
 
                 setPanelContents([...panelContents, ""]);
-                setCurrentPanelIndex(newPanelNumber - 1);
+                setCurrentPanelIndex(0);
               }}
             >
               <Plus /> Đổi thành truyện tranh

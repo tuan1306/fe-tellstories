@@ -47,12 +47,25 @@ export default function PanelEditor({
     if (listening) {
       setPanelContents((prev) => {
         // Create a new array so that React can "re-render" based on mutation of array differences.
+        // In other words previous state value copy need to be established.
+        // Modify the copy state value, not the original one and then return the new array back to React.
         const updated = [...prev];
         updated[currentPanelIndex] = transcript;
         return updated;
       });
     }
   }, [transcript, listening, currentPanelIndex, setPanelContents]);
+
+  // If the panel is 1 => remove on visual mode.
+  useEffect(() => {
+    if (visualMode && currentPanelIndex === 0) {
+      setPanelContents((prev) => {
+        const updated = [...prev];
+        updated[0] = "";
+        return updated;
+      });
+    }
+  }, [visualMode, currentPanelIndex, setPanelContents]);
 
   const handleImproveWithAI = async () => {
     const textarea = textareaRef.current;
