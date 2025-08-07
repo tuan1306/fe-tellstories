@@ -59,20 +59,22 @@ export function StoryMetadataCard({
   return (
     <div className="mb-4">
       <div className="w-full">
-        <h1 className="text-xl font-semibold">Story Details</h1>
+        <h1 className="text-xl font-semibold">Thông tin truyện</h1>
         <h1 className="text-sm text-muted-foreground">
-          Key details and metadata about this story
+          Các thông tin chính liên quan đến truyện này
         </h1>
       </div>
 
       <div className="pb-2 border-b mt-4">
         <EditStorySheet story={story} onSuccess={onMetadataUpdate}>
-          <Button className="w-full py-4 cursor-pointer">Edit Metadata</Button>
+          <Button className="w-full py-4 cursor-pointer">
+            Chỉnh sửa thông tin
+          </Button>
         </EditStorySheet>
 
         <Link href={`/owner/stories/${story.id}`}>
           <Button className="w-full py-4 cursor-pointer mt-3">
-            View Story
+            Xem truyện
           </Button>
         </Link>
 

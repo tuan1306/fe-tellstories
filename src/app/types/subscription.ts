@@ -19,8 +19,8 @@ export type DashboardData = {
   subscriberFluct: number | null;
   newSubscriber: number;
   newSubscriberFluct: number | null;
-  quittedSubscriber: number;
-  quittedSubscriberFluct: number | null;
+  quitSubscriber: number;
+  quitSubscriberFluct: number | null;
   subscriberBySubscriptionsFluct: number | null;
   recentSubscribers: {
     user: {

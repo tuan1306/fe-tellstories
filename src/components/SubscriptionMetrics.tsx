@@ -26,8 +26,8 @@ type DashboardData = {
   subscriberFluct: number | null;
   newSubscriber: number;
   newSubscriberFluct: number | null;
-  quittedSubscriber: number;
-  quittedSubscriberFluct: number | null;
+  quitSubscriber: number;
+  quitSubscriberFluct: number | null;
 };
 
 export function SubscriptionMetrics({ data }: { data: DashboardData }) {
@@ -114,10 +114,10 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
             <CardDescription>
               Users who stopped subscribing this month
             </CardDescription>
-            <CardAction>{fluctBadge(data.quittedSubscriberFluct)}</CardAction>
+            <CardAction>{fluctBadge(data.quitSubscriberFluct)}</CardAction>
           </CardHeader>
           <CardContent className="text-4xl">
-            <p>{data.quittedSubscriber.toLocaleString()}</p>
+            <p>{data.quitSubscriber.toLocaleString()}</p>
           </CardContent>
         </Card>
       </div>
