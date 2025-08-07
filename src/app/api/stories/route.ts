@@ -73,6 +73,8 @@ export async function PUT(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
 
+    // console.log("Received body:", body);
+
     if (!body.id) {
       return NextResponse.json(
         { message: "Missing story ID" },
@@ -80,14 +82,17 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/Story`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(body),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/staff/edit`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      }
+    );
 
     if (!res.ok) {
       const error = await res.text();

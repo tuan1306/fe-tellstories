@@ -58,7 +58,6 @@ export function EditStorySheet({
       ageRange: story?.ageRange as "1-3" | "3-5" | "5-8" | "8-10" | "10+",
       readingLevel: story?.readingLevel as "Sơ cấp" | "Trung cấp" | "Nâng cao",
       isAIGenerated: story?.isAIGenerated ?? false,
-      backgroundMusicUrl: story?.backgroundMusicUrl || "",
       panels: story?.panels || [],
       tags: {
         tagNames: Array.isArray(story?.tags)
@@ -336,7 +335,7 @@ export function EditStorySheet({
                   )}
                 />
 
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="backgroundMusicUrl"
                   render={({ field }) => (
@@ -348,7 +347,7 @@ export function EditStorySheet({
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
 
                 <FormField
                   control={form.control}

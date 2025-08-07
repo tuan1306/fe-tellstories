@@ -42,7 +42,6 @@ export const addStorySchema = z.object({
   ageRange: z.enum(["1-3", "3-5", "5-8", "8-10", "10+"]),
   readingLevel: z.enum(["Sơ cấp", "Trung cấp", "Nâng cao"]),
   isAIGenerated: z.boolean(),
-  backgroundMusicUrl: z.string(),
   panels: z.array(
     z.object({
       content: z.string(),

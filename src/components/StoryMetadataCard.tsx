@@ -6,6 +6,7 @@ import { StoryEditDetails } from "@/app/types/story";
 import { EditStorySheet } from "@/components/EditStorySheet";
 import { DraftWritingTextarea } from "./DraftWritingTextarea";
 import { ArrowLeft } from "lucide-react";
+import { ManageAudioSheet } from "./ManageAudioSheet";
 
 interface StoryMetadataCardProps {
   story: StoryEditDetails;
@@ -71,6 +72,12 @@ export function StoryMetadataCard({
             Chỉnh sửa thông tin
           </Button>
         </EditStorySheet>
+
+        <ManageAudioSheet story={story}>
+          <Button className="w-full py-4 mt-3 cursor-pointer">
+            Quản lý âm thanh
+          </Button>
+        </ManageAudioSheet>
 
         <Link href={`/owner/stories/${story.id}`}>
           <Button className="w-full py-4 cursor-pointer mt-3">
