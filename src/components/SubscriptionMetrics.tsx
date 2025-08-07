@@ -85,7 +85,14 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
             <CardAction>{fluctBadge(data.subscriberFluct)}</CardAction>
           </CardHeader>
           <CardContent className="text-4xl">
-            <p>{data.subscriber.toLocaleString()}</p>
+            <div className="flex items-center justify-between">
+              <p>{data.subscriber.toLocaleString()}</p>
+              <a href="subscription/subscriber-list">
+                <button className="text-sm px-3 py-2 bg-slate-800 hover:bg-accent text-primary rounded">
+                  View list
+                </button>
+              </a>
+            </div>
           </CardContent>
         </Card>
 

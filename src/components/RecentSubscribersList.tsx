@@ -20,6 +20,13 @@ import { Loader2, MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 const formatDate = (date?: string | null) => {
   if (!date) return "N/A";
@@ -30,6 +37,8 @@ const formatDate = (date?: string | null) => {
         .toString()
         .padStart(2, "0")}/${d.getFullYear()}`;
 };
+
+// const [filter, setFilter] = useState<"1d" | "1w" | "1m">("1d");
 
 export function RecentSubscribersList({
   recentSubscribers,
@@ -63,10 +72,30 @@ export function RecentSubscribersList({
 
   return (
     <div className="bg-card p-4 rounded-lg h-full">
-      <h3 className="text-lg font-semibold">Recent Subscribers</h3>
-      <p className="text-sm text-muted-foreground mb-4">
-        A list of users who recently started a subscription.
-      </p>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-lg font-semibold">Recent Subscribers</h3>
+          <p className="text-sm text-muted-foreground">
+            A list of users who recently started a subscription.
+          </p>
+        </div>
+
+        <div className="w-[120px]">
+          <Select
+          // value={filter}
+          // onValueChange={(val) => setFilter(val as "1d" | "1w" | "1m")}
+          >
+            <SelectTrigger className="text-sm h-8 w-30">
+              <SelectValue placeholder="Filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1d">1 Day</SelectItem>
+              <SelectItem value="1w">1 Week</SelectItem>
+              <SelectItem value="1m">1 Month</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
       <ScrollArea className="h-40 pr-6">
         <ul className="text-sm text-muted-foreground space-y-2">
