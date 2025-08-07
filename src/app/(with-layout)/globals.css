@@ -157,6 +157,21 @@
     background-color: var(--popover);
     color: white;
   }
+
+  /* Slider */
+  .bgm-slider .slider-track {
+    background-color: var(--muted);
+  }
+
+  .bgm-slider .slider-range {
+    background-color: var(--accent);
+  }
+
+  .bgm-slider .slider-thumb {
+    background-color: var(--accent);
+    border: none;
+    box-shadow: 0 0 5px var(--accent);
+  }
 }
 
 @layer base {
@@ -228,4 +243,36 @@
 
 [data-side="bottom"][data-state="closed"] {
   animation: dropdown-fade-out 0.2s ease-in;
+}
+
+/* Audio player */
+.rhap_container {
+  background-color: #253a59 !important;
+  border-radius: 0.5rem !important;
+}
+
+.rhap_main-controls-button,
+.rhap_button-clear {
+  color: #4d72a2 !important;
+}
+
+.rhap_progress-bar {
+  background-color: #ffffff !important;
+}
+
+.rhap_progress-filled {
+  background-color: #577fb4 !important;
+}
+
+.rhap_time {
+  color: #ffffff !important;
+  font-size: 0.875rem !important;
+}
+
+.rhap_volume-bar {
+  background-color: #ffffff !important;
+}
+
+.rhap_volume-indicator {
+  background-color: #102134 !important;
 }

@@ -5,25 +5,65 @@ import GenerateTTSButton from "@/components/GenerateTTSButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { ChevronLeft, ChevronRight, Music } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import AudioPlayer from "react-h5-audio-player";
+import "react-h5-audio-player/lib/styles.css";
 
 export default function StoryPage() {
   const { id } = useParams();
   const [story, setStory] = useState<StoryDetails | null>(null);
   const [currentPanelIndex, setCurrentPanelIndex] = useState(0);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Audio
+  const ttsAudioRef = useRef<HTMLAudioElement | null>(null);
+  const bgMusicRef = useRef<HTMLAudioElement>(null);
+  const [bgmVolume, setBgmVolume] = useState(0.2);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.play().catch((err) => {
+    if (bgMusicRef.current) {
+      bgMusicRef.current.volume = bgmVolume;
+    }
+  }, [bgmVolume]);
+
+  useEffect(() => {
+    if (ttsAudioRef.current) {
+      ttsAudioRef.current.play().catch((err) => {
         console.warn("Autoplay blocked:", err);
       });
     }
   }, [currentPanelIndex]);
+
+  const handlePlay = async () => {
+    if (!story) return;
+
+    try {
+      if (bgMusicRef.current && bgMusicRef.current.paused) {
+        bgMusicRef.current.volume = 0.2;
+        await bgMusicRef.current.play();
+      }
+    } catch (err) {
+      console.error("Error playing BGM:", err);
+    }
+  };
+
+  const handlePause = () => {
+    if (bgMusicRef.current && !bgMusicRef.current.paused) {
+      bgMusicRef.current.pause();
+    }
+  };
+
+  const handleEnded = () => {
+    if (!story) return;
+
+    if (currentPanelIndex < story.panels.length - 1) {
+      setCurrentPanelIndex((prev) => prev + 1);
+    }
+  };
 
   async function fetchStoryById(id: string): Promise<StoryDetails | null> {
     try {
@@ -160,52 +200,83 @@ export default function StoryPage() {
           </ScrollArea>
 
           {/* Pagination Controls */}
-          <div className="flex justify-between items-center w-full py-2 px-4 border rounded-md mt-4">
-            <Button
-              variant="outline"
-              className="w-10 h-10 cursor-pointer"
-              onClick={() =>
-                setCurrentPanelIndex((prev) => Math.max(prev - 1, 0))
-              }
-              disabled={currentPanelIndex === 0}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
+          {story.panels.length > 1 && (
+            <div className="flex justify-between items-center w-full py-2 px-4 border rounded-md mt-4">
+              <Button
+                variant="outline"
+                className="w-10 h-10 cursor-pointer"
+                onClick={() =>
+                  setCurrentPanelIndex((prev) => Math.max(prev - 1, 0))
+                }
+                disabled={currentPanelIndex === 0}
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
 
-            <div className="font-semibold text-sm">
-              Panel {currentPanelIndex + 1} of {story.panels.length}
+              <div className="font-semibold text-sm">
+                Panel {currentPanelIndex + 1} of {story.panels.length}
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-10 h-10 cursor-pointer"
+                onClick={() =>
+                  setCurrentPanelIndex((prev) =>
+                    Math.min(prev + 1, story.panels.length - 1)
+                  )
+                }
+                disabled={currentPanelIndex === story.panels.length - 1}
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
+          )}
 
-            <Button
-              variant="outline"
-              className="w-10 h-10 cursor-pointer"
-              onClick={() =>
-                setCurrentPanelIndex((prev) =>
-                  Math.min(prev + 1, story.panels.length - 1)
-                )
-              }
-              disabled={currentPanelIndex === story.panels.length - 1}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
           {/* Audio Player */}
-          <div className="border-t mt-2">
-            <div className="w-full h-14 rounded-md flex items-center justify-center text-muted-foreground">
+
+          {/* Background Music */}
+          <audio
+            ref={bgMusicRef}
+            src={story.backgroundMusicUrl}
+            loop
+            className="hidden"
+          />
+
+          {/* TTS */}
+          <audio
+            ref={ttsAudioRef}
+            controls
+            className="hidden"
+            src={story.panels[currentPanelIndex]?.audioUrl}
+          />
+
+          <div className="mt-2">
+            <div className="w-full">
               {story.panels?.[currentPanelIndex]?.audioUrl ? (
-                <audio
-                  ref={audioRef}
-                  controls
-                  className="w-full mt-4"
+                <AudioPlayer
                   src={story.panels[currentPanelIndex].audioUrl}
-                  onEnded={() => {
-                    if (currentPanelIndex < story.panels.length - 1) {
-                      setCurrentPanelIndex((prev) => prev + 1);
-                    }
-                  }}
-                >
-                  Your browser does not support the audio element.
-                </audio>
+                  onPlay={handlePlay}
+                  onPause={handlePause}
+                  onEnded={handleEnded}
+                  showJumpControls={false}
+                  layout="stacked-reverse"
+                  customAdditionalControls={[
+                    <div
+                      key="bgm-volume-control"
+                      className="flex items-center -mr-18"
+                      style={{ width: 100 }}
+                    >
+                      <Music className="h-8 w-8 mr-2 text-[#4d72a2]" />
+                      <Slider
+                        value={[bgmVolume * 100]}
+                        max={100}
+                        onValueChange={(value) => setBgmVolume(value[0] / 100)}
+                        step={1}
+                        className="h-5 [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+                      />
+                    </div>,
+                  ]}
+                />
               ) : (
                 <GenerateTTSButton
                   story={story}
