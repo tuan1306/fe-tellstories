@@ -69,6 +69,7 @@ export const columns: ColumnDef<SubscriptionDetail>[] = [
       const date = new Date(row.getValue("subscribedOn"));
       return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("vi-VN");
     },
+    enableColumnFilter: true,
   },
   {
     accessorKey: "expiriesOn",
