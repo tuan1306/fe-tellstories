@@ -9,8 +9,9 @@ export async function GET(
     const token = (await cookies()).get("authToken")?.value;
     const userId = (await params).id;
 
+    const count = 3;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/recently-published/${userId}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Story/recently-published/user/${userId}?count=${count}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

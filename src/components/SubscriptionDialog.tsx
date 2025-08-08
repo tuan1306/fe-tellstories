@@ -29,11 +29,24 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { subscriptionSchema } from "@/utils/validators/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Loader2,
+  Plus,
+  XCircle,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { SubscriptionPackage } from "@/app/types/subscription";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 interface Props {
   subscriptionPackages: SubscriptionPackage[];
@@ -51,14 +64,17 @@ export const SubscriptionDialog = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDelete, setIsDelete] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmSubmit, setConfirmSubmit] = useState(false);
 
   const form = useForm<z.infer<typeof subscriptionSchema>>({
     resolver: zodResolver(subscriptionSchema),
     defaultValues: {
       name: "",
       price: 0,
-      type: "",
+      type: "string",
       durationDays: 0,
+      pointsCost: 0,
+      purchaseMethod: "MoneyOnly",
       isActive: false,
       isDefault: false,
     },
@@ -71,6 +87,8 @@ export const SubscriptionDialog = ({
         price: selectedPackage.price,
         type: selectedPackage.type,
         durationDays: selectedPackage.durationDays,
+        pointsCost: selectedPackage.pointsCost ?? 0,
+        purchaseMethod: selectedPackage.purchaseMethod ?? "MoneyOnly",
         isActive: selectedPackage.isActive,
         isDefault: selectedPackage.isDefault,
       });
@@ -80,14 +98,14 @@ export const SubscriptionDialog = ({
 
   const onSubmit = async (values: z.infer<typeof subscriptionSchema>) => {
     try {
-      // Check if we're activating and already have 3 active
       const activeCount = subscriptionPackages.filter((p) => p.isActive).length;
       const isActivating =
         values.isActive && (!selectedPackage || !selectedPackage.isActive);
 
-      if (isActivating && activeCount >= 3) {
-        setFormError("Only 3 active packages are allowed.");
-        return;
+      if (isActivating && activeCount >= 5) {
+        setFormError(
+          `Bạn đang có ${activeCount} gói đang hoạt động, cân nhắc kĩ trước khi kích hoạt thêm.`
+        );
       } else {
         setFormError("");
       }
@@ -97,8 +115,8 @@ export const SubscriptionDialog = ({
       const url = "/api/subscription";
 
       const payload = selectedPackage
-        ? { ...values, id: selectedPackage.id }
-        : values;
+        ? { ...values, type: "Default", id: selectedPackage.id }
+        : { ...values, type: "Default" };
 
       const res = await fetch(url, {
         method,
@@ -153,22 +171,39 @@ export const SubscriptionDialog = ({
 
   const SubscriptionDetails = ({ pkg }: { pkg: SubscriptionPackage }) => (
     <div className="text-sm text-muted-foreground space-y-1">
+      {pkg.price != null && pkg.price !== 0 && (
+        <p>
+          <strong>Số tiền quy đổi: </strong>
+          {new Intl.NumberFormat("vi-VN").format(pkg.price)} VND
+        </p>
+      )}
+
+      {pkg.pointsCost != null && pkg.pointsCost !== 0 && (
+        <p>
+          <strong>Số điểm quy đổi:</strong> {pkg.pointsCost} Điểm
+        </p>
+      )}
       <p>
-        <strong>Price: </strong>
-        {new Intl.NumberFormat("vi-VN").format(pkg.price)} VND
+        <strong>Phương thức thanh toán:</strong>{" "}
+        {{
+          MoneyOnly: "Tiền",
+          PointsOnly: "Điểm",
+          MoneyOrPoints: "Tiền & Điểm",
+        }[pkg.purchaseMethod] ?? "N/A"}
+      </p>
+
+      <p>
+        <strong>Thời gian hoạt động:</strong> {pkg.durationDays} days
       </p>
       <p>
-        <strong>Duration:</strong> {pkg.durationDays} days
-      </p>
-      <p>
-        <strong>Active:</strong> {pkg.isActive ? "Yes" : "No"}
+        <strong>Hoạt động:</strong> {pkg.isActive ? "Có" : "Không"}
       </p>
       <Button
         variant="link"
         className="px-0 text-sm cursor-pointer text-chart-1"
         onClick={() => setSelectedPackage(pkg)}
       >
-        Edit subscription
+        Chỉnh sửa gói
       </Button>
     </div>
   );
@@ -177,24 +212,40 @@ export const SubscriptionDialog = ({
     <Dialog>
       <DialogTrigger asChild>
         <Button className="mb-4 w-full px-4 py-2 cursor-pointer">
-          Subscription Packages
+          Quản lý gói đăng ký
         </Button>
       </DialogTrigger>
       <DialogContent className="w-[700px] max-w-full max-h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Subscription Package Management</DialogTitle>
+          <DialogTitle>
+            {showForm ? "Đăng ký gói mới" : "Hệ thống quản lý gói"}
+          </DialogTitle>
           <DialogDescription>
             {showForm
-              ? "Fill in the details to create a new subscription package."
-              : "View or manage existing subscription packages below."}
+              ? "Vui lòng điền đầy đủ thông tin để tạo gói đăng ký mới."
+              : "Xem hoặc quản lý các gói đăng ký hiện có bên dưới."}
           </DialogDescription>
           {!showForm && (
             <Button
               className="w-full mt-4 cursor-pointer"
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                setSelectedPackage(null);
+                form.reset({
+                  name: "",
+                  price: 0,
+                  type: "",
+                  durationDays: 0,
+                  pointsCost: 0,
+                  purchaseMethod: "MoneyOnly",
+                  isActive: false,
+                  isDefault: false,
+                });
+                setShowForm(true);
+              }}
             >
+              {/* Sorry monkey code */}
               <Plus />
-              Create New Subscription
+              Tạo gói mới
             </Button>
           )}
         </DialogHeader>
@@ -206,13 +257,13 @@ export const SubscriptionDialog = ({
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-3 text-sm p-3"
               >
-                {/* Form Fields */}
+                {/* Name */}
                 <FormField
                   control={form.control}
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>Tên gói</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -220,40 +271,113 @@ export const SubscriptionDialog = ({
                     </FormItem>
                   )}
                 />
+
+                {/* Method */}
                 <FormField
                   control={form.control}
-                  name="price"
+                  name="purchaseMethod"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          {...field}
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.valueAsNumber)
-                          }
-                        />
-                      </FormControl>
+                      <FormLabel>Phương thức</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select purchase method" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="MoneyOnly">Tiền</SelectItem>
+                          <SelectItem value="PointsOnly">Điểm</SelectItem>
+                          <SelectItem value="MoneyOrPoints">
+                            Tiền & Điểm
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* Money */}
+                {form.watch("purchaseMethod") &&
+                  form.watch("purchaseMethod") !== "PointsOnly" && (
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Số tiền quy đổi (VND)</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={
+                                Number.isNaN(field.value) ? "" : field.value
+                              }
+                              onChange={(e) => {
+                                const val = e.target.valueAsNumber;
+                                field.onChange(
+                                  Number.isNaN(val) ? undefined : val
+                                );
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                {/* Points */}
+                {form.watch("purchaseMethod") &&
+                  form.watch("purchaseMethod") !== "MoneyOnly" && (
+                    <FormField
+                      control={form.control}
+                      name="pointsCost"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Số điểm quy đổi</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              {...field}
+                              value={
+                                Number.isNaN(field.value) ? "" : field.value
+                              }
+                              onChange={(e) => {
+                                const val = e.target.valueAsNumber;
+                                field.onChange(
+                                  Number.isNaN(val) ? undefined : val
+                                );
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                {/* Duration */}
                 <FormField
                   control={form.control}
                   name="durationDays"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Duration (days)</FormLabel>
+                      <FormLabel>Số ngày gia hạn</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           {...field}
-                          value={field.value ?? ""}
-                          onChange={(e) =>
-                            field.onChange(e.target.valueAsNumber)
-                          }
+                          value={Number.isNaN(field.value) ? "" : field.value}
+                          onChange={(e) => {
+                            const val = e.target.valueAsNumber;
+                            field.onChange(Number.isNaN(val) ? undefined : val);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -261,10 +385,7 @@ export const SubscriptionDialog = ({
                   )}
                 />
 
-                {formError && (
-                  <p className="text-red-500 text-sm mb-2">{formError}</p>
-                )}
-
+                {/* Active */}
                 <div className="flex gap-4">
                   <FormField
                     control={form.control}
@@ -278,12 +399,19 @@ export const SubscriptionDialog = ({
                           />
                         </FormControl>
                         <FormLabel className="text-sm font-normal">
-                          Active
+                          Kích hoạt
                         </FormLabel>
                       </FormItem>
                     )}
                   />
                 </div>
+
+                {formError && (
+                  <div className="flex items-center gap-2 text-yellow-600 bg-yellow-100 p-2 rounded">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                    <p className="text-sm">{formError}</p>
+                  </div>
+                )}
 
                 <div className="flex justify-between items-center gap-2">
                   {selectedPackage && (
@@ -300,10 +428,10 @@ export const SubscriptionDialog = ({
                       {isDelete ? (
                         <>
                           <Loader2 className="animate-spin w-4 h-4" />
-                          <span>Deleting...</span>
+                          <span>Đang xóa...</span>
                         </>
                       ) : (
-                        <>{confirmDelete ? "Confirm" : "Delete"}</>
+                        <>{confirmDelete ? "Xác nhận" : "Xóa"}</>
                       )}
                     </Button>
                   )}
@@ -317,17 +445,34 @@ export const SubscriptionDialog = ({
                         setSelectedPackage(null);
                       }}
                     >
-                      Cancel
+                      Hủy
                     </Button>
                     <Button
-                      type="submit"
+                      type="button"
                       disabled={isSubmitting}
-                      className="cursor-pointer flex items-center gap-2"
+                      className={cn(
+                        "cursor-pointer flex items-center gap-2 transition-all duration-300 ease-in-out min-w-[90px] justify-center",
+                        confirmSubmit
+                          ? "min-w-[110px] bg-yellow-500 text-white hover:bg-yellow-600"
+                          : "bg-primary text-primary-foreground hover:bg-primary/90"
+                      )}
+                      onClick={() => {
+                        if (formError && !confirmSubmit) {
+                          setConfirmSubmit(true);
+                          setTimeout(() => setConfirmSubmit(false), 3000);
+                        } else {
+                          form.handleSubmit(onSubmit)();
+                        }
+                      }}
                     >
                       {isSubmitting && (
                         <Loader2 className="animate-spin w-4 h-4" />
                       )}
-                      {selectedPackage ? "Save" : "Create"}
+                      {confirmSubmit
+                        ? "Xác nhận"
+                        : selectedPackage
+                        ? "Lưu"
+                        : "Tạo"}
                     </Button>
                   </div>
                 </div>
@@ -335,13 +480,14 @@ export const SubscriptionDialog = ({
             </Form>
           ) : subscriptionPackages.length === 0 ? (
             <p className="text-muted-foreground text-sm mt-4 text-center">
-              There’s no package here :(
+              Hiện tại đang không có gói, hãy thêm gói .3.
             </p>
           ) : (
             <div className="space-y-6 my-4">
               <div>
-                <h3 className="text-lg font-bold text-green-500">
-                  Active Packages
+                <h3 className="text-lg font-bold text-green-500 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  Các gói đang hoạt động
                 </h3>
                 <Accordion type="single" collapsible className="w-full">
                   {subscriptionPackages
@@ -352,7 +498,7 @@ export const SubscriptionDialog = ({
                         value={`active-${pkg.name}-${i}`}
                       >
                         <AccordionTrigger className="cursor-pointer">
-                          {pkg.name} Plan
+                          {pkg.name}
                         </AccordionTrigger>
                         <AccordionContent>
                           <SubscriptionDetails pkg={pkg} />
@@ -363,8 +509,9 @@ export const SubscriptionDialog = ({
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-red-500">
-                  Inactive Packages
+                <h3 className="text-lg font-bold text-red-500 flex items-center gap-2">
+                  <XCircle className="w-5 h-5" />
+                  Các gói đăng ký không hoạt động
                 </h3>
                 <Accordion type="single" collapsible className="w-full">
                   {subscriptionPackages
@@ -375,7 +522,7 @@ export const SubscriptionDialog = ({
                         value={`inactive-${pkg.name}-${i}`}
                       >
                         <AccordionTrigger className="cursor-pointer">
-                          {pkg.name} Plan
+                          {pkg.name}
                         </AccordionTrigger>
                         <AccordionContent>
                           <SubscriptionDetails pkg={pkg} />

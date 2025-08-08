@@ -65,8 +65,10 @@ export const addStorySchema = z.object({
 export const subscriptionSchema = z.object({
   name: z.string().min(1),
   price: z.number().min(0),
-  type: z.string().min(1),
+  pointsCost: z.number().min(0),
+  type: z.string().optional(),
   durationDays: z.number().min(1),
   isActive: z.boolean(),
+  purchaseMethod: z.string().min(1),
   isDefault: z.boolean(),
 });

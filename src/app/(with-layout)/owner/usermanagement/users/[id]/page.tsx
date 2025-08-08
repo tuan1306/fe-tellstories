@@ -3,7 +3,6 @@
 import { ActivityLog } from "@/app/types/activitylog";
 import { UserPublish } from "@/app/types/story";
 import { UserDetails } from "@/app/types/user";
-import CardList from "@/components/CardList";
 import { EditUserSheet } from "@/components/EditUserSheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +19,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import UserCardList from "@/components/UserCardList";
 
 export default function UserPage() {
   const { id } = useParams();
@@ -80,7 +80,7 @@ export default function UserPage() {
     if (typeof id === "string") {
       fetchUserById(id).then(setUser);
       fetchUserActivity(id);
-      fetchPublishedStories(id); // 👈 Add this line
+      fetchPublishedStories(id);
     }
   }, [id]);
 
@@ -179,14 +179,14 @@ export default function UserPage() {
         </div>
         {/* Card list */}
         <div className="bg-primary-foreground p-4 rounded-lg">
-          <CardList
+          <UserCardList
             title="Recent Published"
             desc="This section features user recent published stories"
             userId={user.id}
           />
         </div>
         <div className="bg-primary-foreground p-4 mb-5 rounded-lg">
-          <CardList
+          <UserCardList
             title="Top hit"
             desc="This section features user most viewed stories"
             userId={user.id}

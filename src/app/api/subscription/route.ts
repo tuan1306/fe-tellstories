@@ -38,6 +38,8 @@ export async function POST(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
 
+    console.log("POST /api/subscription body:", body);
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/Subscription/create`,
       {

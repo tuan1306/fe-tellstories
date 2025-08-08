@@ -136,13 +136,13 @@ export default function GenerateTTSButton({
           <SelectValue placeholder="Chọn ngôn ngữ" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="ENG">English</SelectItem>
+          <SelectItem value="ENG">Tiếng Anh</SelectItem>
           <SelectItem value="VIE">Tiếng Việt</SelectItem>
         </SelectContent>
       </Select>
 
       {selectedLanguage === "ENG" && (
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-col space-y-2 mt-2">
           <Select value={selectedVoice} onValueChange={setSelectedVoice}>
             <Label className="text-muted-foreground">Giọng đọc:</Label>
             <SelectTrigger className="w-full">

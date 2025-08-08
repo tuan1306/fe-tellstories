@@ -8,6 +8,8 @@ export type SubscriptionPackage = {
   maxStories: number;
   maxAIRequest: number;
   maxTTSRequest: number;
+  pointsCost: number;
+  purchaseMethod: "MoneyOnly" | "PointsOnly" | "MoneyOrPoints";
   isActive: boolean;
   isDefault: boolean;
 };

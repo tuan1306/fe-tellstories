@@ -7,7 +7,7 @@ import { Badge } from "./ui/badge";
 import { UserRecentPublish } from "@/app/types/story";
 import Link from "next/link";
 
-const CardList = ({
+const UserCardList = ({
   title,
   desc,
   userId,
@@ -45,7 +45,7 @@ const CardList = ({
           </div>
         ) : (
           stories.slice(0, 3).map((story) => (
-            <Link href={`/owner/published-stories/${story.id}`} key={story.id}>
+            <Link href={`/owner/stories/${story.id}`} key={story.id}>
               <Card className="flex-row items-center justify-between gap-4 p-4">
                 <div className="relative w-12 h-12 overflow-hidden rounded-sm bg-muted flex items-center justify-center">
                   {story.coverImageUrl?.startsWith("http") ? (
@@ -78,4 +78,4 @@ const CardList = ({
   );
 };
 
-export default CardList;
+export default UserCardList;

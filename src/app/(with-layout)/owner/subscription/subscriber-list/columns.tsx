@@ -43,14 +43,14 @@ export const columns: ColumnDef<SubscriptionDetail>[] = [
   },
   {
     accessorKey: "price",
-    header: "Giá tiền",
+    header: "Giá thành",
     cell: ({ row }) => (
       <div>{Number(row.getValue("price")).toLocaleString("vi-VN")} VND</div>
     ),
   },
   {
     accessorKey: "duration",
-    header: "Số ngày đăng ký",
+    header: "Gia hạn của gói",
     cell: ({ row }) => <div>{row.getValue("duration")} ngày</div>,
   },
   {
@@ -107,7 +107,7 @@ export const columns: ColumnDef<SubscriptionDetail>[] = [
   },
   {
     accessorKey: "dayRemaining",
-    header: "Số ngày còn lại",
+    header: "Số ngày còn lại sử dụng",
     cell: ({ row }) => <div>{row.getValue("dayRemaining")} ngày</div>,
   },
   {
@@ -136,11 +136,22 @@ export const columns: ColumnDef<SubscriptionDetail>[] = [
                   )
                 }
               >
-                Xem thông tin người dùng
+                Xem thông tin người dùng (API lỗi)
               </DropdownMenuItem>
               <DropdownMenuSeparator />
 
               {/* Needed some how to add Dialog here. */}
+
+              <DropdownMenuItem
+              // className="cursor-pointer"
+              // onClick={() =>
+              //   router.push(
+              //     `/owner/usermanagement/users/${subscription.user}/billing`
+              //   )
+              // }
+              >
+                Xem lịch sử thanh toán (API lỗi)
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

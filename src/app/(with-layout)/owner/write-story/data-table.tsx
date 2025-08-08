@@ -129,7 +129,7 @@ export default function DataTable() {
             temperature: 0.8,
             topP: 0.9,
             topK: 30,
-            maxOutputTokens: 1500,
+            // maxOutputTokens: 1500,
             stopSequences: [],
             seed: 123,
             additionalSystemInstruction: `Generate a story suitable for children aged 6-8 with the given title.
