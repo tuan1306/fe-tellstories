@@ -20,16 +20,25 @@ export interface TargetComment {
   isFlagged: boolean;
 }
 
+export type IssueType =
+  | "Harassment"
+  | "Toxic Behavior"
+  | "Spam"
+  | "Bug"
+  | string;
+export type TargetType = "Comment" | "Story" | string;
+export type ReportStatus = "Pending" | "Deleted" | "Dismissed" | string;
+
 export interface IssueReportItem {
   id: string;
   user: ReportedUser;
-  issueType: string;
-  targetType: string;
+  issueType: IssueType;
+  targetType: TargetType;
   targetId: string | null;
   targetObj: TargetComment | null;
   attachment: string | null;
   description: string | null;
-  status: string | null;
+  status: ReportStatus | null;
 }
 
 export interface IssueReportResponse {

@@ -19,3 +19,48 @@ export interface Comment {
   isDeleted: boolean;
   isFlagged: boolean;
 }
+
+export type CommentReply = {
+  id: string;
+  content: string;
+  createdAt: string;
+  displayName: string;
+  avatarUrl?: string;
+  storyTitle: string;
+};
+
+export type StatusFilter = "Pending" | "Deleted";
+
+export interface FlaggedComment {
+  id: string;
+  content: string;
+  flaggedReason: string;
+  createdAt: string;
+  displayName: string;
+  avatarUrl?: string;
+  status: StatusFilter;
+  replies?: CommentReply[];
+}
+
+export type CommentSummary = {
+  id: string;
+  content: string;
+  createdDate: string;
+  displayName: string;
+  flaggedReason?: string;
+};
+
+export type CommentDetail = {
+  id: string;
+  storyId: string;
+  user: {
+    id: string;
+    displayName: string;
+    avatarUrl?: string;
+  };
+  content: string;
+  createdDate: string;
+  flaggedReason?: string;
+  storyTitle: string;
+  replies?: CommentDetail[];
+};

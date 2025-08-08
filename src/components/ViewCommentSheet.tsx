@@ -10,67 +10,37 @@ import {
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { MessageSquare } from "lucide-react";
-import React from "react";
+import { Loader2, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { CommentDetail, CommentSummary } from "@/app/types/comment";
 
-type Comment = {
-  id: string;
-  content: string;
-  createdAt: string;
-  authorName: string;
-  authorAvatarUrl?: string;
-  replies?: Comment[];
-  storyTitle: string;
-  flaggedReason?: string;
-};
-
-function parseMentions(content: string) {
-  // Capture the @username with () as capturing group
-  const parts = content.split(/(@\w+)/g);
-
-  return parts.map((part, index) => {
-    if (part.startsWith("@")) {
-      const username = part.slice(1);
-      return (
-        <Link
-          key={index}
-          href={`/admin/users/${username}`}
-          className="text-primary font-medium bg-slate-600 rounded-2xl px-2 py-[0.5px] hover:bg-slate-700 cursor-pointer transition-colors"
-        >
-          {part}
-        </Link>
-      );
-    }
-    return <React.Fragment key={index}>{part}</React.Fragment>;
-  });
-}
-
-function CommentThread({ comment }: { comment: Comment }) {
+function CommentThread({ comment }: { comment: CommentDetail }) {
   return (
     <div className="mt-4 pl-3 border-l-2 border-muted space-y-4">
       <div className="flex gap-3">
         <Avatar>
-          <AvatarImage src={comment.authorAvatarUrl} />
-          <AvatarFallback>{comment.authorName[0]}</AvatarFallback>
+          <AvatarImage src={comment.user.avatarUrl} />
+          <AvatarFallback>
+            {comment.user.displayName?.[0] ?? "?"}
+          </AvatarFallback>
         </Avatar>
         <div>
           <Link
-            href={`/admin/users/${comment.id}`}
+            href={`/owner/usermanagement/users/${comment.id}`}
             className="font-medium text-primary hover:underline"
           >
-            {comment.authorName}
+            {comment.user.displayName}
           </Link>
           <div className="text-sm text-muted-foreground">
-            {new Date(comment.createdAt).toLocaleString()}
+            {new Date(comment.createdDate).toLocaleString()}
           </div>
-          <p className="mt-1">{parseMentions(comment.content)}</p>
+          <p className="mt-1">{comment.content}</p>
         </div>
       </div>
 
       {/* Replies recursion */}
-      {comment.replies?.length && (
+      {comment.replies && comment.replies.length > 0 && (
         <div className="pl-4 border-l border-muted space-y-4">
           {comment.replies.map((reply) => (
             <CommentThread key={reply.id} comment={reply} />
@@ -88,10 +58,38 @@ export function ViewCommentSheet({
   onOpenChange,
 }: {
   children: React.ReactNode;
-  comment: Comment | null;
+  comment: CommentSummary | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const [loading, setLoading] = useState(false);
+  const [detailedComment, setDetailedComment] = useState<CommentDetail | null>(
+    null
+  );
+
+  useEffect(() => {
+    if (open && comment) {
+      setLoading(true);
+      fetch(`/api/comments/thread/${comment.id}`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success && json.data) {
+            setDetailedComment(json.data);
+          } else {
+            setDetailedComment(null);
+            console.error("Failed to load comment thread");
+          }
+        })
+        .catch((e) => {
+          setDetailedComment(null);
+          console.error("Error fetching comment thread", e);
+        })
+        .finally(() => setLoading(false));
+    } else {
+      setDetailedComment(null);
+    }
+  }, [open, comment]);
+
   if (!comment) return null;
 
   return (
@@ -107,44 +105,25 @@ export function ViewCommentSheet({
               </SheetTitle>
               <SheetDescription>
                 This comment was flagged for{" "}
-                <strong>{comment.flaggedReason}</strong> on{" "}
-                <strong>{comment.storyTitle}</strong>
+                <strong className="text-red-500">
+                  {comment.flaggedReason}
+                </strong>{" "}
               </SheetDescription>
             </SheetHeader>
 
-            <div className="mt-6 space-y-6">
-              <div className="flex gap-4">
-                <Avatar>
-                  <AvatarImage src={comment.authorAvatarUrl} />
-                  <AvatarFallback>{comment.authorName[0]}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <Link
-                    href={`/admin/users/${comment.id}`}
-                    className="font-medium text-primary hover:underline"
-                  >
-                    {comment.authorName}
-                  </Link>
-                  <div className="text-sm text-muted-foreground">
-                    {new Date(comment.createdAt).toLocaleString()}
-                  </div>
-                  <p className="mt-1">{parseMentions(comment.content)}</p>
-                </div>
+            {loading ? (
+              <div className="flex justify-center mt-6">
+                <Loader2 className="w-10 h-10 animate-spin text-muted-foreground" />
               </div>
-
-              <Separator />
-
-              {comment.replies?.length ? (
-                <div className="space-y-4">
-                  <div className="font-medium">Replies</div>
-                  {comment.replies.map((reply) => (
-                    <CommentThread key={reply.id} comment={reply} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground">No replies yet.</p>
-              )}
-            </div>
+            ) : detailedComment ? (
+              <div className="mt-6 space-y-6">
+                <CommentThread comment={detailedComment} />
+              </div>
+            ) : (
+              <p className="mt-6 text-muted-foreground">
+                No detailed comment found.
+              </p>
+            )}
           </div>
         </ScrollArea>
       </SheetContent>

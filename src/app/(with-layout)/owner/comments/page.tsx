@@ -14,27 +14,15 @@ import {
   TargetComment,
 } from "@/app/types/issue-report";
 import { Loader2 } from "lucide-react";
+import { FlaggedComment, StatusFilter } from "@/app/types/comment";
+import Link from "next/link";
 
-type StatusFilter = "Pending" | "Deleted" | "Dismissed";
-
-type CommentReply = {
-  id: string;
-  content: string;
-  createdAt: string;
-  authorName: string;
-  authorAvatarUrl?: string;
-  storyTitle: string;
-};
-
-interface FlaggedComment {
-  id: string;
-  content: string;
-  flaggedReason: string;
-  createdAt: string;
-  authorName: string;
-  storyTitle: string;
-  status: StatusFilter;
-  replies?: CommentReply[];
+// YYYY-MM-DD
+// padStart means that every month/date must have 2 digit and fill in another 0 at start if not.
+function toLocalDateString(date: Date) {
+  return `${date.getFullYear()}-${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
 }
 
 export default function FlaggedCommentsManagement() {
@@ -75,8 +63,8 @@ export default function FlaggedCommentsManagement() {
               content: comment.content,
               flaggedReason: item.issueType,
               createdAt: comment.createdDate,
-              authorName: comment.user.displayName,
-              storyTitle: "Unknown Story",
+              displayName: comment.user.displayName,
+              avatarUrl: comment.user.avatarUrl,
               status: (item.status ?? "Pending") as StatusFilter,
               replies: [],
             };
@@ -96,7 +84,7 @@ export default function FlaggedCommentsManagement() {
   const validDates = new Set(
     flaggedComments
       .filter((c) => c.status === statusFilter)
-      .map((comment) => new Date(comment.createdAt).toISOString().split("T")[0])
+      .map((comment) => toLocalDateString(new Date(comment.createdAt)))
   );
 
   useEffect(() => {
@@ -115,8 +103,7 @@ export default function FlaggedCommentsManagement() {
     .filter(
       (comment) =>
         comment.content.toLowerCase().includes(search.toLowerCase()) ||
-        comment.authorName.toLowerCase().includes(search.toLowerCase()) ||
-        comment.storyTitle.toLowerCase().includes(search.toLowerCase())
+        comment.displayName.toLowerCase().includes(search.toLowerCase())
     )
     .filter((comment) => {
       if (!selectedDate) return true;
@@ -149,10 +136,12 @@ export default function FlaggedCommentsManagement() {
               setTimeout(() => setLoading(false), 300);
             }}
             className="w-full rounded-md border text-foreground"
+            // Disable date if date = future dates or not validDates.
             disabled={(date) => {
               const today = new Date();
-              const iso = date.toISOString().split("T")[0];
-              return date > today || !validDates.has(iso);
+              const localDate = toLocalDateString(date);
+              const localToday = toLocalDateString(today);
+              return localDate > localToday || !validDates.has(localDate);
             }}
           />
 
@@ -166,7 +155,7 @@ export default function FlaggedCommentsManagement() {
         </div>
 
         <div className="space-y-2 pt-4 border-t">
-          {["Pending", "Deleted", "Dismissed"].map((status) => {
+          {["Pending", "Deleted"].map((status) => {
             const count = flaggedComments.filter(
               (c) => c.status === status
             ).length;
@@ -204,9 +193,9 @@ export default function FlaggedCommentsManagement() {
         ) : (
           <ScrollArea className="h-full w-full pr-4">
             <div className="space-y-4">
-              {filtered.map((comment) => (
+              {filtered.map((comment, index) => (
                 <div
-                  key={comment.id}
+                  key={`${comment.id}-${index}`}
                   className="rounded-lg p-4 shadow-sm bg-background border"
                 >
                   <div className="flex justify-between items-start">
@@ -214,9 +203,12 @@ export default function FlaggedCommentsManagement() {
                       {/* Avatar + Username */}
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src="" alt={comment.authorName} />
+                          <AvatarImage
+                            src={comment.avatarUrl}
+                            alt={comment.displayName}
+                          />
                           <AvatarFallback>
-                            {comment.authorName
+                            {comment.displayName
                               .split(" ")
                               .map((n) => n[0])
                               .join("")
@@ -224,21 +216,28 @@ export default function FlaggedCommentsManagement() {
                               .toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <h2 className="font-semibold text-sm">
-                          {comment.authorName}
-                        </h2>
+                        <div>
+                          <Link
+                            href={`/owner/usermanagement/users/${comment.id}`}
+                            className="font-medium text-primary hover:underline"
+                          >
+                            <h2 className="font-semibold text-sm">
+                              {comment.displayName}
+                            </h2>
+                          </Link>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(comment.createdAt).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
 
-                      {/* Story + Content */}
+                      {/* Content */}
                       <div className="mt-2">
-                        <p className="text-sm text-muted-foreground">
-                          On story: <strong>{comment.storyTitle}</strong>
-                        </p>
                         <p className="mt-1 text-sm">{comment.content}</p>
                       </div>
                     </div>
 
-                    {/* Reason Badge */}
+                    {/* Reason */}
                     <Badge
                       variant="default"
                       className="bg-red-500 text-white whitespace-nowrap"
@@ -252,7 +251,13 @@ export default function FlaggedCommentsManagement() {
                     <ViewCommentSheet
                       open={open && selectedComment?.id === comment.id}
                       onOpenChange={setOpen}
-                      comment={comment}
+                      comment={{
+                        id: comment.id,
+                        content: comment.content,
+                        createdDate: comment.createdAt,
+                        displayName: comment.displayName,
+                        flaggedReason: comment.flaggedReason,
+                      }}
                     >
                       <Button
                         variant="secondary"
