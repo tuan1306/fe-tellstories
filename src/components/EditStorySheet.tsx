@@ -126,10 +126,12 @@ export function EditStorySheet({
         <ScrollArea className="h-full">
           <div className="p-5">
             <SheetHeader className="p-0">
-              <SheetTitle className="text-2xl">Edit Story Metadata</SheetTitle>
-              <SheetDescription className="mb-10">
-                Fill in the details below to edit the story in your system. Make
-                sure everything looks right before saving.
+              <SheetTitle className="text-2xl">
+                Chỉnh sửa thông tin tryện
+              </SheetTitle>
+              <SheetDescription className="mb-5">
+                Cho phép bạn cập nhật tiêu đề, tác giả, mô tả và các thông tin
+                khác của truyện.
               </SheetDescription>
             </SheetHeader>
             <Form {...form}>
@@ -144,9 +146,12 @@ export function EditStorySheet({
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title</FormLabel>
+                      <FormLabel>Tựa đề</FormLabel>
                       <FormControl>
-                        <Input placeholder="My Great Story" {...field} />
+                        <Input
+                          placeholder="Nhập tựa đề của câu truyện ở đây"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -160,7 +165,10 @@ export function EditStorySheet({
                     <FormItem>
                       <FormLabel>Author</FormLabel>
                       <FormControl>
-                        <Input placeholder="Author Name" {...field} />
+                        <Input
+                          placeholder="Nhập tên của tác giả ở đây"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -174,7 +182,10 @@ export function EditStorySheet({
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="A tale about..." {...field} />
+                        <Textarea
+                          placeholder="Nhập mô tả của câu truyện ở đây"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -186,14 +197,14 @@ export function EditStorySheet({
                   name="ageRange"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Age Range</FormLabel>
+                      <FormLabel>Độ tuổi</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select age range" />
+                            <SelectValue placeholder="Chọn độ tuổi" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -214,14 +225,14 @@ export function EditStorySheet({
                   name="readingLevel"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Reading level</FormLabel>
+                      <FormLabel>Cấp độ đọc</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select reading level" />
+                            <SelectValue placeholder="Chọn cấp độ đọc" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -240,19 +251,19 @@ export function EditStorySheet({
                   name="language"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Language</FormLabel>
+                      <FormLabel>Ngôn ngữ</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select language" />
+                            <SelectValue placeholder="Chọn ngôn ngữ" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="ENG">ENG</SelectItem>
-                          <SelectItem value="VIE">VIE</SelectItem>
+                          <SelectItem value="ENG">Tiếng Anh</SelectItem>
+                          <SelectItem value="VIE">Tiếng Việt</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -265,7 +276,7 @@ export function EditStorySheet({
                   name="meta.isPublished"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Is Published</FormLabel>
+                      <FormLabel>Đăng lên cộng đồng?</FormLabel>
                       <Select
                         onValueChange={(val) => field.onChange(val === "true")}
                         value={String(field.value)}
@@ -276,8 +287,8 @@ export function EditStorySheet({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="true">Yes</SelectItem>
-                          <SelectItem value="false">No</SelectItem>
+                          <SelectItem value="true">Có</SelectItem>
+                          <SelectItem value="false">Không</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -290,7 +301,7 @@ export function EditStorySheet({
                   name="meta.isCommunity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Is Community</FormLabel>
+                      <FormLabel>Truyện cộng đồng người dùng viết?</FormLabel>
                       <Select
                         onValueChange={(val) => field.onChange(val === "true")}
                         value={String(field.value)}
@@ -301,8 +312,8 @@ export function EditStorySheet({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="true">Yes</SelectItem>
-                          <SelectItem value="false">No</SelectItem>
+                          <SelectItem value="true">Có</SelectItem>
+                          <SelectItem value="false">Không</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -315,7 +326,7 @@ export function EditStorySheet({
                   name="meta.isFeatured"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Is Featured</FormLabel>
+                      <FormLabel>Mang ra trưng bày cho người dùng?</FormLabel>
                       <Select
                         onValueChange={(val) => field.onChange(val === "true")}
                         value={String(field.value)}
@@ -326,8 +337,8 @@ export function EditStorySheet({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="true">Yes</SelectItem>
-                          <SelectItem value="false">No</SelectItem>
+                          <SelectItem value="true">Có</SelectItem>
+                          <SelectItem value="false">Không</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -373,7 +384,7 @@ export function EditStorySheet({
 
                     return (
                       <FormItem>
-                        <FormLabel>Tags</FormLabel>
+                        <FormLabel>Thẻ (tags)</FormLabel>
                         <FormControl>
                           <div className="flex flex-wrap items-center gap-2 border rounded-md p-2">
                             {(field.value?.tagNames || []).map((tag) => (
@@ -395,7 +406,7 @@ export function EditStorySheet({
                               type="text"
                               className="flex-1 bg-transparent outline-none min-w-[100px]"
                               value={inputValue}
-                              placeholder="Type and press Enter"
+                              placeholder="Nhập và ấn enter"
                               onChange={(e) => setInputValue(e.target.value)}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter" || e.key === ",") {

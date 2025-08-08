@@ -43,16 +43,21 @@ export default function PanelEditor({
 
   // const wasListeningRef = useRef(false);
 
+  const lastTranscriptRef = useRef("");
+
+  // Only append the latest transcript
   useEffect(() => {
     if (listening) {
-      setPanelContents((prev) => {
-        // Create a new array so that React can "re-render" based on mutation of array differences.
-        // In other words previous state value copy need to be established.
-        // Modify the copy state value, not the original one and then return the new array back to React.
-        const updated = [...prev];
-        updated[currentPanelIndex] = transcript;
-        return updated;
-      });
+      const newPart = transcript.slice(lastTranscriptRef.current.length);
+      if (newPart) {
+        setPanelContents((prev) => {
+          const updated = [...prev];
+          updated[currentPanelIndex] =
+            (prev[currentPanelIndex] ?? "") + newPart;
+          return updated;
+        });
+        lastTranscriptRef.current = transcript;
+      }
     }
   }, [transcript, listening, currentPanelIndex, setPanelContents]);
 
