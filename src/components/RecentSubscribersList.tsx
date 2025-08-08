@@ -40,6 +40,18 @@ const formatDate = (date?: string | null) => {
 
 // const [filter, setFilter] = useState<"1d" | "1w" | "1m">("1d");
 
+// Fetch recent subs by days (1,7,30)
+// const fetchRecentSubscribers = () => {
+//   fetch("/api/subscription/recent-sub")
+//     .then((res) => res.json())
+//     .then((data) => {
+//       if (Array.isArray(data?.data)) {
+//         setSubscriptionPackages(data.data);
+//       }
+//     })
+//     .catch((err) => console.error("Failed to fetch recent subscriber:", err));
+// };
+
 export function RecentSubscribersList({
   recentSubscribers,
 }: {

@@ -50,7 +50,6 @@ export default function Subscription() {
   // Fetch dashboard data
   useEffect(() => {
     setIsLoading(true);
-
     fetch("/api/subscription/dashboard")
       .then((res) => res.json())
       .then((data) => {
