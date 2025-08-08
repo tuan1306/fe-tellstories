@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RecentSubscriber, SubscriptionDetail } from "@/app/types/subscription";
@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2, MoreHorizontal } from "lucide-react";
+import { AlertTriangle, Loader2, MoreHorizontal } from "lucide-react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import Link from "next/link";
@@ -38,30 +38,21 @@ const formatDate = (date?: string | null) => {
         .padStart(2, "0")}/${d.getFullYear()}`;
 };
 
-// const [filter, setFilter] = useState<"1d" | "1w" | "1m">("1d");
+export function RecentSubscribersList() {
+  const [recentSubscribers, setRecentSubscribers] = useState<
+    RecentSubscriber[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-// Fetch recent subs by days (1,7,30)
-// const fetchRecentSubscribers = () => {
-//   fetch("/api/subscription/recent-sub")
-//     .then((res) => res.json())
-//     .then((data) => {
-//       if (Array.isArray(data?.data)) {
-//         setSubscriptionPackages(data.data);
-//       }
-//     })
-//     .catch((err) => console.error("Failed to fetch recent subscriber:", err));
-// };
-
-export function RecentSubscribersList({
-  recentSubscribers,
-}: {
-  recentSubscribers: RecentSubscriber[];
-}) {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedSub, setSelectedSub] = useState<RecentSubscriber | null>(null);
   const [subscriptionDetail, setSubscriptionDetail] =
     useState<SubscriptionDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
+
+  // Period filter
+  const [period, setPeriod] = useState<"1" | "7" | "30">("1");
 
   const handleViewDetails = async (subscriber: RecentSubscriber) => {
     setSelectedSub(subscriber);
@@ -82,92 +73,158 @@ export function RecentSubscribersList({
     }
   };
 
+  useEffect(() => {
+    async function fetchSubscribers() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(
+          `/api/subscription/recent-sub?period=${period}`
+        );
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.statusText}`);
+        }
+        const json = await res.json();
+        if (json.success && json.data) {
+          setRecentSubscribers(json.data as RecentSubscriber[]);
+        } else {
+          setError("Failed to load recent subscribers.");
+        }
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSubscribers();
+  }, [period]);
+
+  useEffect(() => {
+    async function fetchSubscribers() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/subscription/recent-sub");
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.statusText}`);
+        }
+        const json = await res.json();
+        if (json.success && json.data) {
+          setRecentSubscribers(json.data as RecentSubscriber[]);
+        } else {
+          setError("Failed to load recent subscribers.");
+        }
+      } catch (err) {
+        setError((err as Error).message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSubscribers();
+  }, []);
+
   return (
     <div className="bg-card p-4 rounded-lg h-full">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold">Recent Subscribers</h3>
+          <h3 className="text-lg font-semibold">Người đăng ký gần đây</h3>
           <p className="text-sm text-muted-foreground">
-            A list of users who recently started a subscription.
+            Danh sách những người dùng vừa đăng ký dịch vụ theo khung thời gian
+            được chọn
           </p>
         </div>
 
         <div className="w-[120px]">
           <Select
-          // value={filter}
-          // onValueChange={(val) => setFilter(val as "1d" | "1w" | "1m")}
+            value={period}
+            onValueChange={(val) => setPeriod(val as "1" | "7" | "30")}
           >
             <SelectTrigger className="text-sm h-8 w-30">
               <SelectValue placeholder="Filter" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="1d">1 Day</SelectItem>
-              <SelectItem value="1w">1 Week</SelectItem>
-              <SelectItem value="1m">1 Month</SelectItem>
+              <SelectItem value="1">Hôm nay</SelectItem>
+              <SelectItem value="7">Tuần trước</SelectItem>
+              <SelectItem value="30">Tháng trước</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <ScrollArea className="h-40 pr-6">
-        <ul className="text-sm text-muted-foreground space-y-2">
-          {recentSubscribers.map((recentSub, i) => (
-            <li
-              key={i}
-              className="flex items-center justify-between px-4 py-2 rounded-md shadow-sm"
-            >
-              <div className="flex items-center gap-3">
-                <Link
-                  href={`usermanagement/users/${recentSub.user.id}`}
-                  className="flex items-center gap-3 hover:opacity-80 transition"
-                >
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage src={recentSub.user.avatarUrl} />
-                    <AvatarFallback className="bg-primary text-white text-sm font-semibold">
-                      {recentSub.user.displayName
-                        .split(" ")
-                        .map((word) => word[0])
-                        .join("")
-                        .toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
-                <div>
+        <ul className="text-sm text-muted-foreground space-y-2 h-full">
+          {loading ? (
+            <li className="mt-18 flex flex-col items-center justify-center h-full text-muted-foreground">
+              <Loader2 className="w-10 h-10 animate-spin mb-2" />
+            </li>
+          ) : error ? (
+            <li className="mt-18 flex flex-col items-center justify-center h-full text-muted-foreground">
+              <AlertTriangle className="w-10 h-10 mb-2" />
+              <span>{error}</span>
+            </li>
+          ) : recentSubscribers.length > 0 ? (
+            recentSubscribers.map((recentSub, i) => (
+              <li
+                key={i}
+                className="flex items-center justify-between px-4 py-2 rounded-md shadow-sm"
+              >
+                <div className="flex items-center gap-3">
                   <Link
                     href={`usermanagement/users/${recentSub.user.id}`}
                     className="flex items-center gap-3 hover:opacity-80 transition"
                   >
-                    <p className="font-medium text-white">
-                      {recentSub.user.displayName}
-                    </p>
+                    <Avatar className="w-8 h-8">
+                      <AvatarImage src={recentSub.user.avatarUrl} />
+                      <AvatarFallback className="bg-primary text-white text-sm font-semibold">
+                        {recentSub.user.displayName
+                          .split(" ")
+                          .map((word) => word[0])
+                          .join("")
+                          .toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                   </Link>
-                  <p className="text-xs text-muted-foreground">
-                    {recentSub.subscriptionName} Plan
-                  </p>
+                  <div>
+                    <Link
+                      href={`usermanagement/users/${recentSub.user.id}`}
+                      className="flex items-center gap-3 hover:opacity-80 transition"
+                    >
+                      <p className="font-medium text-white">
+                        {recentSub.user.displayName}
+                      </p>
+                    </Link>
+                    <p className="text-xs text-muted-foreground">
+                      {recentSub.subscriptionName} Plan
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="h-8 w-8 p-0 cursor-pointer"
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="h-8 w-8 p-0 cursor-pointer"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => handleViewDetails(recentSub)}
-                    className="cursor-pointer"
-                  >
-                    View subscription details
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                      onClick={() => handleViewDetails(recentSub)}
+                      className="cursor-pointer"
+                    >
+                      Xem thông tin gói mới mua
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </li>
+            ))
+          ) : (
+            <li className="flex flex-col mt-18 items-center justify-center h-full text-muted-foreground">
+              <span>Không có thông tin được người đăng ký gần đây</span>
             </li>
-          ))}
+          )}
         </ul>
       </ScrollArea>
 
@@ -181,7 +238,7 @@ export function RecentSubscribersList({
           </div>
 
           <DialogHeader className="z-10">
-            <DialogTitle>Subscription Details</DialogTitle>
+            <DialogTitle>Thông tin gói mới mua</DialogTitle>
           </DialogHeader>
 
           {loadingDetail ? (
@@ -191,7 +248,7 @@ export function RecentSubscribersList({
           ) : subscriptionDetail ? (
             <div className="z-10 space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <strong className="text-slate-300">User:</strong>
+                <strong className="text-slate-300">Tên người dùng:</strong>
                 <Link
                   href={`usermanagement/users/${selectedSub?.user.id}`}
                   className="flex items-center gap-3 hover:opacity-80 transition"
@@ -201,40 +258,40 @@ export function RecentSubscribersList({
               </div>
 
               <div className="flex items-center gap-2">
-                <strong className="text-slate-300">Plan:</strong>
+                <strong className="text-slate-300">Gói đăng ký:</strong>
                 <Badge className="bg-amber-300 text-slate-800">
                   {subscriptionDetail.plan}
                 </Badge>
               </div>
 
               <p>
-                <strong className="text-slate-300">Price: </strong>
+                <strong className="text-slate-300">Giá thành: </strong>
                 {subscriptionDetail.price.toLocaleString()} VND
               </p>
 
               <p>
-                <strong className="text-slate-300">Duration: </strong>
-                {subscriptionDetail.duration} days
+                <strong className="text-slate-300">Gia hạn gói: </strong>
+                {subscriptionDetail.duration} ngày
               </p>
 
               <p>
-                <strong className="text-slate-300">Subscribed on: </strong>
+                <strong className="text-slate-300">Đăng ký vào ngày: </strong>
                 {formatDate(subscriptionDetail.subscribedOn)}
               </p>
 
               <p>
-                <strong className="text-slate-300">Original Expiry: </strong>
-                {formatDate(subscriptionDetail.originalEndDate)}
-              </p>
-
-              <p>
-                <strong className="text-slate-300">Expires on: </strong>
+                <strong className="text-slate-300">Hết hạn vào ngày: </strong>
                 {formatDate(subscriptionDetail.expiriesOn)}
               </p>
 
               <p>
-                <strong className="text-slate-300">Days Remaining: </strong>
-                {subscriptionDetail.dayRemaining} days
+                <strong className="text-slate-300">Ngày hết hạn gốc: </strong>
+                {formatDate(subscriptionDetail.originalEndDate)}
+              </p>
+
+              <p>
+                <strong className="text-slate-300">Số ngày còn lại: </strong>
+                {subscriptionDetail.dayRemaining} ngày
               </p>
             </div>
           ) : (

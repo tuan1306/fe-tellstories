@@ -1,12 +1,15 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const token = (await cookies()).get("authToken")?.value;
 
+    const { searchParams } = new URL(req.url);
+    const period = searchParams.get("period") || "1";
+
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Subscription/dashboard-get-recent-subscribers-within-period`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Subscription/dashboard-get-recent-subscribers-within-period?period=${period}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

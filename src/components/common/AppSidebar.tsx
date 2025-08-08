@@ -7,7 +7,7 @@ import {
   LayoutDashboard,
   LucideMessageSquareText,
   PenBoxIcon,
-  Receipt,
+  // Receipt,
   Scroll,
   Settings,
   Sparkles,
@@ -63,11 +63,11 @@ const items = [
     url: "/owner/subscription",
     icon: CircleDollarSign,
   },
-  {
-    title: "Billing History",
-    url: "/owner/billing",
-    icon: Receipt,
-  },
+  // {
+  //   title: "Billing History",
+  //   url: "/owner/billing",
+  //   icon: Receipt,
+  // },
   {
     title: "Resolving Issues",
     url: "/owner/issues",

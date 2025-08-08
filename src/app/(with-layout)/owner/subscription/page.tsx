@@ -78,9 +78,7 @@ export default function Subscription() {
       {/* LEFT */}
       <div className="flex flex-col gap-4 w-3/4">
         <SubscriptionMetrics data={dashboardData} />
-        <RecentSubscribersList
-          recentSubscribers={dashboardData.recentSubscribers}
-        />
+        <RecentSubscribersList />
       </div>
 
       {/* RIGHT */}
