@@ -33,6 +33,7 @@ export type StatusFilter = "Pending" | "Deleted";
 
 export interface FlaggedComment {
   id: string;
+  issueId: string;
   content: string;
   flaggedReason: string;
   createdAt: string;
@@ -44,6 +45,7 @@ export interface FlaggedComment {
 
 export type CommentSummary = {
   id: string;
+  issueId: string;
   content: string;
   createdDate: string;
   displayName: string;

@@ -60,6 +60,7 @@ export default function FlaggedCommentsManagement() {
             const comment = item.targetObj as TargetComment;
             return {
               id: comment.id,
+              issueId: item.id,
               content: comment.content,
               flaggedReason: item.issueType,
               createdAt: comment.createdDate,
@@ -155,7 +156,7 @@ export default function FlaggedCommentsManagement() {
         </div>
 
         <div className="space-y-2 pt-4 border-t">
-          {["Pending", "Deleted"].map((status) => {
+          {["Pending"].map((status) => {
             const count = flaggedComments.filter(
               (c) => c.status === status
             ).length;
@@ -253,11 +254,13 @@ export default function FlaggedCommentsManagement() {
                       onOpenChange={setOpen}
                       comment={{
                         id: comment.id,
+                        issueId: comment.issueId,
                         content: comment.content,
                         createdDate: comment.createdAt,
                         displayName: comment.displayName,
                         flaggedReason: comment.flaggedReason,
                       }}
+                      issueId={comment.issueId}
                     >
                       <Button
                         variant="secondary"

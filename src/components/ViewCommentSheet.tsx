@@ -10,12 +10,30 @@ import {
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, MessageSquare } from "lucide-react";
+import {
+  CheckCircle,
+  Loader2,
+  MessageSquare,
+  MoreHorizontal,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CommentDetail, CommentSummary } from "@/app/types/comment";
+import { DeleteComment } from "./DeleteCommentAlertDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
-function CommentThread({ comment }: { comment: CommentDetail }) {
+function CommentThread({
+  comment,
+  onDelete,
+}: {
+  comment: CommentDetail;
+  onDelete: (id: string) => void;
+}) {
   return (
     <div className="mt-4 pl-3 border-l-2 border-muted space-y-4">
       <div className="flex gap-3">
@@ -25,13 +43,32 @@ function CommentThread({ comment }: { comment: CommentDetail }) {
             {comment.user.displayName?.[0] ?? "?"}
           </AvatarFallback>
         </Avatar>
-        <div>
-          <Link
-            href={`/owner/usermanagement/users/${comment.id}`}
-            className="font-medium text-primary hover:underline"
-          >
-            {comment.user.displayName}
-          </Link>
+        <div className="flex-1">
+          <div className="flex justify-between items-center">
+            <Link
+              href={`/owner/usermanagement/users/${comment.user.id}`}
+              className="font-medium text-primary hover:underline"
+            >
+              {comment.user.displayName}
+            </Link>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-1 rounded hover:bg-muted cursor-pointer">
+                  <MoreHorizontal className="w-5 h-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <DeleteComment
+                    commentId={comment.id}
+                    onSuccess={(id) => onDelete(id)}
+                  />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
           <div className="text-sm text-muted-foreground">
             {new Date(comment.createdDate).toLocaleString()}
           </div>
@@ -43,7 +80,7 @@ function CommentThread({ comment }: { comment: CommentDetail }) {
       {comment.replies && comment.replies.length > 0 && (
         <div className="pl-4 border-l border-muted space-y-4">
           {comment.replies.map((reply) => (
-            <CommentThread key={reply.id} comment={reply} />
+            <CommentThread key={reply.id} comment={reply} onDelete={onDelete} />
           ))}
         </div>
       )}
@@ -60,9 +97,11 @@ export function ViewCommentSheet({
   children: React.ReactNode;
   comment: CommentSummary | null;
   open: boolean;
+  issueId: string;
   onOpenChange: (open: boolean) => void;
 }) {
   const [loading, setLoading] = useState(false);
+  const [resolving, setResolving] = useState(false);
   const [detailedComment, setDetailedComment] = useState<CommentDetail | null>(
     null
   );
@@ -90,25 +129,62 @@ export function ViewCommentSheet({
     }
   }, [open, comment]);
 
+  const handleDeleteComment = (id: string) => {
+    const removeComment = (c: CommentDetail | null): CommentDetail | null => {
+      if (!c) return null;
+      if (c.id === id) return null;
+      return {
+        ...c,
+        replies: c.replies
+          ?.map((r) => removeComment(r))
+          .filter((r): r is CommentDetail => r !== null),
+      };
+    };
+    setDetailedComment((prev) => removeComment(prev));
+  };
+
+  const handleResolve = async () => {
+    if (!comment) return;
+    setResolving(true);
+    try {
+      const res = await fetch(`/api/issue-reports/${comment.issueId}`, {
+        method: "PUT",
+      });
+
+      if (!res.ok) {
+        console.error("Failed to resolve comment");
+        return;
+      }
+
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error resolving comment", error);
+    } finally {
+      setResolving(false);
+    }
+  };
+
   if (!comment) return null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent side="right" className="sm:w-[480px] w-full">
-        <ScrollArea className="h-full mr-2">
+      <SheetContent side="right" className="sm:w-[480px] w-full flex flex-col">
+        <ScrollArea className="h-full mr-2 flex-1">
           <div className="p-5">
-            <SheetHeader className="p-0">
-              <SheetTitle className="text-2xl flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" />
-                Comment Details
-              </SheetTitle>
-              <SheetDescription>
-                This comment was flagged for{" "}
-                <strong className="text-red-500">
-                  {comment.flaggedReason}
-                </strong>{" "}
-              </SheetDescription>
+            <SheetHeader className="p-0 flex justify-between items-start">
+              <div>
+                <SheetTitle className="text-2xl flex items-center gap-2">
+                  <MessageSquare className="w-5 h-5" />
+                  Comment Details
+                </SheetTitle>
+                <SheetDescription>
+                  This comment was flagged for{" "}
+                  <strong className="text-red-500">
+                    {comment.flaggedReason}
+                  </strong>
+                </SheetDescription>
+              </div>
             </SheetHeader>
 
             {loading ? (
@@ -117,7 +193,19 @@ export function ViewCommentSheet({
               </div>
             ) : detailedComment ? (
               <div className="mt-6 space-y-6">
-                <CommentThread comment={detailedComment} />
+                <CommentThread
+                  comment={detailedComment}
+                  onDelete={handleDeleteComment}
+                />
+                <button
+                  onClick={handleResolve}
+                  disabled={resolving}
+                  className="w-[150px] ml-5 inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium disabled:opacity-50"
+                >
+                  {resolving && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <CheckCircle className="w-4 h-4" />
+                  Resolve
+                </button>
               </div>
             ) : (
               <p className="mt-6 text-muted-foreground">
