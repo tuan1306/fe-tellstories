@@ -42,30 +42,6 @@ export function DeleteComment({
     }
   };
 
-  const handleResolve = async (
-    issueId: string,
-    onSuccess: (id: string) => void,
-    setResolving: (v: boolean) => void
-  ) => {
-    setResolving(true);
-    try {
-      const res = await fetch(`/api/issues/${issueId}/resolve`, {
-        method: "PUT",
-      });
-
-      if (!res.ok) {
-        console.error("Failed to resolve issue");
-        return;
-      }
-
-      onSuccess(issueId);
-    } catch (error) {
-      console.error("Error resolving issue", error);
-    } finally {
-      setResolving(false);
-    }
-  };
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>

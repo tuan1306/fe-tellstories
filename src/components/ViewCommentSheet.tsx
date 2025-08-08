@@ -11,7 +11,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  CheckCircle,
+  // CheckCircle,
   Loader2,
   MessageSquare,
   MoreHorizontal,
@@ -101,7 +101,7 @@ export function ViewCommentSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const [loading, setLoading] = useState(false);
-  const [resolving, setResolving] = useState(false);
+  // const [resolving, setResolving] = useState(false);
   const [detailedComment, setDetailedComment] = useState<CommentDetail | null>(
     null
   );
@@ -143,26 +143,26 @@ export function ViewCommentSheet({
     setDetailedComment((prev) => removeComment(prev));
   };
 
-  const handleResolve = async () => {
-    if (!comment) return;
-    setResolving(true);
-    try {
-      const res = await fetch(`/api/issue-reports/${comment.issueId}`, {
-        method: "PUT",
-      });
+  // const handleResolve = async () => {
+  //   if (!comment) return;
+  //   setResolving(true);
+  //   try {
+  //     const res = await fetch(`/api/issue-reports/${comment.issueId}`, {
+  //       method: "PUT",
+  //     });
 
-      if (!res.ok) {
-        console.error("Failed to resolve comment");
-        return;
-      }
+  //     if (!res.ok) {
+  //       console.error("Failed to resolve comment");
+  //       return;
+  //     }
 
-      onOpenChange(false);
-    } catch (error) {
-      console.error("Error resolving comment", error);
-    } finally {
-      setResolving(false);
-    }
-  };
+  //     onOpenChange(false);
+  //   } catch (error) {
+  //     console.error("Error resolving comment", error);
+  //   } finally {
+  //     setResolving(false);
+  //   }
+  // };
 
   if (!comment) return null;
 
@@ -197,7 +197,7 @@ export function ViewCommentSheet({
                   comment={detailedComment}
                   onDelete={handleDeleteComment}
                 />
-                <button
+                {/* <button
                   onClick={handleResolve}
                   disabled={resolving}
                   className="w-[150px] ml-5 inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium disabled:opacity-50"
@@ -205,7 +205,7 @@ export function ViewCommentSheet({
                   {resolving && <Loader2 className="w-4 h-4 animate-spin" />}
                   <CheckCircle className="w-4 h-4" />
                   Resolve
-                </button>
+                </button> */}
               </div>
             ) : (
               <p className="mt-6 text-muted-foreground">
