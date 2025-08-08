@@ -180,11 +180,11 @@ export const SubscriptionDialog = ({
 
       {pkg.pointsCost != null && pkg.pointsCost !== 0 && (
         <p>
-          <strong>Số điểm quy đổi:</strong> {pkg.pointsCost} Điểm
+          <strong>Số điểm quy đổi:</strong> {pkg.pointsCost} điểm
         </p>
       )}
       <p>
-        <strong>Phương thức thanh toán:</strong>{" "}
+        <strong>Phương thức thanh toán: </strong>
         {{
           MoneyOnly: "Tiền",
           PointsOnly: "Điểm",
@@ -193,7 +193,7 @@ export const SubscriptionDialog = ({
       </p>
 
       <p>
-        <strong>Thời gian hoạt động:</strong> {pkg.durationDays} days
+        <strong>Thời gian hoạt động:</strong> {pkg.durationDays} ngày
       </p>
       <p>
         <strong>Hoạt động:</strong> {pkg.isActive ? "Có" : "Không"}

@@ -46,13 +46,21 @@ export default function GenerateTTSButton({
         setLoadingIndex(i);
         setStep("generating");
 
-        const ttsRes = await fetch("/api/stories/ai/tts/pollinationai", {
+        const ttsEndpoint =
+          selectedLanguage === "VIE"
+            ? "/api/stories/ai/tts/vietteltts"
+            : "/api/stories/ai/tts/pollinationai";
+
+        const ttsRes = await fetch(ttsEndpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             text: panel.content,
             voiceId: selectedVoice,
-            additionalInstructions: "Read clearly for children",
+            additionalInstructions:
+              selectedLanguage === "ENG"
+                ? "Read clearly for children"
+                : "Đọc chậm, rõ ràng, truyền cảm cho trẻ em",
           }),
         });
 
@@ -62,7 +70,6 @@ export default function GenerateTTSButton({
 
         setStep("uploading");
 
-        // Concat
         const file = new File([audioBlob], `panel-${i}.mp3`, {
           type: "audio/mpeg",
         });
@@ -83,7 +90,6 @@ export default function GenerateTTSButton({
 
         updatedPanels[i].audioUrl = cdnUrl;
 
-        // Assign the audio url per panel
         if (i === currentPanelIndex) {
           setStory((prev) =>
             prev
@@ -106,7 +112,6 @@ export default function GenerateTTSButton({
         },
       };
 
-      // Save story with all mapped audio URLs
       const updateRes = await fetch("/api/stories", {
         method: "PUT",
         headers: {
@@ -115,8 +120,7 @@ export default function GenerateTTSButton({
         body: JSON.stringify(payload),
       });
 
-      const resultText = await updateRes.text();
-      console.log("PUT /api/stories result:", resultText);
+      console.log("PUT /api/stories result:", await updateRes.text());
     } catch (err) {
       console.error("Error generating audio for all panels:", err);
     } finally {
