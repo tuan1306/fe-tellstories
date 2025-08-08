@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { StoryEditDetails } from "@/app/types/story";
 import { EditStorySheet } from "@/components/EditStorySheet";
 import { DraftWritingTextarea } from "./DraftWritingTextarea";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BookOpenText, FilePenLine, Headphones } from "lucide-react";
 import { ManageAudioSheet } from "./ManageAudioSheet";
 
 interface StoryMetadataCardProps {
@@ -14,6 +14,8 @@ interface StoryMetadataCardProps {
   visualMode: boolean;
   showDraftOnly: boolean;
   draftContent: string;
+  currentPanelIndex: number;
+  // setCurrentPanelIndex: (index: number) => void;
   setDraftContent: (val: string) => void;
   onBack: () => void;
   onEnterDraft: () => void;
@@ -25,6 +27,7 @@ export function StoryMetadataCard({
   visualMode,
   draftContent,
   showDraftOnly,
+  currentPanelIndex,
   setDraftContent,
   onBack,
   onEnterDraft,
@@ -69,18 +72,21 @@ export function StoryMetadataCard({
       <div className="pb-2 border-b mt-4">
         <EditStorySheet story={story} onSuccess={onMetadataUpdate}>
           <Button className="w-full py-4 cursor-pointer">
+            <FilePenLine />
             Chỉnh sửa thông tin
           </Button>
         </EditStorySheet>
 
-        <ManageAudioSheet story={story}>
+        <ManageAudioSheet story={story} currentPanelIndex={currentPanelIndex}>
           <Button className="w-full py-4 mt-3 cursor-pointer">
+            <Headphones />
             Quản lý âm thanh
           </Button>
         </ManageAudioSheet>
 
         <Link href={`/owner/stories/${story.id}`}>
           <Button className="w-full py-4 cursor-pointer mt-3">
+            <BookOpenText />
             Xem truyện
           </Button>
         </Link>

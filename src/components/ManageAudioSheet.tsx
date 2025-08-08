@@ -12,15 +12,21 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { StoryEditDetails } from "@/app/types/story";
-import { Label } from "@/components/ui/label";
+import { AudioLines, FileAudio, MicVocal, Music4 } from "lucide-react";
+import AudioPlayer from "react-h5-audio-player";
+import "react-h5-audio-player/lib/styles.css";
+import GenerateTTSButton from "./GenerateTTSButton";
+import { ScrollArea } from "./ui/scroll-area";
 
 export function ManageAudioSheet({
   children,
   story,
+  currentPanelIndex,
   onSuccess,
 }: {
   children: React.ReactNode;
   story: StoryEditDetails;
+  currentPanelIndex: number;
   onSuccess?: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -57,7 +63,7 @@ export function ManageAudioSheet({
         },
       };
 
-      console.log("Sending PUT payload to /api/stories:", payload);
+      // console.log("Sending PUT payload to /api/stories:", payload);
 
       const updateRes = await fetch(`/api/stories`, {
         method: "PUT",
@@ -87,43 +93,94 @@ export function ManageAudioSheet({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent>
-        <div className="p-5">
-          <SheetHeader className="p-0">
-            <SheetTitle className="text-2xl">Quản lý âm thanh</SheetTitle>
-            <SheetDescription className="mb-5">
-              Âm thanh được đăng tải ở đây sẽ được chơi cùng với truyện
-            </SheetDescription>
-          </SheetHeader>
+        <ScrollArea className="h-full">
+          <div className="p-5">
+            <SheetHeader className="p-0">
+              <SheetTitle className="text-2xl">Quản lý âm thanh</SheetTitle>
+              <SheetDescription className="mb-5">
+                Âm thanh được đăng tải ở đây sẽ được chơi cùng với truyện
+              </SheetDescription>
+            </SheetHeader>
 
-          <div>
-            <Label htmlFor="audioFile">Chọn tệp âm thanh</Label>
-            <Input
-              id="audioFile"
-              type="file"
-              accept="audio/*"
-              className="mt-3"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) setSelectedFile(file);
-              }}
-            />
-          </div>
-
-          {musicUrl && !selectedFile && (
-            <div className="mt-4">
-              <Label>Nhạc nền hiện tại:</Label>
-              <audio controls src={musicUrl} className="w-full mt-2" />
+            <div>
+              <h1 className="text-md gap-2 align-middle items-center flex font-semibold">
+                <FileAudio className="w-6 h-6 text-cyan-400" />
+                Chọn nhạc nền cho truyện
+              </h1>
+              <Input
+                id="audioFile"
+                type="file"
+                accept="audio/*"
+                className="mt-3"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setSelectedFile(file);
+                }}
+              />
             </div>
-          )}
 
-          <Button
-            onClick={handleSave}
-            disabled={saving || (!selectedFile && !musicUrl)}
-            className="w-full mt-6"
-          >
-            {saving ? "Đang lưu..." : "Lưu thay đổi"}
-          </Button>
-        </div>
+            {/* I will get the information from the CDN by tmr */}
+            {musicUrl && !selectedFile && (
+              <div className="mt-4">
+                <h1 className="text-md gap-2 align-middle items-center flex font-semibold">
+                  <Music4 className="w-6 h-6 text-pink-600" />
+                  Nhạc nền hiện tại của truyện
+                </h1>
+                <AudioPlayer
+                  src={musicUrl}
+                  autoPlay={false}
+                  showJumpControls={false}
+                  layout="horizontal"
+                  customAdditionalControls={[]}
+                  customVolumeControls={[]}
+                  className="mt-2 rounded-lg"
+                  style={{
+                    border: "3px solid #1d293d",
+                  }}
+                />
+              </div>
+            )}
+
+            <div className="mt-4">
+              <h1 className="text-md gap-2 align-middle items-center flex font-semibold">
+                <AudioLines className="w-6 h-6 text-amber-400" />
+                Chọn loại giọng cho truyện
+              </h1>
+              <GenerateTTSButton
+                story={story}
+                currentPanelIndex={0}
+                setStory={() => {}}
+              />
+            </div>
+
+            <div className="mt-4">
+              <h1 className="text-md gap-2 align-middle items-center flex font-semibold">
+                <MicVocal className="w-6 h-6 text-fuchsia-500" />
+                Giọng đọc hiện tại của truyện
+              </h1>
+              <AudioPlayer
+                src={story.panels[currentPanelIndex].audioUrl}
+                autoPlay={false}
+                showJumpControls={false}
+                layout="horizontal"
+                customAdditionalControls={[]}
+                customVolumeControls={[]}
+                className="mt-2 rounded-lg"
+                style={{
+                  border: "3px solid #1d293d",
+                }}
+              />
+            </div>
+
+            <Button
+              onClick={handleSave}
+              disabled={saving || (!selectedFile && !musicUrl)}
+              className="w-full mt-6"
+            >
+              {saving ? "Đang lưu..." : "Lưu thay đổi"}
+            </Button>
+          </div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );

@@ -1,7 +1,6 @@
 "use client";
 
 import { StoryDetails } from "@/app/types/story";
-import GenerateTTSButton from "@/components/GenerateTTSButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -252,7 +251,7 @@ export default function StoryPage() {
 
           <div className="mt-2">
             <div className="w-full">
-              {story.panels?.[currentPanelIndex]?.audioUrl ? (
+              {story.panels?.[currentPanelIndex]?.audioUrl && (
                 <AudioPlayer
                   src={story.panels[currentPanelIndex].audioUrl}
                   onPlay={handlePlay}
@@ -272,16 +271,10 @@ export default function StoryPage() {
                         max={100}
                         onValueChange={(value) => setBgmVolume(value[0] / 100)}
                         step={1}
-                        className="h-5 [&_[role=slider]]:h-3 [&_[role=slider]]:w-3"
+                        className="h-5 [&_[role=slider]]:h-2 [&_[role=slider]]:w-2"
                       />
                     </div>,
                   ]}
-                />
-              ) : (
-                <GenerateTTSButton
-                  story={story}
-                  currentPanelIndex={currentPanelIndex}
-                  setStory={setStory}
                 />
               )}
             </div>

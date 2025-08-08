@@ -123,6 +123,8 @@ export default function WriteStoryPage() {
             visualMode={visualMode}
             showDraftOnly={showDraftOnly}
             draftContent={draftContent}
+            currentPanelIndex={currentPanelIndex}
+            // setCurrentPanelIndex={setCurrentPanelIndex}
             setDraftContent={setDraftContent}
             onBack={() => setShowDraftOnly(false)}
             onEnterDraft={() => setShowDraftOnly(true)}
