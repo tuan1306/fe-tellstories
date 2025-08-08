@@ -130,17 +130,24 @@ export function ViewCommentSheet({
   }, [open, comment]);
 
   const handleDeleteComment = (id: string) => {
-    const removeComment = (c: CommentDetail | null): CommentDetail | null => {
-      if (!c) return null;
-      if (c.id === id) return null;
+    const markCommentDeleted = (comment: CommentDetail): CommentDetail => {
+      if (comment.id === id) {
+        return {
+          ...comment,
+          content: "[Deleted]",
+        };
+      }
+
+      // Recursion for reps
       return {
-        ...c,
-        replies: c.replies
-          ?.map((r) => removeComment(r))
-          .filter((r): r is CommentDetail => r !== null),
+        ...comment,
+        replies: (comment.replies ?? []).map((reply) =>
+          markCommentDeleted(reply)
+        ),
       };
     };
-    setDetailedComment((prev) => removeComment(prev));
+
+    setDetailedComment((prev) => (prev ? markCommentDeleted(prev) : null));
   };
 
   // const handleResolve = async () => {
