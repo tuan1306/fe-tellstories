@@ -181,24 +181,26 @@ export default function StoryPage() {
       <div className="w-full xl:w-2/3 flex flex-col space-y-4 overflow-hidden">
         <div className="flex flex-col bg-primary-foreground p-4 rounded-lg max-h-[90vh] h-full">
           {/* Scrollable Content Area */}
-          <ScrollArea className="flex-1 min-h-0 max-h-full overflow-y-auto pr-2">
-            <div>
-              {story.panels[currentPanelIndex].imageUrl ? (
-                <div className="w-full h-64 relative rounded-md overflow-hidden shadow-md mb-4">
-                  <Image
-                    src={story.panels[currentPanelIndex].imageUrl}
-                    alt={`Panel ${currentPanelIndex + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <p className="text-base text-muted-foreground text-center max-w-prose mx-auto whitespace-pre-line mt-4">
-                  {story.panels[currentPanelIndex].content}
-                </p>
-              )}
-            </div>
-          </ScrollArea>
+          <div className="flex-1 min-h-0 max-h-full pr-2">
+            {/* Image stays fixed */}
+            {story.panels[currentPanelIndex].imageUrl && (
+              <div className="w-full h-64 relative rounded-md overflow-hidden shadow-md">
+                <Image
+                  src={story.panels[currentPanelIndex].imageUrl}
+                  alt={`Panel ${currentPanelIndex + 1}`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+
+            {/* Only the text scrolls */}
+            <ScrollArea className="mt-2 h-60">
+              <p className="text-base text-muted-foreground text-center max-w-prose mx-auto whitespace-pre-line">
+                {story.panels[currentPanelIndex].content}
+              </p>
+            </ScrollArea>
+          </div>
 
           {/* Pagination Controls */}
           {story.panels.length > 1 && (

@@ -4,11 +4,12 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { PanelSwiperProps } from "@/app/types/panel";
-import { Loader2, ImagePlus, MicOff, Mic } from "lucide-react";
+import { Loader2, MicOff, Mic } from "lucide-react";
 import PanelContextMenu from "@/components/PanelContextMenu";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
+import { ImagePanelDialog } from "@/components/ImagePanelDialog";
 
 interface PanelEditorProps extends PanelSwiperProps {
   currentPanelIndex: number;
@@ -179,17 +180,17 @@ export default function PanelEditor({
     });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.[0]) return;
-    const file = e.target.files[0];
+  // const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (!e.target.files?.[0]) return;
+  //   const file = e.target.files[0];
 
-    // In production, you'd upload to server or storage and get URL
-    const imageUrl = URL.createObjectURL(file);
+  //   // In production, you'd upload to server or storage and get URL
+  //   const imageUrl = URL.createObjectURL(file);
 
-    if (onImageChange) {
-      onImageChange(currentPanelIndex, imageUrl);
-    }
-  };
+  //   if (onImageChange) {
+  //     onImageChange(currentPanelIndex, imageUrl);
+  //   }
+  // };
 
   // Inserting the post recording
   const insertTranscript = () => {
@@ -300,15 +301,14 @@ export default function PanelEditor({
           ) : (
             <div className="w-full h-40 flex items-center justify-center border-2 border-dashed rounded-md">
               <label className="flex flex-col items-center cursor-pointer">
-                <ImagePlus className="w-8 h-8 mb-2 text-muted-foreground" />
-                <span className="text-sm font-semibold text-muted-foreground">
-                  Thêm ảnh
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageUpload}
+                <ImagePanelDialog
+                  panels={panels}
+                  panelIndex={currentPanelIndex}
+                  onImageSelect={(url) => {
+                    if (onImageChange) {
+                      onImageChange(currentPanelIndex, url);
+                    }
+                  }}
                 />
               </label>
             </div>
