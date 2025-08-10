@@ -20,9 +20,12 @@ export const columns: ColumnDef<BillingHistory>[] = [
     cell: ({ row, table }) => {
       const sortedRows = table.getSortedRowModel().rows;
       const rowNumber = sortedRows.findIndex((r) => r.id === row.id) + 1;
-      return <div className="flex justify-center">{rowNumber}</div>;
+      return (
+        <div className="flex justify-center items-center">{rowNumber}</div>
+      );
     },
     enableSorting: false,
+    enableHiding: false,
   },
   {
     accessorKey: "id",
@@ -36,40 +39,47 @@ export const columns: ColumnDef<BillingHistory>[] = [
       </span>
     ),
   },
-
   {
     accessorKey: "paidAt",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="gap-2"
-      >
-        Ngày thanh toán
-        <ArrowUpDown className="h-4 w-4" />
-      </Button>
+      <div className="flex justify-center">
+        <Button
+          variant="ghost"
+          className="gap-2 cursor-pointer"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Ngày thanh toán
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+      </div>
     ),
     cell: ({ row }) => {
       const date = new Date(row.getValue("paidAt") as string);
-      return date.toLocaleString();
+      return <div className="flex justify-center">{date.toLocaleString()}</div>;
     },
   },
   {
     accessorKey: "paymentMethod",
-    header: "Phương thức thanh toán",
-    cell: ({ row }) => row.getValue("paymentMethod"),
+    header: () => (
+      <div className="flex justify-center">Phương thức thanh toán</div>
+    ),
+    cell: ({ row }) => (
+      <div className="flex justify-center">{row.getValue("paymentMethod")}</div>
+    ),
   },
   {
     accessorKey: "status",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="gap-2"
-      >
-        Trạng thái
-        <ArrowUpDown className="h-4 w-4" />
-      </Button>
+      <div className="flex justify-center">
+        <Button
+          variant="ghost"
+          className="gap-2 cursor-pointer"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Trạng thái
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+      </div>
     ),
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
@@ -79,26 +89,34 @@ export const columns: ColumnDef<BillingHistory>[] = [
         Failed: "bg-red-500 text-white",
       };
       return (
-        <Badge className={statusColor[status] || "bg-gray-500 text-white"}>
-          {status}
-        </Badge>
+        <div className="flex justify-center items-center">
+          <Badge className={statusColor[status] || "bg-gray-500 text-white"}>
+            {status || "Undefined"}
+          </Badge>
+        </div>
       );
     },
   },
   {
     accessorKey: "plan",
-    header: "Gói",
+    header: () => <div className="flex justify-center">Gói</div>,
     cell: ({ row }) => {
       const plan = row.getValue("plan") as string;
-      return <Badge className="bg-amber-300">{plan}</Badge>;
+      return (
+        <div className="flex justify-center items-center">
+          <Badge className="bg-amber-300">{plan}</Badge>
+        </div>
+      );
     },
   },
   {
     accessorKey: "price",
-    header: "Giá thành",
+    header: () => <div className="flex justify-center">Giá thành</div>,
     cell: ({ row }) => {
       const price = row.getValue("price") as number;
-      return `${price.toLocaleString()} VND`;
+      return (
+        <div className="flex justify-center">{price.toLocaleString()} VND</div>
+      );
     },
   },
   {
@@ -106,28 +124,33 @@ export const columns: ColumnDef<BillingHistory>[] = [
     cell: ({ row }) => {
       const bill = row.original;
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(bill.id)}
-            >
-              Copy Transaction ID
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() =>
-                alert(`Viewing subscription ${bill.subscriptionId}`)
-              }
-            >
-              View Subscription
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex justify-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="action-dropdown">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => navigator.clipboard.writeText(bill.id)}
+              >
+                Copy Transaction ID
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() =>
+                  alert(`Viewing subscription ${bill.subscriptionId}`)
+                }
+              >
+                View Subscription
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     },
   },

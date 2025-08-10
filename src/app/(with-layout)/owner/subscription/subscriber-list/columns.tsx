@@ -11,24 +11,28 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  // DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 
 export const columns: ColumnDef<SubscriptionDetail>[] = [
   {
     id: "rowNumber",
-    header: () => <div className="flex justify-center">#</div>,
+    header: () => (
+      <div className="flex justify-center text-lg font-semibold w-12">#</div>
+    ),
     cell: ({ row, table }) => {
       const sortedRows = table.getSortedRowModel().rows;
       const rowNumber = sortedRows.findIndex((r) => r.id === row.id) + 1;
       return (
-        <div className="flex justify-center items-center">{rowNumber}</div>
+        <div className="flex justify-center items-center text-lg font-medium w-12">
+          {rowNumber}
+        </div>
       );
     },
     enableSorting: false,
     enableHiding: false,
   },
+
   {
     accessorKey: "user",
     header: "Tên người dùng",
@@ -36,79 +40,111 @@ export const columns: ColumnDef<SubscriptionDetail>[] = [
   },
   {
     accessorKey: "plan",
-    header: "Gói đăng ký",
+    header: () => <div className="flex justify-center">Gói đăng ký</div>,
     cell: ({ row }) => (
-      <Badge className="bg-yellow-400 text-black">{row.getValue("plan")}</Badge>
+      <div className="flex justify-center items-center">
+        <Badge className="bg-yellow-400 text-black">
+          {row.getValue("plan")}
+        </Badge>
+      </div>
     ),
   },
   {
     accessorKey: "price",
-    header: "Giá thành",
+    header: () => <div className="flex justify-center">Giá thành</div>,
     cell: ({ row }) => (
-      <div>{Number(row.getValue("price")).toLocaleString("vi-VN")} VND</div>
+      <div className="flex justify-center">
+        {Number(row.getValue("price")).toLocaleString("vi-VN")} VND
+      </div>
     ),
   },
   {
     accessorKey: "duration",
-    header: "Gia hạn của gói",
-    cell: ({ row }) => <div>{row.getValue("duration")} ngày</div>,
+    header: () => <div className="flex justify-center">Gia hạn của gói</div>,
+    cell: ({ row }) => (
+      <div className="flex justify-center">{row.getValue("duration")} ngày</div>
+    ),
   },
   {
     accessorKey: "subscribedOn",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        className="gap-2 cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Ngày đăng ký
-        <ArrowUpDown className="h-4 w-4" />
-      </Button>
+      <div className="flex justify-center">
+        <Button
+          variant="ghost"
+          className="gap-2 cursor-pointer"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Ngày đăng ký
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+      </div>
     ),
     cell: ({ row }) => {
       const date = new Date(row.getValue("subscribedOn"));
-      return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("vi-VN");
+      return (
+        <div className="flex justify-center">
+          {isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("vi-VN")}
+        </div>
+      );
     },
     enableColumnFilter: true,
   },
   {
     accessorKey: "expiriesOn",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        className="gap-2 cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Ngày hết hạn
-        <ArrowUpDown className="h-4 w-4" />
-      </Button>
+      <div className="flex justify-center">
+        <Button
+          variant="ghost"
+          className="gap-2 cursor-pointer"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Ngày hết hạn
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+      </div>
     ),
     cell: ({ row }) => {
       const date = new Date(row.getValue("expiriesOn"));
-      return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("vi-VN");
+      return (
+        <div className="flex justify-center">
+          {isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("vi-VN")}
+        </div>
+      );
     },
   },
   {
     accessorKey: "originalEndDate",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
-        className="gap-2 cursor-pointer"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Ngày kết thúc gốc
-        <ArrowUpDown className="h-4 w-4" />
-      </Button>
+      <div className="flex justify-center">
+        <Button
+          variant="ghost"
+          className="gap-2 cursor-pointer"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Ngày kết thúc gốc
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+      </div>
     ),
     cell: ({ row }) => {
       const date = new Date(row.getValue("originalEndDate"));
-      return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("vi-VN");
+      return (
+        <div className="flex justify-center">
+          {isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("vi-VN")}
+        </div>
+      );
     },
   },
   {
     accessorKey: "dayRemaining",
-    header: "Số ngày còn lại sử dụng",
-    cell: ({ row }) => <div>{row.getValue("dayRemaining")} ngày</div>,
+    header: () => (
+      <div className="flex justify-center">Số ngày còn lại sử dụng</div>
+    ),
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        {row.getValue("dayRemaining")} ngày
+      </div>
+    ),
   },
   {
     id: "actions",
@@ -138,10 +174,6 @@ export const columns: ColumnDef<SubscriptionDetail>[] = [
               >
                 Xem thông tin người dùng
               </DropdownMenuItem>
-              {/* <DropdownMenuSeparator /> */}
-
-              {/* Needed some how to add Dialog here. */}
-
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={() =>

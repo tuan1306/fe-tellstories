@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { UserRecentPublish } from "@/app/types/story";
 import Link from "next/link";
+import { Eye } from "lucide-react";
 
 const UserCardList = ({
   title,
@@ -61,14 +62,16 @@ const UserCardList = ({
                     </span>
                   )}
                 </div>
-
                 <CardContent className="flex-1 p-0">
                   <CardTitle className="text-sm font-medium truncate max-w-[170px]">
                     {story.title}
                   </CardTitle>
                   <Badge variant="secondary">{story.ageRange}</Badge>
                 </CardContent>
-                <CardFooter className="p-0">{story.viewCount}</CardFooter>
+                <CardFooter className="p-0 flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-muted-foreground" />
+                  {story.viewCount}
+                </CardFooter>
               </Card>
             </Link>
           ))

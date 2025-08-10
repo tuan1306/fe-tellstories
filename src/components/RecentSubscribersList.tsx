@@ -134,12 +134,12 @@ export function RecentSubscribersList() {
           </p>
         </div>
 
-        <div className="w-[120px]">
+        <div>
           <Select
             value={period}
             onValueChange={(val) => setPeriod(val as "1" | "7" | "30")}
           >
-            <SelectTrigger className="text-sm h-8 w-30">
+            <SelectTrigger className="text-sm h-8 w-40">
               <SelectValue placeholder="Filter" />
             </SelectTrigger>
             <SelectContent>
