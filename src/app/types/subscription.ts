@@ -58,6 +58,7 @@ export type SubscriberBySubscriptions = {
 };
 
 export interface SubscriptionDetail {
+  userId: string;
   user: string;
   plan: string;
   price: number;

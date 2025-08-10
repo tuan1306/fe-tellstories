@@ -143,14 +143,14 @@ export const columns: ColumnDef<SubscriptionDetail>[] = [
               {/* Needed some how to add Dialog here. */}
 
               <DropdownMenuItem
-              // className="cursor-pointer"
-              // onClick={() =>
-              //   router.push(
-              //     `/owner/usermanagement/users/${subscription.user}/billing`
-              //   )
-              // }
+                className="cursor-pointer"
+                onClick={() =>
+                  router.push(
+                    `/owner/subscription/billing-history/${subscription.userId}`
+                  )
+                }
               >
-                Xem lịch sử thanh toán (API lỗi)
+                Xem lịch sử thanh toán
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
