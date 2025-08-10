@@ -23,19 +23,21 @@ export default function StoryPage() {
   const bgMusicRef = useRef<HTMLAudioElement>(null);
   const [bgmVolume, setBgmVolume] = useState(0.2);
 
+  // BGM audio volume control
   useEffect(() => {
     if (bgMusicRef.current) {
       bgMusicRef.current.volume = bgmVolume;
     }
   }, [bgmVolume]);
 
-  useEffect(() => {
-    if (ttsAudioRef.current) {
-      ttsAudioRef.current.play().catch((err) => {
-        console.warn("Autoplay blocked:", err);
-      });
-    }
-  }, [currentPanelIndex]);
+  // // Stop the autoplay
+  // useEffect(() => {
+  //   if (ttsAudioRef.current) {
+  //     ttsAudioRef.current.play().catch((err) => {
+  //       console.warn("Autoplay blocked:", err);
+  //     });
+  //   }
+  // }, [currentPanelIndex]);
 
   const handlePlay = async () => {
     if (!story) return;
@@ -251,32 +253,30 @@ export default function StoryPage() {
 
           <div className="mt-2">
             <div className="w-full">
-              {story.panels?.[currentPanelIndex]?.audioUrl && (
-                <AudioPlayer
-                  src={story.panels[currentPanelIndex].audioUrl}
-                  onPlay={handlePlay}
-                  onPause={handlePause}
-                  onEnded={handleEnded}
-                  showJumpControls={false}
-                  layout="stacked-reverse"
-                  customAdditionalControls={[
-                    <div
-                      key="bgm-volume-control"
-                      className="flex items-center -mr-18"
-                      style={{ width: 100 }}
-                    >
-                      <Music className="h-8 w-8 mr-2 text-[#4d72a2]" />
-                      <Slider
-                        value={[bgmVolume * 100]}
-                        max={100}
-                        onValueChange={(value) => setBgmVolume(value[0] / 100)}
-                        step={1}
-                        className="h-5 [&_[role=slider]]:h-2 [&_[role=slider]]:w-2"
-                      />
-                    </div>,
-                  ]}
-                />
-              )}
+              <AudioPlayer
+                src={story.panels[currentPanelIndex].audioUrl}
+                onPlay={handlePlay}
+                onPause={handlePause}
+                onEnded={handleEnded}
+                showJumpControls={false}
+                layout="stacked-reverse"
+                customAdditionalControls={[
+                  <div
+                    key="bgm-volume-control"
+                    className="flex items-center -mr-18"
+                    style={{ width: 100 }}
+                  >
+                    <Music className="h-8 w-8 mr-2 text-[#4d72a2]" />
+                    <Slider
+                      value={[bgmVolume * 100]}
+                      max={100}
+                      onValueChange={(value) => setBgmVolume(value[0] / 100)}
+                      step={1}
+                      className="h-5 [&_[role=slider]]:h-2 [&_[role=slider]]:w-2"
+                    />
+                  </div>,
+                ]}
+              />
             </div>
           </div>
         </div>
