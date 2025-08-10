@@ -21,7 +21,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-// import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -43,7 +42,9 @@ export function DataTable<TData, TValue>({
   data,
   defaultSort,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>(defaultSort ?? []);
+  const [sorting, setSorting] = React.useState<SortingState>(
+    defaultSort ?? [{ id: "paidAt", desc: true }]
+  );
 
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -71,6 +72,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-center py-4">
         <div className="max-w-full w-full mt-4">
           <h1 className="text-lg flex gap-2 items-center font-semibold">
@@ -88,9 +90,7 @@ export function DataTable<TData, TValue>({
         <div className="ml-auto flex gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              {/* <Button variant="outline" className="cursor-pointer">
-                Toggle Columns
-              </Button> */}
+              <span className="sr-only">Toggle Columns</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
@@ -118,6 +118,7 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
 
+      {/* Table */}
       <div className="rounded-md border shadow-sm">
         <Table>
           <TableHeader>
@@ -168,6 +169,7 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
+      {/* Pagination */}
       <div className="py-4">
         <DataTablePagination table={table} />
       </div>

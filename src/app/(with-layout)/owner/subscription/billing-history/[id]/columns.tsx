@@ -57,6 +57,11 @@ export const columns: ColumnDef<BillingHistory>[] = [
       const date = new Date(row.getValue("paidAt") as string);
       return <div className="flex justify-center">{date.toLocaleString()}</div>;
     },
+    sortingFn: (rowA, rowB, columnId) => {
+      const dateA = new Date(rowA.getValue(columnId) as string).getTime();
+      const dateB = new Date(rowB.getValue(columnId) as string).getTime();
+      return dateB - dateA;
+    },
   },
   {
     accessorKey: "paymentMethod",

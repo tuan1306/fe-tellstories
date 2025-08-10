@@ -1,12 +1,12 @@
 import { Suspense } from "react";
-import { BillingHistory } from "@/app/types/billing-history";
+import { BillingResponse } from "@/app/types/billing-history";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { UserBillingMetrics } from "@/components/ui/UserBillingMetrics";
 import { Info } from "lucide-react";
 import { cookies } from "next/headers";
 
-const getData = async (id: string): Promise<BillingHistory[]> => {
+const getData = async (id: string): Promise<BillingResponse> => {
   const cookie = await cookies();
   const cookieToken = cookie.toString();
 
@@ -14,16 +14,13 @@ const getData = async (id: string): Promise<BillingHistory[]> => {
     `${process.env.NEXT_PUBLIC_URL}/api/subscription/billing-history/${id}`,
     {
       cache: "no-cache",
-      headers: {
-        Cookie: cookieToken,
-      },
+      headers: { Cookie: cookieToken },
     }
   );
 
   if (!res.ok) throw new Error("Failed to fetch billing history");
 
-  const json = await res.json();
-  return json.data as BillingHistory[];
+  return await res.json();
 };
 
 export default async function BillingHistoryPage({
@@ -32,6 +29,8 @@ export default async function BillingHistoryPage({
   params: Promise<{ id: string }>;
 }) {
   const data = await getData((await params).id);
+  const metricsData = data.data;
+  const billingData = data.data.billingHistory;
 
   return (
     <div className="grid grid-cols-1">
@@ -50,13 +49,13 @@ export default async function BillingHistoryPage({
             <Info className="w-5 h-5" /> Thông tin cơ bản của người dùng
           </h2>
         </div>
-        <UserBillingMetrics />
+        <UserBillingMetrics data={metricsData} />
       </div>
 
       {/* Billing History Table */}
       <div className="w-full mt-6">
         <Suspense fallback={<div>Loading user table...</div>}>
-          <DataTable columns={columns} data={data} />
+          <DataTable columns={columns} data={billingData} />
         </Suspense>
       </div>
     </div>
