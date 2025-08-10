@@ -68,7 +68,7 @@ const UserCardList = ({
                   </CardTitle>
                   <Badge variant="secondary">{story.ageRange}</Badge>
                 </CardContent>
-                <CardFooter className="p-0">100 views</CardFooter>
+                <CardFooter className="p-0">{story.viewCount}</CardFooter>
               </Card>
             </Link>
           ))

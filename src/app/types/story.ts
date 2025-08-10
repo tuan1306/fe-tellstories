@@ -101,6 +101,7 @@ export interface UserPublish {
 export interface UserRecentPublish {
   id: string;
   title: string;
+  viewCount: number;
   coverImageUrl: string;
   ageRange: string;
 }

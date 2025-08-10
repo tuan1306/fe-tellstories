@@ -11,7 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
+  // DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
 
@@ -132,13 +132,13 @@ export const columns: ColumnDef<SubscriptionDetail>[] = [
                 className="cursor-pointer"
                 onClick={() =>
                   router.push(
-                    `/owner/usermanagement/users/${subscription.user}`
+                    `/owner/usermanagement/users/${subscription.userId}`
                   )
                 }
               >
-                Xem thông tin người dùng (API lỗi)
+                Xem thông tin người dùng
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              {/* <DropdownMenuSeparator /> */}
 
               {/* Needed some how to add Dialog here. */}
 

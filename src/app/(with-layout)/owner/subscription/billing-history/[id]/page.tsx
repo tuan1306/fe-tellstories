@@ -29,9 +29,9 @@ const getData = async (id: string): Promise<BillingHistory[]> => {
 export default async function BillingHistoryPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const data = await getData(params.id);
+  const data = await getData((await params).id);
 
   return (
     <div className="grid grid-cols-1">

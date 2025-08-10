@@ -9,11 +9,6 @@ export async function GET(
     const token = (await cookies()).get("authToken")?.value;
     const userId = (await params).id;
 
-    console.log(
-      "[BillingHistory API] Requesting billing history for userId:",
-      userId
-    );
-
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/billing-history/${userId}`,
       {
@@ -33,10 +28,10 @@ export async function GET(
     }
 
     const data = await res.json();
-    console.log(
-      "[BillingHistory API] Retrieved data:",
-      JSON.stringify(data, null, 2)
-    );
+    // console.log(
+    //   "[BillingHistory API] Retrieved data:",
+    //   JSON.stringify(data, null, 2)
+    // );
 
     return NextResponse.json(data, { status: 200 });
   } catch (err) {
