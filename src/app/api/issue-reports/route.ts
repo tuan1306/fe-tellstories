@@ -1,12 +1,16 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const token = (await cookies()).get("authToken")?.value;
 
+    const { searchParams } = new URL(req.url);
+    const page = searchParams.get("page") || "1";
+    const pageSize = searchParams.get("pageSize") || "10";
+
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/IssueReport/staff/get-all`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/IssueReport/staff/get-all?page=${page}&pageSize=${pageSize}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

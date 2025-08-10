@@ -6,22 +6,10 @@ export async function GET(request: Request) {
     const token = (await cookies()).get("authToken")?.value;
 
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get("query");
     const page = searchParams.get("page") || "1";
     const pageSize = searchParams.get("pageSize") || "10";
 
-    if (!query) {
-      return NextResponse.json(
-        { message: "Missing query parameter" },
-        { status: 400 }
-      );
-    }
-
-    const url = `${
-      process.env.NEXT_PUBLIC_API_BASE_URL
-    }/Story/search/${encodeURIComponent(
-      query
-    )}?page=${page}&pageSize=${pageSize}`;
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/IssueReport/staff/get-all?page=${page}&pageSize=${pageSize}`;
 
     const res = await fetch(url, {
       headers: {
@@ -32,7 +20,7 @@ export async function GET(request: Request) {
     if (!res.ok) {
       const log = await res.text();
       return NextResponse.json(
-        { message: "Failed to search stories", error: log },
+        { message: "Failed to fetch issue reports", error: log },
         { status: res.status }
       );
     }
@@ -40,7 +28,7 @@ export async function GET(request: Request) {
     const data = await res.json();
     return NextResponse.json(data, { status: 200 });
   } catch (err) {
-    console.error("GET - /api/story/search response:", err);
+    console.error("GET - /api/issue-reports response:", err);
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }

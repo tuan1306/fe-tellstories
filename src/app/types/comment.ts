@@ -29,7 +29,9 @@ export type CommentReply = {
   storyTitle: string;
 };
 
-export type StatusFilter = "Pending" | "Deleted";
+export type StatusFilter = "Pending" | "Resolved";
+
+export type IssueType = "comment" | "bug" | "other";
 
 export interface FlaggedComment {
   id: string;
@@ -40,6 +42,7 @@ export interface FlaggedComment {
   displayName: string;
   avatarUrl?: string;
   status: StatusFilter;
+  type: IssueType;
   replies?: CommentReply[];
 }
 

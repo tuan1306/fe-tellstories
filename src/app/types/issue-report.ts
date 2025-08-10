@@ -26,8 +26,17 @@ export type IssueType =
   | "Spam"
   | "Bug"
   | string;
-export type TargetType = "Comment" | "Story" | string;
-export type ReportStatus = "Pending" | "Deleted" | "Dismissed" | string;
+
+export type TargetType = "Comment" | "Story" | "Bug" | string;
+
+export type ReportStatus =
+  | "Pending"
+  | "Deleted"
+  | "Dismissed"
+  | "Resolved"
+  | "null"
+  | string
+  | null;
 
 export interface IssueReportItem {
   id: string;
@@ -38,7 +47,8 @@ export interface IssueReportItem {
   targetObj: TargetComment | null;
   attachment: string | null;
   description: string | null;
-  status: ReportStatus | null;
+  status: ReportStatus;
+  createdDate: string;
 }
 
 export interface IssueReportResponse {

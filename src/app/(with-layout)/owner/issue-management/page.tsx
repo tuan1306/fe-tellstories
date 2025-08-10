@@ -13,21 +13,20 @@ import { Loader2 } from "lucide-react";
 import { FlaggedComment, StatusFilter } from "@/app/types/comment";
 import CommentIssueList from "@/components/IssueList";
 
-// YYYY-MM-DD
-// padStart means that every month/date must have 2 digit and fill in another 0 at start if not.
 function toLocalDateString(date: Date) {
   return `${date.getFullYear()}-${(date.getMonth() + 1)
     .toString()
     .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
 }
 
-export default function FlaggedCommentsManagement() {
+export default function IssueMangement() {
   const [search, setSearch] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
   const [flaggedComments, setFlaggedComments] = useState<FlaggedComment[]>([]);
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("Pending");
+  //   const [statusFilter, setStatusFilter] = useState<StatusFilter>("Pending");
+  const [typeFilter, setTypeFilter] = useState<string>("Comment");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -43,25 +42,61 @@ export default function FlaggedCommentsManagement() {
           return;
         }
 
-        const transformed = json.data.items
-          .filter(
-            (item: IssueReportItem) =>
-              item.targetType === "Comment" && item.targetObj
-          )
-          .map((item: IssueReportItem): FlaggedComment => {
-            const comment = item.targetObj as TargetComment;
+        const transformed: FlaggedComment[] = json.data.items.map(
+          (item: IssueReportItem) => {
+            const normalizedStatus =
+              !item.status || item.status.toLowerCase() === "null"
+                ? "Pending"
+                : item.status;
+
+            const targetType = item.targetType?.toLowerCase();
+
+            if (targetType === "comment") {
+              const comment = item.targetObj as TargetComment;
+
+              return {
+                id: comment.id,
+                issueId: item.id,
+                content: comment.content,
+                flaggedReason: item.issueType,
+                createdAt: comment.createdDate,
+                displayName: comment.user.displayName,
+                avatarUrl: comment.user.avatarUrl,
+                status: normalizedStatus as StatusFilter,
+                replies: [],
+                type: "comment",
+              };
+            }
+
+            if (targetType === "bug") {
+              return {
+                id: item.id,
+                issueId: item.id,
+                content: item.description ?? "",
+                flaggedReason: item.issueType,
+                createdAt: item.createdDate,
+                displayName: item.user.displayName,
+                avatarUrl: item.user.avatarUrl,
+                status: normalizedStatus as StatusFilter,
+                replies: [],
+                type: "bug",
+              };
+            }
+
             return {
-              id: comment.id,
+              id: item.id,
               issueId: item.id,
-              content: comment.content,
+              content: item.description ?? "",
               flaggedReason: item.issueType,
-              createdAt: comment.createdDate,
-              displayName: comment.user.displayName,
-              avatarUrl: comment.user.avatarUrl,
-              status: (item.status ?? "Pending") as StatusFilter,
+              createdAt: item.createdDate,
+              displayName: item.user.displayName,
+              avatarUrl: item.user.avatarUrl,
+              status: normalizedStatus as StatusFilter,
               replies: [],
+              type: "other",
             };
-          });
+          }
+        );
 
         setFlaggedComments(transformed);
       } catch (err) {
@@ -74,25 +109,44 @@ export default function FlaggedCommentsManagement() {
     fetchFlaggedComments();
   }, []);
 
+  // Check the date if exist
+  const pendingForType = flaggedComments.filter(
+    (c) => c.status === "Pending" && c.type === typeFilter
+  );
+
+  console.log("Pending issues for type:", typeFilter, pendingForType);
+
   const validDates = new Set(
     flaggedComments
-      .filter((c) => c.status === statusFilter)
+      .filter(
+        (c) =>
+          c.status?.toLowerCase() === "pending" &&
+          c.type?.toLowerCase() === typeFilter.toLowerCase()
+      )
       .map((comment) => toLocalDateString(new Date(comment.createdAt)))
   );
 
-  useEffect(() => {
-    if (!flaggedComments.length) return;
+  //   console.log("Valid dates for", typeFilter, ":", Array.from(validDates));
 
+  useEffect(() => {
     const filteredByStatus = flaggedComments
-      .filter((c) => c.status === statusFilter)
+      .filter(
+        (c) =>
+          c.status.toLowerCase?.() === "pending" &&
+          c.type.toLowerCase() === typeFilter.toLowerCase()
+      )
       .map((c) => new Date(c.createdAt))
       .sort((a, b) => b.getTime() - a.getTime());
 
     setSelectedDate(filteredByStatus[0] ?? undefined);
-  }, [flaggedComments, statusFilter]);
+  }, [flaggedComments, typeFilter]);
 
   const filtered = flaggedComments
-    .filter((c) => c.status === statusFilter)
+    .filter(
+      (c) =>
+        c.status === "Pending" &&
+        c.type.toLowerCase() === typeFilter.toLowerCase()
+    )
     .filter(
       (comment) =>
         comment.content.toLowerCase().includes(search.toLowerCase()) ||
@@ -108,9 +162,17 @@ export default function FlaggedCommentsManagement() {
       );
     });
 
+  const typeCounts = ["Comment", "Bug", "Other"].map((type) => ({
+    type,
+    count: flaggedComments.filter(
+      (c) =>
+        c.status === "Pending" && c.type.toLowerCase() === type.toLowerCase()
+    ).length,
+  }));
+
   return (
     <div className="flex gap-6 mt-4 h-[90vh]">
-      {/* LEFT PANEL */}
+      {/* LEFT */}
       <div className="w-1/4 bg-card rounded-lg p-4 space-y-4 overflow-auto">
         <Input
           type="text"
@@ -123,13 +185,13 @@ export default function FlaggedCommentsManagement() {
           <Calendar
             mode="single"
             selected={selectedDate}
+            // defaultMonth={selectedDate}
             onSelect={(date) => {
               setLoading(true);
               setSelectedDate(date);
               setTimeout(() => setLoading(false), 300);
             }}
             className="w-full rounded-md border text-foreground"
-            // Disable date if date = future dates or not validDates.
             disabled={(date) => {
               const today = new Date();
               const localDate = toLocalDateString(date);
@@ -148,30 +210,24 @@ export default function FlaggedCommentsManagement() {
         </div>
 
         <div className="space-y-2 pt-4 border-t">
-          {["Pending"].map((status) => {
-            const count = flaggedComments.filter(
-              (c) => c.status === status
-            ).length;
-
-            return (
-              <div
-                key={status}
-                onClick={() => setStatusFilter(status as StatusFilter)}
-                className={`flex justify-between items-center p-2 text-sm rounded-md cursor-pointer transition-colors ${
-                  statusFilter === status ? "bg-muted" : "hover:bg-muted/60"
-                }`}
-              >
-                <span>{status} Comments</span>
-                <span className="ml-2 text-xs bg-red-500 text-white px-2 py-0.5 rounded-md">
-                  {count}
-                </span>
-              </div>
-            );
-          })}
+          {typeCounts.map(({ type, count }) => (
+            <div
+              key={type}
+              onClick={() => setTypeFilter(type)}
+              className={`flex justify-between items-center p-2 text-sm rounded-md cursor-pointer transition-colors ${
+                typeFilter === type ? "bg-muted" : "hover:bg-muted/60"
+              }`}
+            >
+              <span>Pending {type}</span>
+              <span className="ml-2 text-xs bg-red-500 text-white px-2 py-0.5 rounded-md">
+                {count}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* RIGHT PANEL */}
+      {/* RIGHT */}
       <div className="w-3/4 bg-card rounded-lg p-5 h-full">
         {loading ? (
           <div className="flex justify-center items-center h-full w-full">
@@ -180,7 +236,7 @@ export default function FlaggedCommentsManagement() {
         ) : filtered.length === 0 ? (
           <div className="flex items-center justify-center h-full w-full">
             <p className="text-muted-foreground text-sm">
-              No flagged comments found.
+              No flagged {typeFilter.toLowerCase()}s found.
             </p>
           </div>
         ) : (
