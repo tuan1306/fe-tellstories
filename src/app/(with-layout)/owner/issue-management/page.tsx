@@ -1,13 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ViewCommentSheet } from "@/components/ViewCommentSheet";
 import {
   IssueReportItem,
   IssueReportResponse,
@@ -15,7 +11,7 @@ import {
 } from "@/app/types/issue-report";
 import { Loader2 } from "lucide-react";
 import { FlaggedComment, StatusFilter } from "@/app/types/comment";
-import Link from "next/link";
+import CommentIssueList from "@/components/IssueList";
 
 // YYYY-MM-DD
 // padStart means that every month/date must have 2 digit and fill in another 0 at start if not.
@@ -32,10 +28,6 @@ export default function FlaggedCommentsManagement() {
   );
   const [flaggedComments, setFlaggedComments] = useState<FlaggedComment[]>([]);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("Pending");
-  const [selectedComment, setSelectedComment] = useState<FlaggedComment | null>(
-    null
-  );
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -192,92 +184,7 @@ export default function FlaggedCommentsManagement() {
             </p>
           </div>
         ) : (
-          <ScrollArea className="h-full w-full pr-4">
-            <div className="space-y-4">
-              {filtered.map((comment, index) => (
-                <div
-                  key={`${comment.id}-${index}`}
-                  className="rounded-lg p-4 shadow-sm bg-background border"
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="w-full">
-                      {/* Avatar + Username */}
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage
-                            src={comment.avatarUrl}
-                            alt={comment.displayName}
-                          />
-                          <AvatarFallback>
-                            {comment.displayName
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")
-                              .slice(0, 2)
-                              .toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <Link
-                            href={`/owner/usermanagement/users/${comment.id}`}
-                            className="font-medium text-primary hover:underline"
-                          >
-                            <h2 className="font-semibold text-sm">
-                              {comment.displayName}
-                            </h2>
-                          </Link>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(comment.createdAt).toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <div className="mt-2">
-                        <p className="mt-1 text-sm">{comment.content}</p>
-                      </div>
-                    </div>
-
-                    {/* Reason */}
-                    <Badge
-                      variant="default"
-                      className="bg-red-500 text-white whitespace-nowrap"
-                    >
-                      {comment.flaggedReason}
-                    </Badge>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 mt-4">
-                    <ViewCommentSheet
-                      open={open && selectedComment?.id === comment.id}
-                      onOpenChange={setOpen}
-                      comment={{
-                        id: comment.id,
-                        issueId: comment.issueId,
-                        content: comment.content,
-                        createdDate: comment.createdAt,
-                        displayName: comment.displayName,
-                        flaggedReason: comment.flaggedReason,
-                      }}
-                      issueId={comment.issueId}
-                    >
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedComment(comment);
-                          setOpen(true);
-                        }}
-                      >
-                        View Detailed Comment
-                      </Button>
-                    </ViewCommentSheet>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+          <CommentIssueList loading={loading} issues={filtered} />
         )}
       </div>
     </div>

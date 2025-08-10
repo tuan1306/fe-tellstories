@@ -5,7 +5,7 @@ import {
   ChevronUp,
   CircleDollarSign,
   LayoutDashboard,
-  LucideMessageSquareText,
+  // LucideMessageSquareText,
   PenBoxIcon,
   // Receipt,
   Scroll,
@@ -69,14 +69,9 @@ const items = [
   //   icon: Receipt,
   // },
   {
-    title: "Resolving Issues",
-    url: "/owner/issues",
+    title: "Issues Management",
+    url: "/owner/issue-management",
     icon: AlertTriangle,
-  },
-  {
-    title: "Comments Management",
-    url: "/owner/comments",
-    icon: LucideMessageSquareText,
   },
   {
     title: "Write Stories",

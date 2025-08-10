@@ -17,16 +17,12 @@ import { useRouter } from "next/navigation";
 export const columns: ColumnDef<SubscriptionDetail>[] = [
   {
     id: "rowNumber",
-    header: () => (
-      <div className="flex justify-center text-lg font-semibold w-12">#</div>
-    ),
+    header: () => <div className="flex justify-center w-10">#</div>,
     cell: ({ row, table }) => {
       const sortedRows = table.getSortedRowModel().rows;
       const rowNumber = sortedRows.findIndex((r) => r.id === row.id) + 1;
       return (
-        <div className="flex justify-center items-center text-lg font-medium w-12">
-          {rowNumber}
-        </div>
+        <div className="flex justify-center items-center w-10">{rowNumber}</div>
       );
     },
     enableSorting: false,
