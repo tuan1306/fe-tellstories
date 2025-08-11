@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { PanelSwiperProps } from "@/app/types/panel";
@@ -10,6 +9,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
 import { ImagePanelDialog } from "@/components/ImagePanelDialog";
+import { PanelImage } from "@/components/PanelImage";
 
 interface PanelEditorProps extends PanelSwiperProps {
   currentPanelIndex: number;
@@ -290,14 +290,10 @@ export default function PanelEditor({
 
           {/* Image Display */}
           {panel.imageUrl ? (
-            <div className="w-full h-40 relative rounded-md overflow-hidden shadow-md">
-              <Image
-                src={panel.imageUrl}
-                alt={`Panel ${currentPanelIndex + 1}`}
-                fill
-                className="object-cover"
-              />
-            </div>
+            <PanelImage
+              src={panel.imageUrl}
+              alt={`Panel ${currentPanelIndex + 1}`}
+            />
           ) : (
             <div className="w-full h-40 flex items-center justify-center border-2 border-dashed rounded-md">
               <label className="flex flex-col items-center cursor-pointer">
