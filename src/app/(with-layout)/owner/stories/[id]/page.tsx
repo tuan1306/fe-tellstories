@@ -195,7 +195,14 @@ export default function StoryPage() {
             )}
 
             {/* Only the text scrolls */}
-            <ScrollArea className="mt-2 h-60">
+            {/* [calc(100%-2rem)] - Tall as parents subtract 2rem (root em - 16px by default) */}
+            <ScrollArea
+              className={`mt-2 ${
+                story.panels[currentPanelIndex].imageUrl
+                  ? "h-60"
+                  : "h-[calc(100%-2rem)]"
+              }`}
+            >
               <p className="text-base text-muted-foreground text-center max-w-prose mx-auto whitespace-pre-line">
                 {story.panels[currentPanelIndex].content}
               </p>
