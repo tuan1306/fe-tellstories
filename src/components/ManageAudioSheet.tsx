@@ -50,16 +50,19 @@ export function ManageAudioSheet({
   );
   const [selectedVoice, setSelectedVoice] = useState<string>("");
 
-  const generateForAllPanels = async (updatedStory: StoryEditDetails) => {
+  const generateForAllPanels = async (
+    story: StoryEditDetails
+  ): Promise<StoryEditDetails> => {
     if (!selectedLanguage || !selectedVoice) {
       alert("Vui lòng chọn ngôn ngữ và giọng đọc trước khi tạo.");
-      return updatedStory.panels;
+      return story;
     }
 
-    const updatedPanels = [...updatedStory.panels];
+    const updatedPanels = [...story.panels];
 
     for (let i = 0; i < updatedPanels.length; i++) {
       const panel = updatedPanels[i];
+      if (!panel.content?.trim()) continue;
 
       const ttsEndpoint =
         selectedLanguage === "VIE"
@@ -79,10 +82,10 @@ export function ManageAudioSheet({
         }),
       });
 
-      if (!ttsRes.ok) throw new Error("TTS failed");
+      if (!ttsRes.ok) throw new Error(`TTS failed for panel ${i + 1}`);
       const audioBlob = await ttsRes.blob();
 
-      const file = new File([audioBlob], `panel-${i}.mp3`, {
+      const file = new File([audioBlob], `panel-${i + 1}.mp3`, {
         type: "audio/mpeg",
       });
 
@@ -94,18 +97,17 @@ export function ManageAudioSheet({
         body: formData,
       });
 
-      if (!uploadRes.ok) throw new Error("Upload failed");
-
+      if (!uploadRes.ok) throw new Error(`Upload failed for panel ${i + 1}`);
       const json = await uploadRes.json();
       const cdnUrl = json?.data?.url || json?.url;
 
-      updatedPanels[i].audioUrl = cdnUrl;
+      updatedPanels[i] = { ...panel, audioUrl: cdnUrl };
     }
 
-    return updatedPanels;
+    return { ...story, panels: updatedPanels };
   };
 
-  // Save story + auto-generate TTS
+  // Save
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -126,23 +128,17 @@ export function ManageAudioSheet({
         newMusicUrl = json.url;
       }
 
-      let updatedPanels = story.panels || [];
-
-      // 🔹 Generate voices before saving
-      updatedPanels = await generateForAllPanels({
-        ...story,
-        panels: updatedPanels,
-      });
+      const updatedStory = await generateForAllPanels(story);
 
       const payload = {
-        ...story,
+        ...updatedStory,
         backgroundMusicUrl: newMusicUrl,
-        panels: updatedPanels,
         tags: {
-          tagNames: story.tags?.tagNames || [],
+          tagNames: updatedStory.tags?.tagNames || [],
         },
       };
 
+      // Save story
       const updateRes = await fetch(`/api/stories`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
