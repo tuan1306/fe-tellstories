@@ -3,11 +3,8 @@ export type SubscriptionPackage = {
   name: string;
   price: number;
   type: string;
+  rewardPoints?: number;
   durationDays: number;
-  billingCycle: number;
-  maxStories: number;
-  maxAIRequest: number;
-  maxTTSRequest: number;
   pointsCost: number;
   purchaseMethod: "MoneyOnly" | "PointsOnly" | "MoneyOrPoints";
   isActive: boolean;

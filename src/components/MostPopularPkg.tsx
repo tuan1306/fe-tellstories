@@ -23,18 +23,18 @@ export const MostPopularPkg = ({
   return (
     <Card className="text-[16px] gap-4 my-4">
       <CardHeader>
-        <CardTitle className="flex gap-2 text-[16px]">
+        <CardTitle className="flex items-center gap-2 text-[16px]">
           <Sparkles className="text-amber-400" />
-          Most Popular Tier
+          Gói phổ biến nhất
         </CardTitle>
-        <CardDescription>Based on active subscriptions</CardDescription>
+        <CardDescription>Dựa vào các gói đang hoạt động</CardDescription>
       </CardHeader>
-      <CardContent className="text-xl">
+      <CardContent className="text-base">
         <p className="font-semibold text-primary">
-          {subscriptionName || "None"}
+          {subscriptionName || "Không có"}
         </p>
         <p className="text-muted-foreground text-sm">
-          {numberOfSubscriber} users ({percentage.toFixed(2)}%)
+          {numberOfSubscriber} người dùng ({percentage.toFixed(2)}%)
         </p>
       </CardContent>
     </Card>

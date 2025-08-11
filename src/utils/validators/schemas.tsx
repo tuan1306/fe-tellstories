@@ -67,6 +67,7 @@ export const subscriptionSchema = z.object({
   price: z.number().min(0),
   pointsCost: z.number().min(0),
   type: z.string().optional(),
+  rewardPoints: z.number().min(0).optional(),
   durationDays: z.number().min(1),
   isActive: z.boolean(),
   purchaseMethod: z.string().min(1),

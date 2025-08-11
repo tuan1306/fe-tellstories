@@ -74,6 +74,7 @@ export const SubscriptionDialog = ({
       type: "string",
       durationDays: 0,
       pointsCost: 0,
+      rewardPoints: 0,
       purchaseMethod: "MoneyOnly",
       isActive: false,
       isDefault: false,
@@ -88,6 +89,7 @@ export const SubscriptionDialog = ({
         type: selectedPackage.type,
         durationDays: selectedPackage.durationDays,
         pointsCost: selectedPackage.pointsCost ?? 0,
+        rewardPoints: selectedPackage.rewardPoints ?? 0,
         purchaseMethod: selectedPackage.purchaseMethod ?? "MoneyOnly",
         isActive: selectedPackage.isActive,
         isDefault: selectedPackage.isDefault,
@@ -191,6 +193,12 @@ export const SubscriptionDialog = ({
           MoneyOrPoints: "Tiền & Điểm",
         }[pkg.purchaseMethod] ?? "N/A"}
       </p>
+
+      {pkg.rewardPoints != null && pkg.rewardPoints !== 0 && (
+        <p>
+          <strong>Điểm thưởng:</strong> {pkg.rewardPoints} điểm
+        </p>
+      )}
 
       <p>
         <strong>Thời gian hoạt động:</strong> {pkg.durationDays} ngày
@@ -361,6 +369,29 @@ export const SubscriptionDialog = ({
                       )}
                     />
                   )}
+
+                {/* Points */}
+                <FormField
+                  control={form.control}
+                  name="rewardPoints"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Số điểm thưởng</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          {...field}
+                          value={Number.isNaN(field.value) ? "" : field.value}
+                          onChange={(e) => {
+                            const val = e.target.valueAsNumber;
+                            field.onChange(Number.isNaN(val) ? undefined : val);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 {/* Duration */}
                 <FormField

@@ -69,7 +69,6 @@ export default function DataTable() {
           duration: 0,
           ageRange: "",
           readingLevel: "",
-          storyType: "",
           isAIGenerated: false,
           backgroundMusicUrl: "",
           panels: [
@@ -274,10 +273,17 @@ export default function DataTable() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...newStory,
           title,
+          author: "Admin",
+          description: newStory.description || "",
+          coverImageUrl,
+          language: selectedLanguage,
+          duration: 0,
+          ageRange: ageRange || "",
+          readingLevel: "Sơ cấp",
+          storyType: "SinglePanel",
           isAIGenerated: true,
-          isDraft: true,
+          backgroundMusicUrl: "",
           panels: [
             {
               panelNumber: 1,
@@ -285,13 +291,10 @@ export default function DataTable() {
               imageUrl: "",
               audioUrl,
               isEndPanel: false,
-              languageCode: "en",
+              languageCode: selectedLanguage,
             },
           ],
           tags: { tagNames: newStory.tags || [] },
-          coverImageUrl,
-          language: "ENG",
-          author: "Admin",
         }),
       });
 

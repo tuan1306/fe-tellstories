@@ -62,10 +62,10 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
         <CardHeader>
           <CardTitle className="flex gap-2 text-[16px]">
             <BadgeDollarSign className="text-lime-500" />
-            Total amount
+            Tổng số tiền
           </CardTitle>
           <CardDescription>
-            Total amount of money accumulated this month
+            Tổng số tiền tích lũy trong tháng này{" "}
           </CardDescription>
           <CardAction>{fluctBadge(data.subscriptionRevenueFluct)}</CardAction>
         </CardHeader>
@@ -77,12 +77,12 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <Card className="text-4xl text-[16px] gap-4">
           <CardHeader>
-            <CardTitle className="flex gap-2 text-[16px]">
+            <CardTitle className="flex items-center  gap-2 text-[16px]">
               <Users className="text-pink-500" />
-              Total Subscriber
+              Tổng số người đăng ký
             </CardTitle>
             <CardDescription>
-              User bought subscription this month
+              Người dùng mua gói trong tháng này
             </CardDescription>
             <CardAction>{fluctBadge(data.subscriberFluct)}</CardAction>
           </CardHeader>
@@ -104,12 +104,12 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
 
         <Card className="text-4xl text-[16px] gap-4">
           <CardHeader>
-            <CardTitle className="flex gap-2 text-[16px]">
+            <CardTitle className="flex items-center gap-2 text-[16px]">
               <UserPlus className="text-emerald-400" />
-              New Subscriber
+              Người đăng ký mới
             </CardTitle>
             <CardDescription>
-              Newly joined subscribers this month
+              Người dùng mới đăng ký trong tháng này
             </CardDescription>
             <CardAction>{fluctBadge(data.newSubscriberFluct)}</CardAction>
           </CardHeader>
@@ -131,12 +131,12 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
 
         <Card className="text-4xl text-[16px] gap-4">
           <CardHeader>
-            <CardTitle className="flex gap-2 text-[16px]">
+            <CardTitle className="flex items-center gap-2 text-[16px]">
               <UserMinus className="text-rose-500" />
-              Lost Subscription
+              Người ngừng đăng ký
             </CardTitle>
             <CardDescription>
-              Users who stopped subscribing this month
+              Người dùng ngừng đăng gói trong tháng này
             </CardDescription>
             <CardAction>{fluctBadge(data.quitSubscriberFluct)}</CardAction>
           </CardHeader>

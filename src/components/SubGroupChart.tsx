@@ -54,8 +54,10 @@ export function SubGroupChart({ data, fluctuation }: SubGroupChartProps) {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Subscribers by Plan</CardTitle>
-        <CardDescription>Breakdown of active subscriptions</CardDescription>
+        <CardTitle>Số người đăng ký theo gói</CardTitle>
+        <CardDescription>
+          Phân tích số lượng đăng ký đang hoạt động
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -96,7 +98,7 @@ export function SubGroupChart({ data, fluctuation }: SubGroupChartProps) {
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Subscribers
+                          Người đăng ký
                         </tspan>
                       </text>
                     );
@@ -110,13 +112,13 @@ export function SubGroupChart({ data, fluctuation }: SubGroupChartProps) {
       <CardFooter className="flex flex-col items-start gap-2 text-sm">
         {typeof fluctuation === "number" ? (
           <div className="flex items-center gap-2 leading-none font-medium">
-            {fluctuation >= 0 ? "Growth" : "Drop"} of{" "}
-            {Math.abs(fluctuation).toFixed(1)}% in subscriptions
+            {fluctuation >= 0 ? "Tăng" : "Giảm"}{" "}
+            {Math.abs(fluctuation).toFixed(1)}%
             <TrendingUp className="h-4 w-4" />
           </div>
         ) : (
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
-            Current fluctuation rate
+            Tỉ lệ thay đổi hiện tại
             <Badge variant="outline" className="text-muted-foreground">
               <Minus className="w-4 h-4 mr-1" />
               N/A
@@ -125,7 +127,7 @@ export function SubGroupChart({ data, fluctuation }: SubGroupChartProps) {
         )}
 
         <div className="text-muted-foreground leading-none">
-          Based on currently active subscription plans
+          Dựa vào các gói đang hoạt động
         </div>
       </CardFooter>
     </Card>
