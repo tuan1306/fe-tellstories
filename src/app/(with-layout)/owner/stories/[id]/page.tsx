@@ -261,8 +261,10 @@ export default function StoryPage() {
           {/* Audio Player */}
           <div className="mt-2">
             <div className="w-full">
+              {/* Currently fixated, because if multiple audioURL on multiple pannels, then the audio player will auto-replay alot */}
+              {/* Needed to put every audioURL for every panel, then concat them together. */}
               <AudioPlayer
-                src={story.panels[currentPanelIndex].audioUrl}
+                src={story.panels[0].audioUrl}
                 onPlay={handlePlay}
                 onPause={handlePause}
                 onEnded={handleEnded}
