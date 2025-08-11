@@ -57,10 +57,6 @@ export type SubscriberBySubscriptions = {
   numberOfSubscriber: number;
 };
 
-export interface SubscriptionListPageProps {
-  searchParams: { type?: SubscriberListType };
-}
-
 export type SubscriberListType = "subscribers" | "new" | "quit";
 
 export interface SubscriptionDetail {

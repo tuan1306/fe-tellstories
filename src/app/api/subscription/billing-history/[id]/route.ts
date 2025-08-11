@@ -10,7 +10,7 @@ export async function GET(
     const userId = (await params).id;
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/billing-history/${userId}`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/billing-history/${userId}/?ascOrder=false`,
       {
         method: "GET",
         headers: {
@@ -28,10 +28,10 @@ export async function GET(
     }
 
     const data = await res.json();
-    // console.log(
-    //   "[BillingHistory API] Retrieved data:",
-    //   JSON.stringify(data, null, 2)
-    // );
+    console.log(
+      "[BillingHistory API] Retrieved data:",
+      JSON.stringify(data, null, 2)
+    );
 
     return NextResponse.json(data, { status: 200 });
   } catch (err) {

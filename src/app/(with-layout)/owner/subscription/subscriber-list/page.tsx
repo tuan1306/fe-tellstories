@@ -4,7 +4,6 @@ import { columns } from "./columns";
 import {
   SubscriberListType,
   SubscriptionDetail,
-  SubscriptionListPageProps,
 } from "@/app/types/subscription";
 import { cookies } from "next/headers";
 
@@ -33,7 +32,9 @@ const getData = async (
 
 export default async function SubscriptionListPage({
   searchParams,
-}: SubscriptionListPageProps) {
+}: {
+  searchParams: Promise<{ type?: string }>;
+}) {
   const params = await searchParams;
   const type = (params.type as "subscribers" | "new" | "quit") ?? "subscribers";
 
