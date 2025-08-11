@@ -55,7 +55,13 @@ export const columns: ColumnDef<BillingHistory>[] = [
     ),
     cell: ({ row }) => {
       const date = new Date(row.getValue("paidAt") as string);
-      return <div className="flex justify-center">{date.toLocaleString()}</div>;
+      const formattedDate = date.toLocaleDateString("vi-VN");
+      const formattedTime = date.toLocaleTimeString("vi-VN", { hour12: false });
+      return (
+        <div className="flex justify-center">
+          {`${formattedDate} ${formattedTime}`}
+        </div>
+      );
     },
     sortingFn: (rowA, rowB, columnId) => {
       const dateA = new Date(rowA.getValue(columnId) as string).getTime();
@@ -68,9 +74,19 @@ export const columns: ColumnDef<BillingHistory>[] = [
     header: () => (
       <div className="flex justify-center">Phương thức thanh toán</div>
     ),
-    cell: ({ row }) => (
-      <div className="flex justify-center">{row.getValue("paymentMethod")}</div>
-    ),
+    cell: ({ row }) => {
+      const method = row.getValue("paymentMethod") as string;
+      const methodLabel: Record<string, string> = {
+        ATM: "Thanh toán Online",
+        Online: "Điểm",
+      };
+
+      return (
+        <div className="flex justify-center">
+          {methodLabel[method] || method}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "status",
@@ -88,15 +104,23 @@ export const columns: ColumnDef<BillingHistory>[] = [
     ),
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
+
       const statusColor: Record<string, string> = {
         Success: "bg-green-500 text-white",
         Pending: "bg-yellow-500 text-white",
         Failed: "bg-red-500 text-white",
       };
+
+      const statusLabel: Record<string, string> = {
+        Success: "Thành công",
+        Pending: "Đang chờ",
+        Failed: "Thất bại",
+      };
+
       return (
         <div className="flex justify-center items-center">
           <Badge className={statusColor[status] || "bg-gray-500 text-white"}>
-            {status || "Undefined"}
+            {statusLabel[status] || "Không xác định"}
           </Badge>
         </div>
       );

@@ -1,12 +1,24 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const token = (await cookies()).get("authToken")?.value;
 
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get("type") || "subscribers";
+
+    // console.log("[subscriber-list] Query type:", type);
+
+    const endpointMap: Record<string, string> = {
+      subscribers: "dashboard-get-subscribers",
+      new: "dashboard-get-new-subscribers",
+      quit: "dashboard-get-quit-subscribers",
+    };
+
+    const endpoint = endpointMap[type] || endpointMap.subscribers;
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Subscription/dashboard-get-subscribers`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Subscription/${endpoint}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

@@ -50,24 +50,28 @@ export function DataTable<TData, TValue>({
     []
   );
 
+  const [globalFilter, setGlobalFilter] = React.useState("");
+
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
   const table = useReactTable({
     data,
     columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+    onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
+      globalFilter,
     },
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
   return (
@@ -80,12 +84,10 @@ export function DataTable<TData, TValue>({
           </h1>
         </div>
         <Input
-          placeholder="Filter plans..."
-          value={(table.getColumn("plan")?.getFilterValue() as string) ?? ""}
-          onChange={(e) =>
-            table.getColumn("plan")?.setFilterValue(e.target.value)
-          }
-          className="max-w-sm"
+          placeholder="Tìm kiếm bất kỳ thông tin nào..."
+          value={globalFilter ?? ""}
+          onChange={(event) => setGlobalFilter(event.target.value)}
+          className="max-w-sm mr-3"
         />
         <div className="ml-auto flex gap-4">
           <DropdownMenu>
@@ -159,9 +161,12 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  No results.
+              <TableRow className="hover:bg-transparent pointer-events-none">
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center py-55"
+                >
+                  Không có thông tin
                 </TableCell>
               </TableRow>
             )}

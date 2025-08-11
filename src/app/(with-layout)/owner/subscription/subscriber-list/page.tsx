@@ -1,16 +1,22 @@
 import * as React from "react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { SubscriptionDetail } from "@/app/types/subscription";
+import {
+  SubscriberListType,
+  SubscriptionDetail,
+  SubscriptionListPageProps,
+} from "@/app/types/subscription";
 import { cookies } from "next/headers";
 
 // Remind my dumbass to return an array.
-const getData = async (): Promise<SubscriptionDetail[]> => {
+const getData = async (
+  type: SubscriberListType
+): Promise<SubscriptionDetail[]> => {
   const cookie = await cookies();
   const cookieToken = cookie.toString();
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/subscription/subscriber-list`,
+    `${process.env.NEXT_PUBLIC_URL}/api/subscription/subscriber-list?type=${type}`,
     {
       cache: "no-cache",
       headers: {
@@ -22,13 +28,16 @@ const getData = async (): Promise<SubscriptionDetail[]> => {
   if (!res.ok) throw new Error("Failed to fetch subscriber");
 
   const json = await res.json();
-  const fullData: SubscriptionDetail[] = json.data;
-
-  return fullData;
+  return json.data as SubscriptionDetail[];
 };
 
-export default async function SubscriptionListPage() {
-  const data = await getData();
+export default async function SubscriptionListPage({
+  searchParams,
+}: SubscriptionListPageProps) {
+  const params = await searchParams;
+  const type = (params.type as "subscribers" | "new" | "quit") ?? "subscribers";
+
+  const data = await getData(type);
 
   return (
     <div className="p-4">

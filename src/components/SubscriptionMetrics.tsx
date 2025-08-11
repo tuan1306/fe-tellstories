@@ -17,7 +17,9 @@ import {
   Users,
   UserMinus,
   Minus,
+  Eye,
 } from "lucide-react";
+import { Button } from "./ui/button";
 
 type DashboardData = {
   subscriptionRevenue: number;
@@ -87,10 +89,14 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
           <CardContent className="text-4xl">
             <div className="flex items-center justify-between">
               <p>{data.subscriber.toLocaleString()}</p>
-              <a href="subscription/subscriber-list">
-                <button className="text-sm px-3 py-2 bg-slate-800 hover:bg-accent text-primary rounded">
-                  View list
-                </button>
+              <a href="subscription/subscriber-list?type=subscribers">
+                <Button
+                  variant={"outline"}
+                  className="flex items-center gap-2 hover:bg-accent text-primary"
+                >
+                  <Eye className="w-4 h-4" />
+                  Xem thêm
+                </Button>
               </a>
             </div>
           </CardContent>
@@ -108,7 +114,18 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
             <CardAction>{fluctBadge(data.newSubscriberFluct)}</CardAction>
           </CardHeader>
           <CardContent className="text-4xl">
-            <p>{data.newSubscriber.toLocaleString()}</p>
+            <div className="flex items-center justify-between">
+              <p>{data.newSubscriber.toLocaleString()}</p>
+              <a href="subscription/subscriber-list?type=new">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 hover:bg-accent text-primary"
+                >
+                  <Eye className="w-4 h-4" />
+                  Xem thêm
+                </Button>
+              </a>
+            </div>
           </CardContent>
         </Card>
 
@@ -124,7 +141,18 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
             <CardAction>{fluctBadge(data.quitSubscriberFluct)}</CardAction>
           </CardHeader>
           <CardContent className="text-4xl">
-            <p>{data.quitSubscriber.toLocaleString()}</p>
+            <div className="flex items-center justify-between">
+              <p>{data.quitSubscriber.toLocaleString()}</p>
+              <a href="subscription/subscriber-list?type=quit">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 hover:bg-accent text-primary"
+                >
+                  <Eye className="w-4 h-4" />
+                  Xem thêm
+                </Button>
+              </a>
+            </div>
           </CardContent>
         </Card>
       </div>

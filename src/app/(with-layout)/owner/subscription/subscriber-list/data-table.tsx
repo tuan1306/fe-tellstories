@@ -245,9 +245,12 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="text-center">
-                  No results.
+              <TableRow className="hover:bg-transparent pointer-events-none">
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center py-55"
+                >
+                  Không có thông tin
                 </TableCell>
               </TableRow>
             )}
