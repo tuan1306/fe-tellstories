@@ -109,7 +109,7 @@ export const columns: ColumnDef<BillingHistory>[] = [
       const plan = row.getValue("plan") as string;
       return (
         <div className="flex justify-center items-center">
-          <Badge className="bg-amber-300">{plan}</Badge>
+          <Badge className="bg-yellow-500 text-white">{plan}</Badge>
         </div>
       );
     },

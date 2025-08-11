@@ -267,11 +267,12 @@ export function ImagePanelDialog({
                   ← Back
                 </Button>
 
+                {/* Resize-none known as not fucking your textarea by expanding it automatically. */}
                 <Textarea
                   placeholder="Enter a short panel description..."
                   value={imagePrompt}
                   onChange={(e) => setImagePrompt(e.target.value)}
-                  className="min-h-[250px]"
+                  className="h-[250px] resize-none overflow-y-auto"
                 />
 
                 <Select value={selectedStyle} onValueChange={setSelectedStyle}>

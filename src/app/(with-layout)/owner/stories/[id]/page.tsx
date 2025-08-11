@@ -235,8 +235,6 @@ export default function StoryPage() {
             </div>
           )}
 
-          {/* Audio Player */}
-
           {/* Background Music */}
           <audio
             ref={bgMusicRef}
@@ -253,6 +251,7 @@ export default function StoryPage() {
             src={story.panels[currentPanelIndex]?.audioUrl}
           />
 
+          {/* Audio Player */}
           <div className="mt-2">
             <div className="w-full">
               <AudioPlayer
