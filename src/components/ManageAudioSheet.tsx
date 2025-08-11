@@ -15,8 +15,16 @@ import { StoryEditDetails } from "@/app/types/story";
 import { AudioLines, FileAudio, MicVocal, Music4 } from "lucide-react";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
-import GenerateTTSButton from "./GenerateTTSButton";
 import { ScrollArea } from "./ui/scroll-area";
+import { Label } from "./ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { VoicePreviewButton } from "./VoicePreviewButton";
 
 export function ManageAudioSheet({
   children,
@@ -30,10 +38,74 @@ export function ManageAudioSheet({
   onSuccess?: () => void;
 }) {
   const [open, setOpen] = useState(false);
+
+  // File
   const [musicUrl, setMusicUrl] = useState(story.backgroundMusicUrl || "");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
+  // TTS
+  const [selectedLanguage, setSelectedLanguage] = useState<"ENG" | "VIE" | "">(
+    ""
+  );
+  const [selectedVoice, setSelectedVoice] = useState<string>("");
+
+  const generateForAllPanels = async (updatedStory: StoryEditDetails) => {
+    if (!selectedLanguage || !selectedVoice) {
+      alert("Vui lòng chọn ngôn ngữ và giọng đọc trước khi tạo.");
+      return updatedStory.panels;
+    }
+
+    const updatedPanels = [...updatedStory.panels];
+
+    for (let i = 0; i < updatedPanels.length; i++) {
+      const panel = updatedPanels[i];
+
+      const ttsEndpoint =
+        selectedLanguage === "VIE"
+          ? "/api/stories/ai/tts/vietteltts"
+          : "/api/stories/ai/tts/pollinationai";
+
+      const ttsRes = await fetch(ttsEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: panel.content,
+          voiceId: selectedVoice,
+          additionalInstructions:
+            selectedLanguage === "ENG"
+              ? "Read clearly for children"
+              : "Đọc chậm, rõ ràng, truyền cảm cho trẻ em",
+        }),
+      });
+
+      if (!ttsRes.ok) throw new Error("TTS failed");
+      const audioBlob = await ttsRes.blob();
+
+      const file = new File([audioBlob], `panel-${i}.mp3`, {
+        type: "audio/mpeg",
+      });
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch("/api/cdn/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Upload failed");
+
+      const json = await uploadRes.json();
+      const cdnUrl = json?.data?.url || json?.url;
+
+      updatedPanels[i].audioUrl = cdnUrl;
+    }
+
+    return updatedPanels;
+  };
+
+  // Save story + auto-generate TTS
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -54,22 +126,26 @@ export function ManageAudioSheet({
         newMusicUrl = json.url;
       }
 
+      let updatedPanels = story.panels || [];
+
+      // 🔹 Generate voices before saving
+      updatedPanels = await generateForAllPanels({
+        ...story,
+        panels: updatedPanels,
+      });
+
       const payload = {
         ...story,
         backgroundMusicUrl: newMusicUrl,
-        panels: story.panels || [],
+        panels: updatedPanels,
         tags: {
           tagNames: story.tags?.tagNames || [],
         },
       };
 
-      // console.log("Sending PUT payload to /api/stories:", payload);
-
       const updateRes = await fetch(`/api/stories`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -102,6 +178,7 @@ export function ManageAudioSheet({
               </SheetDescription>
             </SheetHeader>
 
+            {/* Music Upload */}
             <div>
               <h1 className="text-md gap-2 align-middle items-center flex font-semibold">
                 <FileAudio className="w-6 h-6 text-cyan-400" />
@@ -119,7 +196,7 @@ export function ManageAudioSheet({
               />
             </div>
 
-            {/* I will get the information from the CDN by tmr */}
+            {/* Current Music */}
             {musicUrl && !selectedFile && (
               <div className="mt-4">
                 <h1 className="text-md gap-2 align-middle items-center flex font-semibold">
@@ -134,47 +211,108 @@ export function ManageAudioSheet({
                   customAdditionalControls={[]}
                   customVolumeControls={[]}
                   className="mt-2 rounded-lg"
-                  style={{
-                    border: "3px solid #1d293d",
-                  }}
+                  style={{ border: "3px solid #1d293d" }}
                 />
               </div>
             )}
 
-            <div className="mt-4">
+            {/* TTS Language & Voice Selection */}
+            <div className="w-full flex flex-col gap-2 mt-4">
               <h1 className="text-md gap-2 align-middle items-center flex font-semibold">
                 <AudioLines className="w-6 h-6 text-amber-400" />
                 Chọn loại giọng cho truyện
               </h1>
-              <GenerateTTSButton
-                story={story}
-                currentPanelIndex={0}
-                setStory={() => {}}
-              />
+              <Select
+                value={selectedLanguage}
+                onValueChange={(val: "ENG" | "VIE") => setSelectedLanguage(val)}
+              >
+                <Label className="text-muted-foreground">Ngôn ngữ:</Label>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn ngôn ngữ" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ENG">Tiếng Anh</SelectItem>
+                  <SelectItem value="VIE">Tiếng Việt</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {selectedLanguage === "ENG" && (
+                <div className="flex flex-col space-y-2 mt-2">
+                  <Select
+                    value={selectedVoice}
+                    onValueChange={setSelectedVoice}
+                  >
+                    <Label className="text-muted-foreground">Giọng đọc:</Label>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Choose English voice" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="alloy">Neutral</SelectItem>
+                      <SelectItem value="echo">Energetic</SelectItem>
+                      <SelectItem value="fable">Warm</SelectItem>
+                      <SelectItem value="nova">Crispy</SelectItem>
+                      <SelectItem value="shimmer">Playful</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {selectedLanguage === "VIE" && (
+                <div className="flex flex-col space-y-2 mt-2">
+                  <Label className="text-muted-foreground">Giọng đọc:</Label>
+                  <div className="flex items-center space-x-2">
+                    <Select
+                      value={selectedVoice}
+                      onValueChange={setSelectedVoice}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a voice" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="hcm-diemmy">
+                          Nữ - Miền Nam
+                        </SelectItem>
+                        <SelectItem value="hn-phuongtrang">
+                          Nữ - Miền Bắc
+                        </SelectItem>
+                        <SelectItem value="hcm-minhquan">
+                          Nam - Miền Nam
+                        </SelectItem>
+                        <SelectItem value="hn-thanhtung">
+                          Nam - Miền Bắc
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <VoicePreviewButton selectedVoice={selectedVoice} />
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="mt-4">
-              <h1 className="text-md gap-2 align-middle items-center flex font-semibold">
-                <MicVocal className="w-6 h-6 text-fuchsia-500" />
-                Giọng đọc hiện tại của truyện
-              </h1>
-              <AudioPlayer
-                src={story.panels[currentPanelIndex].audioUrl}
-                autoPlay={false}
-                showJumpControls={false}
-                layout="horizontal"
-                customAdditionalControls={[]}
-                customVolumeControls={[]}
-                className="mt-2 rounded-lg"
-                style={{
-                  border: "3px solid #1d293d",
-                }}
-              />
-            </div>
+            {/* Current Voice */}
+            {story.panels[currentPanelIndex]?.audioUrl && (
+              <div className="mt-4">
+                <h1 className="text-md gap-2 align-middle items-center flex font-semibold">
+                  <MicVocal className="w-6 h-6 text-fuchsia-500" />
+                  Giọng đọc hiện tại của truyện
+                </h1>
+                <AudioPlayer
+                  src={story.panels[currentPanelIndex].audioUrl}
+                  autoPlay={false}
+                  showJumpControls={false}
+                  layout="horizontal"
+                  customAdditionalControls={[]}
+                  customVolumeControls={[]}
+                  className="mt-2 rounded-lg"
+                  style={{ border: "3px solid #1d293d" }}
+                />
+              </div>
+            )}
 
+            {/* Save Button */}
             <Button
               onClick={handleSave}
-              disabled={saving || (!selectedFile && !musicUrl)}
+              disabled={saving || (!selectedVoice && !musicUrl)}
               className="w-full mt-6"
             >
               {saving ? "Đang lưu..." : "Lưu thay đổi"}
