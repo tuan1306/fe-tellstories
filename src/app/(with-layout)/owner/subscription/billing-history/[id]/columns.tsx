@@ -76,16 +76,8 @@ export const columns: ColumnDef<BillingHistory>[] = [
     ),
     cell: ({ row }) => {
       const method = row.getValue("paymentMethod") as string;
-      const methodLabel: Record<string, string> = {
-        ATM: "Thanh toán Online",
-        Online: "Điểm",
-      };
 
-      return (
-        <div className="flex justify-center">
-          {methodLabel[method] || method}
-        </div>
-      );
+      return <div className="flex justify-center">{method}</div>;
     },
   },
   {

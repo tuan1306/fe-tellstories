@@ -1,11 +1,4 @@
 import { PendingStoryRequest } from "@/app/types/story";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,11 +12,50 @@ import Image from "next/image";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Textarea } from "./ui/textarea";
+import ReviewStoryDialog from "./ReviewStoryDialog";
 
 export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
-  const [openDialogId, setOpenDialogId] = useState<string | null>(null);
-  const [rejectionNote, setRejectionNote] = useState("");
+  // Approval
+  const [openApproveId, setOpenApproveId] = useState<string | null>(null);
+  const [openDenyId, setOpenDenyId] = useState<string | null>(null);
+
+  const handlePointAdding = async (userId: string, points: number) => {
+    await fetch(`/api/wallet/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: userId,
+        amount: points,
+      }),
+    });
+    setOpenApproveId(null);
+  };
+
+  const handleApprove = async (itemId: string, notes: string) => {
+    await fetch("/api/stories/pending", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: itemId,
+        action: "approve",
+        reviewNotes: notes || "Approved by admin",
+      }),
+    });
+    setOpenApproveId(null);
+  };
+
+  const handleDeny = async (itemId: string, notes: string) => {
+    await fetch("/api/stories/pending", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: itemId,
+        action: "reject",
+        reviewNotes: notes || "Rejected by admin",
+      }),
+    });
+    setOpenDenyId(null);
+  };
 
   const router = useRouter();
 
@@ -81,21 +113,12 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                     View Story Details
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
+
                   <DropdownMenuItem
                     className="cursor-pointer"
-                    onClick={async () => {
-                      const res = await fetch("/api/stories/pending", {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          id: item.id,
-                          action: "approve",
-                          reviewNotes: "Approved by admin",
-                        }),
-                      });
-                      const data = await res.json();
-                      if (res.ok) alert("Approved successfully");
-                      else alert("Error: " + data.message);
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setOpenApproveId(item.id);
                     }}
                   >
                     Approve
@@ -104,55 +127,40 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                     className="cursor-pointer"
                     onSelect={(e) => {
                       e.preventDefault();
-                      setOpenDialogId(item.id);
-                      setRejectionNote("");
+                      setOpenDenyId(item.id);
                     }}
                   >
                     Deny
                   </DropdownMenuItem>
 
-                  {/* Deny Dialog */}
-                  <Dialog
-                    open={openDialogId === item.id}
-                    onOpenChange={() => setOpenDialogId(null)}
-                  >
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Reject Story</DialogTitle>
-                      </DialogHeader>
-                      <Textarea
-                        value={rejectionNote}
-                        onChange={(e) => setRejectionNote(e.target.value)}
-                        placeholder="Reason for rejection..."
-                      />
-                      <DialogFooter>
-                        <Button
-                          className="cursor-pointer font-semibold bg-red-700 text-white hover:bg-red-900"
-                          onClick={async () => {
-                            const res = await fetch("/api/stories/pending", {
-                              method: "PUT",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({
-                                id: item.id,
-                                action: "reject",
-                                reviewNotes:
-                                  rejectionNote || "Rejected by admin",
-                              }),
-                            });
-                            const data = await res.json();
-                            if (res.ok) {
-                              alert("Story rejected.");
-                              setOpenDialogId(null);
-                            } else {
-                              alert("Error: " + data.message);
-                            }
-                          }}
-                        >
-                          Confirm Rejection
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                  <ReviewStoryDialog
+                    open={openApproveId === item.id}
+                    onOpenChange={() => setOpenApproveId(null)}
+                    title="Ghi chú phê duyệt truyện"
+                    confirmLabel="Phê duyệt"
+                    confirmDesc="Nhập ghi chú phê duyệt (không bắt buộc)."
+                    confirmColor="green"
+                    onConfirm={async (notes: string, points?: number) => {
+                      await handleApprove(item.id, notes);
+
+                      if (points) {
+                        await handlePointAdding(
+                          item.story.createdBy.id,
+                          points
+                        );
+                      }
+                    }}
+                  />
+
+                  <ReviewStoryDialog
+                    open={openDenyId === item.id}
+                    onOpenChange={() => setOpenDenyId(null)}
+                    title="Lý do từ chối truyện"
+                    confirmLabel="Từ chối"
+                    confirmDesc="Nhập lý do từ chối truyện."
+                    confirmColor="red"
+                    onConfirm={(notes: string) => handleDeny(item.id, notes)}
+                  />
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
