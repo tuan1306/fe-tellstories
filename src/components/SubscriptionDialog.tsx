@@ -417,25 +417,40 @@ export const SubscriptionDialog = ({
                 />
 
                 {/* Active */}
-                <div className="flex gap-4">
-                  <FormField
-                    control={form.control}
-                    name="isActive"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center gap-2 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          Kích hoạt
-                        </FormLabel>
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={(checked) => {
+                            const activeCount = subscriptionPackages.filter(
+                              (p) => p.isActive
+                            ).length;
+                            const isActivating =
+                              checked &&
+                              (!selectedPackage || !selectedPackage.isActive);
+
+                            if (isActivating && activeCount >= 5) {
+                              setFormError(
+                                `Bạn đang có ${activeCount} gói đang hoạt động, cân nhắc kĩ trước khi kích hoạt thêm.`
+                              );
+                            } else {
+                              setFormError(""); // clear warning if unchecked or allowed
+                            }
+
+                            field.onChange(checked);
+                          }}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-normal">
+                        Kích hoạt
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
 
                 {formError && (
                   <div className="flex items-center gap-2 text-yellow-600 bg-yellow-100 p-2 rounded">
@@ -480,7 +495,7 @@ export const SubscriptionDialog = ({
                     </Button>
                     <Button
                       type="button"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || !form.formState.isDirty}
                       className={cn(
                         "cursor-pointer flex items-center gap-2 transition-all duration-300 ease-in-out min-w-[90px] justify-center",
                         confirmSubmit
@@ -488,12 +503,12 @@ export const SubscriptionDialog = ({
                           : "bg-primary text-primary-foreground hover:bg-primary/90"
                       )}
                       onClick={() => {
-                        if (formError && !confirmSubmit) {
+                        if (!confirmSubmit) {
                           setConfirmSubmit(true);
                           setTimeout(() => setConfirmSubmit(false), 3000);
-                        } else {
-                          form.handleSubmit(onSubmit)();
+                          return;
                         }
+                        form.handleSubmit(onSubmit)();
                       }}
                     >
                       {isSubmitting && (
