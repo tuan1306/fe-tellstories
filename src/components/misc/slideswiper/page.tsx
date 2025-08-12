@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { PanelSwiperProps } from "@/app/types/panel";
-import { Loader2, MicOff, Mic } from "lucide-react";
+import { Loader2, MicOff, Mic, ImagePlus } from "lucide-react";
 import PanelContextMenu from "@/components/PanelContextMenu";
 import SpeechRecognition, {
   useSpeechRecognition,
@@ -29,6 +29,9 @@ export default function PanelEditor({
   const panel = panels[currentPanelIndex];
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isImproving, setIsImproving] = useState(false);
+
+  // ImageDialog for edit
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
 
   // This will support for every browser if I install polyfill, but rn idk how.
 
@@ -289,24 +292,34 @@ export default function PanelEditor({
           </div>
 
           {/* Image Display */}
+          {isImageDialogOpen && (
+            <ImagePanelDialog
+              panels={panels}
+              panelIndex={currentPanelIndex}
+              onImageSelect={(url) => {
+                onImageChange?.(currentPanelIndex, url);
+              }}
+              open={isImageDialogOpen}
+              onOpenChange={setIsImageDialogOpen}
+            />
+          )}
+
+          {/* Show either the image or the empty state */}
           {panel.imageUrl ? (
             <PanelImage
               src={panel.imageUrl}
               alt={`Panel ${currentPanelIndex + 1}`}
+              onEditClick={() => setIsImageDialogOpen(true)}
             />
           ) : (
-            <div className="w-full h-40 flex items-center justify-center border-2 border-dashed rounded-md">
-              <label className="flex flex-col items-center cursor-pointer">
-                <ImagePanelDialog
-                  panels={panels}
-                  panelIndex={currentPanelIndex}
-                  onImageSelect={(url) => {
-                    if (onImageChange) {
-                      onImageChange(currentPanelIndex, url);
-                    }
-                  }}
-                />
-              </label>
+            <div
+              className="w-full h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-md cursor-pointer transition"
+              onClick={() => setIsImageDialogOpen(true)}
+            >
+              <ImagePlus className="w-8 h-8 mb-2 text-muted-foreground" />
+              <span className="text-sm font-semibold text-muted-foreground">
+                Thêm ảnh
+              </span>
             </div>
           )}
         </div>

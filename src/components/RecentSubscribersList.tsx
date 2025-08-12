@@ -144,7 +144,7 @@ export function RecentSubscribersList() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="1">Hôm nay</SelectItem>
-              <SelectItem value="7">Tuần trước</SelectItem>
+              <SelectItem value="7">Tuần này</SelectItem>
               <SelectItem value="30">Tháng trước</SelectItem>
             </SelectContent>
           </Select>

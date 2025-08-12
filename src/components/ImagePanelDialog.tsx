@@ -21,20 +21,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import WritingAnimation from "@/components/misc/animated-icons/Writing";
-import { ImagePlus, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface ImagePanelDialogProps {
   panels: { imageUrl?: string; content?: string }[];
   panelIndex: number;
   onImageSelect: (imageUrl: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function ImagePanelDialog({
   panels,
   panelIndex,
   onImageSelect,
-}: ImagePanelDialogProps) {
-  const [open, setOpen] = useState(false);
+  open,
+  onOpenChange,
+}: ImagePanelDialogProps & {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const [pickingFile, setPickingFile] = useState(false);
   const [imageMode, setImageMode] = useState<"manual" | "ai" | null>(null);
   const [imagePrompt, setImagePrompt] = useState("");
@@ -52,6 +58,8 @@ export function ImagePanelDialog({
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
+  const [finalUploading, setFinalUploading] = useState(false);
+
   const onCropComplete = useCallback((_: Area, croppedArea: Area) => {
     setCroppedAreaPixels(croppedArea);
   }, []);
@@ -59,6 +67,7 @@ export function ImagePanelDialog({
   // Handling cancellation in panel image uploading
   // The reason is on some browser onFocus is processed before onChange can process
   // In other words, it reset the file input to null.
+
   const handleUploadClick = () => {
     setPickingFile(true);
     setImageMode("manual");
@@ -93,7 +102,7 @@ export function ImagePanelDialog({
       if (!json.url) throw new Error("Upload failed");
 
       onImageSelect(json.url);
-      setOpen(false);
+      onOpenChange(false);
     } catch {
       alert("Upload failed");
     } finally {
@@ -159,54 +168,55 @@ export function ImagePanelDialog({
   const handleFinalUpload = async () => {
     if (!croppedImageUrl) return;
 
-    const res = await fetch(croppedImageUrl);
-    const blob = await res.blob();
-    const file = new File([blob], "panel.png", { type: "image/png" });
+    setFinalUploading(true);
 
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      const res = await fetch(croppedImageUrl);
+      const blob = await res.blob();
+      const file = new File([blob], "panel.png", { type: "image/png" });
 
-    const uploadRes = await fetch("/api/cdn/upload", {
-      method: "POST",
-      body: formData,
-    });
-    const uploadJson = await uploadRes.json();
-    if (!uploadJson.url) return alert("Upload failed");
+      const formData = new FormData();
+      formData.append("file", file);
 
-    onImageSelect(uploadJson.url);
+      const uploadRes = await fetch("/api/cdn/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const uploadJson = await uploadRes.json();
+      if (!uploadJson.url) return alert("Upload failed");
 
-    setImagePrompt("");
-    setAiImagePreviewUrl(null);
-    setCroppedImageUrl(null);
-    setImageMode(null);
-    setOpen(false);
+      onImageSelect(uploadJson.url);
+      setImagePrompt("");
+      setAiImagePreviewUrl(null);
+      setCroppedImageUrl(null);
+      setImageMode(null);
+      onOpenChange(false);
+    } catch (err) {
+      console.error(err);
+      alert("Upload failed");
+    } finally {
+      setFinalUploading(false);
+    }
   };
 
   return (
     <>
-      <div
-        onClick={() => {
-          setImageMode(null);
-          setOpen(true);
-        }}
-        className="relative w-64 h-40 mx-auto overflow-hidden rounded-xl shadow cursor-pointer hover:opacity-70 transition"
-      >
-        {panels[panelIndex]?.imageUrl ? (
+      {!open && (
+        <div
+          onClick={() => {
+            setImageMode(null);
+            onOpenChange(true);
+          }}
+          className="relative w-64 h-40 mx-auto overflow-hidden rounded-xl shadow cursor-pointer hover:opacity-70 transition"
+        >
           <Image
             src={panels[panelIndex].imageUrl!}
             alt={`Panel ${panelIndex + 1}`}
             fill
             className="object-cover"
           />
-        ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center">
-            <ImagePlus className="w-8 h-8 mb-2 text-muted-foreground" />
-            <span className="text-sm font-semibold text-muted-foreground">
-              Thêm ảnh
-            </span>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {imageMode === "manual" && (
         <input
@@ -218,7 +228,7 @@ export function ImagePanelDialog({
         />
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           className={imageMode === "ai" ? "sm:max-w-4xl" : "sm:max-w-md"}
         >
@@ -300,9 +310,12 @@ export function ImagePanelDialog({
                   <Button
                     className="w-full"
                     onClick={handleFinalUpload}
-                    disabled={generatingImage}
+                    disabled={generatingImage || finalUploading}
                   >
-                    {generatingImage ? "Please wait..." : "Use This Image"}
+                    {(generatingImage || finalUploading) && (
+                      <Loader2 className="animate-spin w-4 h-4 mr-2" />
+                    )}
+                    Use this image
                   </Button>
                 )}
               </div>

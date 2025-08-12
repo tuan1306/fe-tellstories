@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Maximize2, X } from "lucide-react";
+import { Maximize2, PencilLine, X } from "lucide-react";
 
-interface PanelImageProps {
+export function PanelImage({
+  src,
+  alt,
+  onEditClick,
+}: {
   src: string;
   alt: string;
-}
-
-export function PanelImage({ src, alt }: PanelImageProps) {
+  onEditClick: () => void;
+}) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -17,14 +20,25 @@ export function PanelImage({ src, alt }: PanelImageProps) {
       {/* Thumbnail */}
       <div className="w-full h-40 relative rounded-md overflow-hidden shadow-md group">
         <Image src={src} alt={alt} fill className="object-cover" />
+
+        {/* Fullscreen button */}
         <button
           onClick={() => setExpanded(true)}
           className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition"
         >
           <Maximize2 className="w-5 h-5" />
         </button>
+
+        {/* Edit image button */}
+        <button
+          onClick={onEditClick}
+          className="absolute top-2 right-10 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition"
+        >
+          <PencilLine className="w-5 h-5" />
+        </button>
       </div>
 
+      {/* Fullscreen view */}
       {expanded && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
