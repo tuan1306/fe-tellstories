@@ -8,10 +8,28 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { StoryEditDetails } from "@/app/types/story";
 import { Button } from "@/components/ui/button";
 import PanelEditor from "@/components/misc/slideswiper/page";
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Images,
+  NotebookText,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { StoryMetadataCard } from "@/components/StoryMetadataCard";
 import { StoryMetadataDetails } from "@/components/StoryMetadataDetails";
 import { StoryCoverImageDialog } from "@/components/StoryCoverImageDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function WriteStoryPage() {
   const { id } = useParams();
@@ -234,39 +252,64 @@ export default function WriteStoryPage() {
                 </Button>
 
                 {/* Revert to classic mode */}
-                <Button
-                  variant="outline"
-                  className="h-10 cursor-pointer text-amber-300 hover:text-amber-300"
-                  onClick={() => {
-                    // Remove visual mode and draft flags from local storage
-                    localStorage.removeItem(`visual-mode-${story.id}`);
-                    localStorage.removeItem(`draft-content-${story.id}`);
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-10 cursor-pointer items-center align-middle text-amber-300 hover:text-amber-300"
+                    >
+                      <NotebookText />
+                      Trở về chế độ truyện chữ
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="text-amber-300 font-semibold text-xl">
+                        Xác nhận chuyển đổi
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Chuyển sang chế độ truyện chữ sẽ{" "}
+                        <strong>gộp toàn bộ nội dung</strong> thành một trang
+                        duy nhất. Bạn có chắc chắn muốn tiếp tục không?
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Hủy</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="bg-amber-300 hover:bg-amber-400 cursor-pointer"
+                        onClick={() => {
+                          // Remove visual mode and draft flags from local storage
+                          localStorage.removeItem(`visual-mode-${story.id}`);
+                          localStorage.removeItem(`draft-content-${story.id}`);
 
-                    setVisualMode(false);
-                    setShowDraftOnly(false);
+                          setVisualMode(false);
+                          setShowDraftOnly(false);
 
-                    // Merge all panel contents into one string
-                    const mergedContent = story.panels
-                      .map((panel) => panel.content?.trim() || "")
-                      .filter(Boolean)
-                      .join("\n\n");
+                          // Merge all panel contents into one string
+                          const mergedContent = story.panels
+                            .map((panel) => panel.content?.trim() || "")
+                            .filter(Boolean)
+                            .join("\n\n");
 
-                    const updatedFirstPanel = {
-                      ...story.panels[0],
-                      content: mergedContent,
-                    };
+                          const updatedFirstPanel = {
+                            ...story.panels[0],
+                            content: mergedContent,
+                          };
 
-                    setStory({
-                      ...story,
-                      panels: [updatedFirstPanel],
-                    });
+                          setStory({
+                            ...story,
+                            panels: [updatedFirstPanel],
+                          });
 
-                    setPanelContents([mergedContent]);
-                    setCurrentPanelIndex(0);
-                  }}
-                >
-                  Trở về chế độ truyện chữ
-                </Button>
+                          setPanelContents([mergedContent]);
+                          setCurrentPanelIndex(0);
+                        }}
+                      >
+                        Tiếp tục
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
 
               {/* Pagination */}
@@ -301,47 +344,75 @@ export default function WriteStoryPage() {
               </div>
             </div>
           ) : (
-            <Button
-              variant="outline"
-              className="w-full mt-4"
-              onClick={() => {
-                if (!story) return;
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full h-10 cursor-pointer items-center align-middle text-amber-300 hover:text-amber-300"
+                >
+                  <Images />
+                  Chuyển sang chế độ truyện tranh
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-amber-300 font-semibold text-xl">
+                    Xác nhận chuyển đổi
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Chuyển sang chế độ truyện tranh sẽ{" "}
+                    <strong>tách nội dung thành nhiều trang</strong>. Bạn có
+                    chắc chắn muốn tiếp tục không?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-amber-300 hover:bg-amber-400 cursor-pointery"
+                    onClick={() => {
+                      if (!story) return;
 
-                // Concat every panels into 1 drafted page.
-                const combinedText =
-                  story.panels?.map((p) => p.content).join("\n\n") || "";
-                setDraftContent(combinedText);
-                localStorage.setItem(`draft-content-${story.id}`, combinedText);
+                      // Concat every panel into 1 drafted page
+                      const combinedText =
+                        story.panels?.map((p) => p.content).join("\n\n") || "";
+                      setDraftContent(combinedText);
+                      localStorage.setItem(
+                        `draft-content-${story.id}`,
+                        combinedText
+                      );
 
-                // Stay in visual mode upon reload
-                localStorage.setItem(`visual-mode-${story.id}`, "true");
+                      // Stay in visual mode upon reload
+                      localStorage.setItem(`visual-mode-${story.id}`, "true");
 
-                // Change the mode
-                setVisualMode(true);
-                setShowDraftOnly(true);
+                      // Change the mode
+                      setVisualMode(true);
+                      setShowDraftOnly(true);
 
-                // Still the pagination for "picture mode" only
-                const newPanelNumber = story.panels.length + 1;
-                const newPanel = {
-                  content: "",
-                  imageUrl: "",
-                  audioUrl: "",
-                  isEndPanel: false,
-                  languageCode: story.language,
-                  panelNumber: newPanelNumber,
-                };
+                      // Add an empty panel for visual mode
+                      const newPanelNumber = story.panels.length + 1;
+                      const newPanel = {
+                        content: "",
+                        imageUrl: "",
+                        audioUrl: "",
+                        isEndPanel: false,
+                        languageCode: story.language,
+                        panelNumber: newPanelNumber,
+                      };
 
-                setStory({
-                  ...story,
-                  panels: [...story.panels, newPanel],
-                });
+                      setStory({
+                        ...story,
+                        panels: [...story.panels, newPanel],
+                      });
 
-                setPanelContents([...panelContents, ""]);
-                setCurrentPanelIndex(0);
-              }}
-            >
-              <Plus /> Đổi thành truyện tranh
-            </Button>
+                      setPanelContents([...panelContents, ""]);
+                      setCurrentPanelIndex(0);
+                    }}
+                  >
+                    Tiếp tục
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           )}
         </div>
 

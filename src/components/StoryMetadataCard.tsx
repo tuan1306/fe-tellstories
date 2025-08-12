@@ -96,6 +96,7 @@ export function StoryMetadataCard({
             className="w-full py-4 hover:bg-primary/90 transition cursor-pointer mt-3"
             onClick={onEnterDraft}
           >
+            <ArrowLeft className="w-4 h-4" />
             Quay lại trang viết nháp
           </Button>
         )}
