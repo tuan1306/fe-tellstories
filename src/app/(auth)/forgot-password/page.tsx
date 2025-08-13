@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               Email: email,
-              Token: otp,
+              Token: otp.toUpperCase(),
               Purpose: "ResetPassword",
             }),
           });
@@ -289,41 +289,41 @@ export default function ForgotPasswordPage() {
                         maxLength={6}
                         pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                         value={otp}
-                        onChange={(value) => setOtp(value)}
+                        onChange={(value) => setOtp(value.toUpperCase())}
                       >
                         <InputOTPGroup>
                           <InputOTPSlot
-                            className="w-10 h-16 text-xl rounded-lg border"
+                            className="w-10 h-16 text-xl rounded-lg border uppercase"
                             index={0}
                           />
                         </InputOTPGroup>
                         <InputOTPGroup>
                           <InputOTPSlot
-                            className="w-10 h-16 text-xl rounded-lg border"
+                            className="w-10 h-16 text-xl rounded-lg border uppercase"
                             index={1}
                           />
                         </InputOTPGroup>
                         <InputOTPGroup>
                           <InputOTPSlot
-                            className="w-10 h-16 text-xl rounded-lg border"
+                            className="w-10 h-16 text-xl rounded-lg border uppercase"
                             index={2}
                           />
                         </InputOTPGroup>
                         <InputOTPGroup>
                           <InputOTPSlot
-                            className="w-10 h-16 text-xl rounded-lg border"
+                            className="w-10 h-16 text-xl rounded-lg border uppercase"
                             index={3}
                           />
                         </InputOTPGroup>
                         <InputOTPGroup>
                           <InputOTPSlot
-                            className="w-10 h-16 text-xl rounded-lg border"
+                            className="w-10 h-16 text-xl rounded-lg border uppercase"
                             index={4}
                           />
                         </InputOTPGroup>
                         <InputOTPGroup>
                           <InputOTPSlot
-                            className="w-10 h-16 text-xl rounded-lg border"
+                            className="w-10 h-16 text-xl rounded-lg border uppercase"
                             index={5}
                           />
                         </InputOTPGroup>
@@ -387,7 +387,9 @@ export default function ForgotPasswordPage() {
                   )}
 
                   {err && (
-                    <p className="text-red-500 text-sm text-center">{err}</p>
+                    <p className="text-red-500 text-sm text-center mt-5">
+                      {err}
+                    </p>
                   )}
                 </CardContent>
 

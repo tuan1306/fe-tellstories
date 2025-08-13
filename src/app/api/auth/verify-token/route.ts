@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    console.log("Request body:", body);
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/Auth/verify-token`,
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok || data.success === false) {
       return NextResponse.json(
-        { message: "Mã OTP không hợp lệ." },
+        { message: "Mã OTP không hợp lệ hoặc hết hạn" },
         { status: 400 }
       );
     }

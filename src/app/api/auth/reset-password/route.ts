@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       const error = await res.text();
       console.error("Backend /Auth/reset-pass POST failed:", error);
       return NextResponse.json(
-        { message: "Failed to verify token", error },
+        { message: "Mật khẩu nhập không khớp", error },
         { status: res.status }
       );
     }
