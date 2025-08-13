@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     const parsed = logInSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ message: "Invalid Input", status: 400 });
+      return NextResponse.json({ message: "Invalid Input" }, { status: 400 });
     }
 
     const res = await fetch(
@@ -50,6 +50,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Calculate cookie max age based on rememberMe
+    const rememberMe = parsed.data.rememberMe;
+    const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24;
+
     const response = NextResponse.json(
       { message: "Login successful" },
       { status: 200 }
@@ -58,10 +62,18 @@ export async function POST(req: NextRequest) {
     cookieStore.set({
       name: "authToken",
       value: token,
+      secure: true,
       httpOnly: true,
       path: "/",
-      maxAge: 60 * 60 * 24,
+      maxAge,
     });
+
+    console.log(
+      "Remember me:",
+      rememberMe,
+      "MaxAge:",
+      `${maxAge / (60 * 60 * 24)} days`
+    );
 
     return response;
   } catch (err) {
