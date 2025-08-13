@@ -1,9 +1,7 @@
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
 
     const res = await fetch(
@@ -12,7 +10,6 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(body),
       }
@@ -22,7 +19,7 @@ export async function POST(req: NextRequest) {
       const error = await res.text();
       console.error("Backend /Auth/forgot-password POST failed:", error);
       return NextResponse.json(
-        { message: "Failed to send auth email", error },
+        { message: "Something went wrong", error },
         { status: res.status }
       );
     }

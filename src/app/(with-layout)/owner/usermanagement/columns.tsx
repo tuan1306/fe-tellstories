@@ -23,9 +23,10 @@ import { useRouter } from "next/navigation";
 const userTypeSort: SortingFn<UserDetails> = (rowA, rowB, columnId) => {
   const order: Record<string, number> = {
     Admin: 0,
-    User: 1,
-    null: 2,
-    undefined: 3,
+    Moderator: 1,
+    User: 2,
+    null: 3,
+    undefined: 4,
   };
 
   const a = rowA.getValue(columnId);
@@ -99,6 +100,7 @@ export const columns: ColumnDef<UserDetails>[] = [
 
       const roleColor: Record<string, string> = {
         Admin: "bg-[#deac4a] text-white",
+        Moderator: "bg-[#F46A00] text-white",
         User: "bg-[#2F629A] text-white",
         null: "bg-[#e06976] text-white",
       };

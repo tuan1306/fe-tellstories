@@ -12,7 +12,7 @@ export const addUserSchema = z.object({
   email: z.string().email(),
   displayName: z.string().min(1),
   avatarUrl: z.string().optional(),
-  userType: z.enum(["Admin", "User"]).optional(),
+  userType: z.enum(["Admin", "Moderator", "User"]).optional(),
   status: z.enum(["Active", "Disabled", "Banned"]).optional(),
   phoneNumber: z.string().optional(),
   password: z.string().regex(/[!@#$%^&*(),.?":{}|<>]/, {
