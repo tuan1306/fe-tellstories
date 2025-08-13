@@ -243,11 +243,11 @@ export function ManageAudioSheet({
                       <SelectValue placeholder="Choose English voice" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="alloy">Neutral</SelectItem>
-                      <SelectItem value="echo">Energetic</SelectItem>
-                      <SelectItem value="fable">Warm</SelectItem>
-                      <SelectItem value="nova">Crispy</SelectItem>
-                      <SelectItem value="shimmer">Playful</SelectItem>
+                      <SelectItem value="alloy">Nữ</SelectItem>
+                      {/* <SelectItem value="echo">Energetic</SelectItem> */}
+                      <SelectItem value="fable">Nam</SelectItem>
+                      {/* <SelectItem value="nova">Crispy</SelectItem>
+                      <SelectItem value="shimmer">Playful</SelectItem> */}
                     </SelectContent>
                   </Select>
                 </div>

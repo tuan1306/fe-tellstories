@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Cropper, { Area } from "react-easy-crop";
 import { getCroppedImg } from "@/lib/cropImage";
@@ -21,21 +21,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import WritingAnimation from "@/components/misc/animated-icons/Writing";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 
 interface ImagePanelDialogProps {
   panels: { imageUrl?: string; content?: string }[];
   panelIndex: number;
-  onImageSelect: (imageUrl: string) => void;
+  panelContentRef?: React.RefObject<string>;
   open: boolean;
+  onImageSelect: (imageUrl: string) => void;
   onOpenChange: (open: boolean) => void;
 }
 
 export function ImagePanelDialog({
   panels,
   panelIndex,
-  onImageSelect,
+  panelContentRef,
   open,
+  onImageSelect,
   onOpenChange,
 }: ImagePanelDialogProps & {
   open: boolean;
@@ -44,6 +46,8 @@ export function ImagePanelDialog({
   const [pickingFile, setPickingFile] = useState(false);
   const [imageMode, setImageMode] = useState<"manual" | "ai" | null>(null);
   const [imagePrompt, setImagePrompt] = useState("");
+  const [userEditedPrompt, setUserEditedPrompt] = useState(false);
+
   const [selectedStyle, setSelectedStyle] = useState("cartoonish");
   const [aiImagePreviewUrl, setAiImagePreviewUrl] = useState<string | null>(
     null
@@ -63,6 +67,24 @@ export function ImagePanelDialog({
   const onCropComplete = useCallback((_: Area, croppedArea: Area) => {
     setCroppedAreaPixels(croppedArea);
   }, []);
+
+  // When dialog opens, initialize prompt from the live ref (or fallback to panels[]).
+  // Do not override if user already edited the prompt manually.
+  useEffect(() => {
+    if (!open) return;
+    if (userEditedPrompt) return;
+
+    const latest =
+      (panelContentRef && panelContentRef.current) ??
+      panels[panelIndex]?.content ??
+      "";
+    setImagePrompt(latest);
+  }, [open, panelIndex, panels, panelContentRef, userEditedPrompt]);
+
+  // Reset userEditedPrompt when dialog closes or panel index changes
+  useEffect(() => {
+    if (!open) setUserEditedPrompt(false);
+  }, [open, panelIndex]);
 
   // Handling cancellation in panel image uploading
   // The reason is on some browser onFocus is processed before onChange can process
@@ -239,7 +261,7 @@ export function ImagePanelDialog({
           {!imageMode && !pickingFile && (
             <div className="space-y-2">
               <Button className="w-full" onClick={handleUploadClick}>
-                Upload from Device
+                Đăng tải từ ổ đĩa
               </Button>
 
               <Button
@@ -249,7 +271,7 @@ export function ImagePanelDialog({
                   setImagePrompt(panels[panelIndex]?.content || "");
                 }}
               >
-                Generate with AI
+                Tạo bằng AI
               </Button>
             </div>
           )}
@@ -266,7 +288,7 @@ export function ImagePanelDialog({
               <div className="flex-1 space-y-4">
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full align-middle items-center"
                   onClick={() => {
                     setImageMode(null);
                     setAiImagePreviewUrl(null);
@@ -274,14 +296,18 @@ export function ImagePanelDialog({
                     setImagePrompt("");
                   }}
                 >
-                  ← Back
+                  <ArrowLeft className="w-4 h-4" />
+                  Quay lại
                 </Button>
 
                 {/* Resize-none known as not fucking your textarea by expanding it automatically. */}
                 <Textarea
                   placeholder="Enter a short panel description..."
                   value={imagePrompt}
-                  onChange={(e) => setImagePrompt(e.target.value)}
+                  onChange={(e) => {
+                    setImagePrompt(e.target.value);
+                    setUserEditedPrompt(true);
+                  }}
                   className="h-[250px] resize-none overflow-y-auto"
                 />
 
@@ -290,11 +316,11 @@ export function ImagePanelDialog({
                     <SelectValue placeholder="Select a style" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cartoonish">Cartoonish</SelectItem>
-                    <SelectItem value="realistic">Realistic</SelectItem>
+                    <SelectItem value="cartoonish">Hoạt hình</SelectItem>
+                    <SelectItem value="realistic">Ảnh thật</SelectItem>
                     <SelectItem value="anime">Anime</SelectItem>
-                    <SelectItem value="sketch">Sketch</SelectItem>
-                    <SelectItem value="watercolor">Watercolor</SelectItem>
+                    <SelectItem value="sketch">Màu chì</SelectItem>
+                    <SelectItem value="watercolor">Màu nước</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -303,7 +329,7 @@ export function ImagePanelDialog({
                   onClick={handleAIImageGenerate}
                   disabled={!imagePrompt || generatingImage}
                 >
-                  {generatingImage ? "Generating..." : "Generate Image"}
+                  {generatingImage ? "Đang tạo..." : "Tạo ảnh"}
                 </Button>
 
                 {croppedImageUrl && (
@@ -315,7 +341,7 @@ export function ImagePanelDialog({
                     {(generatingImage || finalUploading) && (
                       <Loader2 className="animate-spin w-4 h-4 mr-2" />
                     )}
-                    Use this image
+                    Sử dụng ảnh này
                   </Button>
                 )}
               </div>
@@ -350,7 +376,7 @@ export function ImagePanelDialog({
                     {generatingImage ? (
                       <WritingAnimation />
                     ) : (
-                      <p>Your preview image will be here.</p>
+                      <p>Ảnh của bạn sẽ được xuất ra ở đây.</p>
                     )}
                   </div>
                 )}
@@ -364,7 +390,7 @@ export function ImagePanelDialog({
         <Dialog open={cropping} onOpenChange={setCropping}>
           <DialogContent className="sm:max-w-3xl">
             <DialogHeader>
-              <DialogTitle>Crop Image</DialogTitle>
+              <DialogTitle>Cắt ảnh</DialogTitle>
             </DialogHeader>
             <div className="relative w-full h-[500px] bg-black">
               <Cropper
@@ -381,7 +407,7 @@ export function ImagePanelDialog({
               <Button variant="outline" onClick={() => setCropping(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCropConfirm}>Crop and Preview</Button>
+              <Button onClick={handleCropConfirm}>Cắt và preview ảnh</Button>
             </div>
           </DialogContent>
         </Dialog>

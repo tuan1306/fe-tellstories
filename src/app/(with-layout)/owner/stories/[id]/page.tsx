@@ -104,9 +104,9 @@ export default function StoryPage() {
         <div className="bg-primary-foreground p-4 rounded-lg flex flex-col h-full overflow-hidden">
           <div className="mb-4">
             <div className="w-full">
-              <h1 className="text-xl font-semibold">Story Details</h1>
+              <h1 className="text-xl font-semibold">Thông tin cơ bản</h1>
               <h1 className="text-sm text-muted-foreground">
-                Key details and metadata about this story
+                Bao gồm tiêu đề, tác giả, mô tả của truyện
               </h1>
             </div>
             <div className="pb-2 border-b mt-4">
@@ -139,27 +139,29 @@ export default function StoryPage() {
                 <span>{story.id}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold">Title:</span>
+                <span className="font-bold">Tựa đề:</span>
                 <span>{story.title}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold">Author:</span>
+                <span className="font-bold">Tác giả:</span>
                 <span>{story.author || "N/A"}</span>
               </div>
-              <div className="flex items-start gap-2">
-                <span className="font-bold">Desc:</span>
-                <span>{story.description || "N/A"}</span>
+              <div className="flex gap-2">
+                <span className="font-bold whitespace-nowrap">Miêu tả:</span>
+                <span className="flex-1 whitespace-pre-line">
+                  {story.description || "N/A"}
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold">Age range:</span>
+                <span className="font-bold">Độ tuổi:</span>
                 <Badge>{story.ageRange}</Badge>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold">Reading level:</span>
+                <span className="font-bold">Mức độ đọc:</span>
                 <Badge>{story.readingLevel}</Badge>
               </div>
               <div className="flex items-center gap-2">
-                <span className="font-bold">Language:</span>
+                <span className="font-bold">Ngôn ngữ:</span>
                 <Badge>{story.language}</Badge>
               </div>
               {story.tags?.length > 0 && (
@@ -224,7 +226,7 @@ export default function StoryPage() {
               </Button>
 
               <div className="font-semibold text-sm">
-                Panel {currentPanelIndex + 1} of {story.panels.length}
+                Trang {currentPanelIndex + 1} trên {story.panels.length}
               </div>
 
               <Button
@@ -264,7 +266,7 @@ export default function StoryPage() {
               {/* Currently fixated, because if multiple audioURL on multiple pannels, then the audio player will auto-replay alot */}
               {/* Needed to put every audioURL for every panel, then concat them together. */}
               <AudioPlayer
-                src={story.panels[0].audioUrl}
+                src={story.panels[currentPanelIndex]?.audioUrl || ""}
                 onPlay={handlePlay}
                 onPause={handlePause}
                 onEnded={handleEnded}

@@ -15,27 +15,29 @@ export function StoryMetadataDetails({ story }: StoryMetadataDetailsProps) {
         <span>{story.id}</span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="font-bold">Title:</span>
+        <span className="font-bold">Tựa đề:</span>
         <span>{story.title}</span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="font-bold">Author:</span>
+        <span className="font-bold">Tác giả:</span>
         <span>{story.author || "N/A"}</span>
       </div>
-      <div className="flex items-start gap-2">
-        <span className="font-bold">Desc:</span>
-        <span>{story.description || "N/A"}</span>
+      <div className="flex gap-2">
+        <span className="font-bold whitespace-nowrap">Miêu tả:</span>
+        <span className="flex-1 whitespace-pre-line">
+          {story.description || "N/A"}
+        </span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="font-bold">Age range:</span>
+        <span className="font-bold">Độ tuổi:</span>
         <Badge>{story.ageRange}</Badge>
       </div>
       <div className="flex items-center gap-2">
-        <span className="font-bold">Reading level:</span>
+        <span className="font-bold">Mức độ đọc:</span>
         <Badge>{story.readingLevel}</Badge>
       </div>
       <div className="flex items-center gap-2">
-        <span className="font-bold">Language:</span>
+        <span className="font-bold">Ngôn ngữ:</span>
         <Badge>{story.language}</Badge>
       </div>
       {story.tags && (

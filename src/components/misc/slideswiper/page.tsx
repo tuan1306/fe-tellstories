@@ -33,7 +33,16 @@ export default function PanelEditor({
   // ImageDialog for edit
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
 
+  // Tracking the panel text
+  const panelTextRef = useRef<string>(panelContents[currentPanelIndex] ?? "");
+
   // This will support for every browser if I install polyfill, but rn idk how.
+
+  // Update the textarea when changes happens.
+  useEffect(() => {
+    panelTextRef.current = panelContents[currentPanelIndex] ?? "";
+    // console.log("Panel text updated:", panelTextRef.current);
+  }, [panelContents, currentPanelIndex]);
 
   const {
     transcript,
@@ -176,6 +185,7 @@ export default function PanelEditor({
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
+    panelTextRef.current = newValue;
     setPanelContents((prev) => {
       const updated = [...prev];
       updated[currentPanelIndex] = newValue;
@@ -296,6 +306,7 @@ export default function PanelEditor({
             <ImagePanelDialog
               panels={panels}
               panelIndex={currentPanelIndex}
+              panelContentRef={panelTextRef}
               onImageSelect={(url) => {
                 onImageChange?.(currentPanelIndex, url);
               }}
@@ -379,6 +390,7 @@ export default function PanelEditor({
             placeholder="Nhập nội dung truyện của trang này"
             className="w-full h-full rounded-md resize-none text-base"
             disabled={isImproving}
+            maxLength={3000}
           />
         </div>
       </PanelContextMenu>

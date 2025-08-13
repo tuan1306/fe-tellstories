@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
+  // DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -368,7 +369,7 @@ export default function DataTable() {
                 <h1 className="text-sm font-semibold text-muted-foreground">
                   Super Admin
                 </h1>
-                <h1 className="text-xl font-semibold">Add New Story</h1>
+                <h1 className="text-xl font-semibold">Thêm truyện mới</h1>
               </div>
 
               {filtered.map((story) => (
@@ -387,7 +388,7 @@ export default function DataTable() {
                       />
                     ) : (
                       <div className="w-full h-full bg-muted flex items-center justify-center text-sm text-muted-foreground font-medium">
-                        No Image
+                        Không ảnh
                       </div>
                     )}
                   </div>
@@ -414,7 +415,10 @@ export default function DataTable() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create New Story</DialogTitle>
+            <DialogTitle>Tạo truyện mới</DialogTitle>
+            {/* <DialogDescription>
+              Chọn phương thức để tạo truyện ở đây
+            </DialogDescription> */}
           </DialogHeader>
 
           {!mode && (
@@ -423,13 +427,13 @@ export default function DataTable() {
                 className="w-full cursor-pointer"
                 onClick={() => setMode("manual")}
               >
-                Manual
+                Tạo truyện bình thường
               </Button>
               <Button
                 className="w-full cursor-pointer"
                 onClick={() => setMode("ai")}
               >
-                AI Generate
+                Tạo truyện bằng AI
               </Button>
             </div>
           )}
@@ -451,7 +455,7 @@ export default function DataTable() {
                   disabled={!title}
                   onClick={handleCreate}
                 >
-                  Create Manually
+                  Tạo truyện
                 </Button>
               </>
             ))}

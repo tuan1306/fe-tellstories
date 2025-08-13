@@ -60,14 +60,14 @@ export default function AIGenerationForm({
   return (
     <>
       <Input
-        placeholder="Story title..."
+        placeholder="Tựa đề của câu truyện..."
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <Textarea
         className="w-full h-40"
-        placeholder="Describe what the story should be about..."
+        placeholder="Nhập miêu tả cơ bản của câu truyện ở đây..."
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
       />
@@ -80,17 +80,17 @@ export default function AIGenerationForm({
       >
         {optimizing ? (
           <div className="flex items-center space-x-2">
-            <span>Optimizing...</span>
+            <span>Đang tối ưu...</span>
             <Loader2Icon className="w-4 h-4 animate-spin" />
           </div>
         ) : (
-          "Optimize Prompt"
+          "Tối ưu"
         )}
       </Button>
 
       <Select value={ageRange} onValueChange={setAgeRange}>
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Select age range" />
+          <SelectValue placeholder="Chọn độ tuổi" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="1-3">1–3</SelectItem>
@@ -103,11 +103,11 @@ export default function AIGenerationForm({
 
       <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Select language" />
+          <SelectValue placeholder="Chọn ngôn ngữ" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="ENG">English</SelectItem>
-          <SelectItem value="VIE">Vietnamese</SelectItem>
+          <SelectItem value="ENG">Tiếng Anh</SelectItem>
+          <SelectItem value="VIE">Tiếng Việt</SelectItem>
         </SelectContent>
       </Select>
 
@@ -123,7 +123,7 @@ export default function AIGenerationForm({
             htmlFor="generate-audio"
             className="text-sm font-medium leading-none"
           >
-            Generate TTS Audio
+            Tạo giọng đọc TTS
           </label>
         </div>
 
@@ -133,11 +133,11 @@ export default function AIGenerationForm({
               <SelectValue placeholder="Choose English voice" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="alloy">Neutral</SelectItem>
-              <SelectItem value="echo">Energetic</SelectItem>
-              <SelectItem value="fable">Warm</SelectItem>
-              <SelectItem value="nova">Crispy</SelectItem>
-              <SelectItem value="shimmer">Playful</SelectItem>
+              <SelectItem value="alloy">Nữ</SelectItem>
+              {/* <SelectItem value="echo">Energetic</SelectItem> */}
+              <SelectItem value="fable">Nam</SelectItem>
+              {/* <SelectItem value="nova">Crispy</SelectItem>
+              <SelectItem value="shimmer">Playful</SelectItem> */}
             </SelectContent>
           </Select>
         )}
@@ -149,12 +149,10 @@ export default function AIGenerationForm({
                 <SelectValue placeholder="Choose Vietnamese voice" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hcm-diemmy">Female - Southern</SelectItem>
-                <SelectItem value="hn-phuongtrang">
-                  Female - Northern
-                </SelectItem>
-                <SelectItem value="hcm-minhquan">Male - Southern</SelectItem>
-                <SelectItem value="hn-thanhtung">Male - Northern</SelectItem>
+                <SelectItem value="hcm-diemmy">Nữ - Miền Nam</SelectItem>
+                <SelectItem value="hn-phuongtrang">Nữ - Miền Bắc</SelectItem>
+                <SelectItem value="hcm-minhquan">Nam - Miền Nam</SelectItem>
+                <SelectItem value="hn-thanhtung">Nam - Miền Bắc</SelectItem>
               </SelectContent>
             </Select>
             <VoicePreviewButton selectedVoice={selectedVoice} />
@@ -171,7 +169,7 @@ export default function AIGenerationForm({
             htmlFor="generate-image"
             className="text-sm font-medium leading-none"
           >
-            Generate Cover Image
+            Tạo ảnh bìa câu truyện
           </label>
         </div>
 
@@ -181,11 +179,11 @@ export default function AIGenerationForm({
               <SelectValue placeholder="Choose image model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="cartoonish">Cartoonish</SelectItem>
-              <SelectItem value="realistic">Realistic</SelectItem>
+              <SelectItem value="cartoonish">Hoạt hình</SelectItem>
+              <SelectItem value="realistic">Chân thực</SelectItem>
               <SelectItem value="anime">Anime</SelectItem>
-              <SelectItem value="sketch">Sketch</SelectItem>
-              <SelectItem value="watercolor">Watercolor</SelectItem>
+              <SelectItem value="sketch">Màu chì</SelectItem>
+              <SelectItem value="watercolor">Màu nước</SelectItem>
             </SelectContent>
           </Select>
         )}
@@ -194,11 +192,11 @@ export default function AIGenerationForm({
       <Button disabled={!prompt || optimizing} onClick={handleAIGenerate}>
         {optimizing ? (
           <div className="flex items-center space-x-2">
-            <span>Generating...</span>
+            <span>Đang tải...</span>
             <Loader2Icon className="w-4 h-4 animate-spin" />
           </div>
         ) : (
-          "Generate with AI"
+          "Tạo truyện bằng AI"
         )}
       </Button>
     </>

@@ -136,7 +136,7 @@ export const columns: ColumnDef<BillingHistory>[] = [
     cell: ({ row }) => {
       const price = row.getValue("price") as number;
       return (
-        <div className="flex justify-center">{price.toLocaleString()} VND</div>
+        <div className="flex justify-center">{price.toLocaleString()}</div>
       );
     },
   },

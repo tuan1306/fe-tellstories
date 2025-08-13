@@ -49,17 +49,17 @@ const items = [
     icon: LayoutDashboard,
   },
   {
-    title: "Users Management",
+    title: "Quản lý người dùng",
     url: "/owner/usermanagement",
     icon: Users,
   },
   {
-    title: "Sparks Management",
+    title: "Quản lý điểm",
     url: "/owner/sparks",
     icon: Sparkles,
   },
   {
-    title: "Subscription Management",
+    title: "Quản lý gói",
     url: "/owner/subscription",
     icon: CircleDollarSign,
   },
@@ -69,22 +69,22 @@ const items = [
   //   icon: Receipt,
   // },
   {
-    title: "Issues Management",
+    title: "Quản lý báo cáo",
     url: "/owner/issue-management",
     icon: AlertTriangle,
   },
   {
-    title: "Write Stories",
+    title: "Viết truyện",
     url: "/owner/write-story",
     icon: PenBoxIcon,
   },
   {
-    title: "Stories Management",
+    title: "Quản lý truyện",
     url: "/owner/stories",
     icon: BookOpen,
   },
   {
-    title: "Staff Log",
+    title: "Nhân sự",
     url: "/owner/staff-log",
     icon: Scroll,
   },
@@ -108,7 +108,7 @@ const AppSidebar = () => {
             >
               <Link href="/">
                 <SwatchBook />
-                <span>TellStories Inc</span>
+                <span>TellStories</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -157,7 +157,7 @@ const AppSidebar = () => {
                       height={24}
                       className="rounded-full object-cover"
                     />
-                    <span>John Doe</span>
+                    <span>Admin</span>
                   </div>
                   <ChevronUp className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </SidebarMenuButton>

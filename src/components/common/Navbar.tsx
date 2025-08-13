@@ -1,4 +1,4 @@
-import Link from "next/link";
+// import Link from "next/link";
 import { SidebarTrigger } from "../ui/sidebar";
 import Clock from "../misc/clock/clock";
 
@@ -9,8 +9,8 @@ const Navbar = () => {
       <SidebarTrigger className="hover:text-[#896F3D] hover:bg-[#102134] p-4 transition-all duration-200 cursor-pointer" />
       {/* Right */}
       <div className="flex items-center justify-between sticky top-0 gap-6 font-semibold">
-        <Link href="/">Dashboard</Link>
-        <div className="h-5 w-px bg-gray-500" />
+        {/* <Link href="/"></Link>
+        <div className="h-5 w-px bg-gray-500" /> */}
         <Clock />
       </div>
     </nav>
