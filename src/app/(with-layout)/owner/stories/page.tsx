@@ -84,7 +84,7 @@ export default function StoriesManagement() {
           setTotalPages(json?.data?.totalPages || 1);
         })
         .catch((err) => console.error("Fetch error:", err))
-        .finally(() => setLoading(false)); // END loading
+        .finally(() => setLoading(false));
     }
   }, [statusFilter, currentPage]);
 
@@ -171,7 +171,7 @@ export default function StoriesManagement() {
       <div className="w-1/4 bg-card rounded-lg p-4 space-y-4 overflow-auto">
         <Input
           type="text"
-          placeholder="Search title or author"
+          placeholder="Search title"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />

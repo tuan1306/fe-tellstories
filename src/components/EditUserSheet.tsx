@@ -240,6 +240,7 @@ export function EditUserSheet({
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="Admin">Admin</SelectItem>
+                            <SelectItem value="Moderator">Moderator</SelectItem>
                             <SelectItem value="User">User</SelectItem>
                           </SelectContent>
                         </Select>
@@ -321,7 +322,7 @@ export function EditUserSheet({
                   className="cursor-pointer"
                   disabled={loading}
                 >
-                  {loading ? "Submitting..." : "Submit"}
+                  {loading ? "Saving..." : "Save"}
                 </Button>
               </form>
             </Form>

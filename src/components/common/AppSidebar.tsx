@@ -157,7 +157,7 @@ const AppSidebar = () => {
                       height={24}
                       className="rounded-full object-cover"
                     />
-                    <span>Admin</span>
+                    <span>Super Admin</span>
                   </div>
                   <ChevronUp className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </SidebarMenuButton>

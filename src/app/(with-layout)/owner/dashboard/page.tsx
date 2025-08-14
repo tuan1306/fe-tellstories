@@ -13,6 +13,7 @@ import {
 import {
   Eye,
   Library,
+  Loader2,
   TrendingDown,
   TrendingUp,
   User,
@@ -29,6 +30,7 @@ export default function Dashboard() {
     publishedStoriesFluct: 0,
     storyViews: 0,
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/dashboard")
@@ -43,7 +45,8 @@ export default function Dashboard() {
           publishedStoriesFluct: d?.publishedStoriesFluct ?? 0,
           storyViews: d?.storiesViews ?? 0,
         });
-      });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const fluctBadge = (value: number) => {
@@ -59,18 +62,28 @@ export default function Dashboard() {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen w-full">
+        <Loader2 className="animate-spin w-12 h-12 text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4">
       <div className="text-4xl col-span-4 font-semibold mt-4 ml-3">
-        Welcome back, John.
+        Chào mừng trở lại, Admin.
       </div>
       <Card className="text-4xl col-span-1 text-[16px] gap-4">
         <CardHeader>
           <CardTitle className="flex gap-2 text-[16px]">
             <UserPlus />
-            New Account
+            Tài khoản mới
           </CardTitle>
-          <CardDescription>Accounts created this week</CardDescription>
+          <CardDescription>
+            Số tài khoản được tạo trong tuần này
+          </CardDescription>
           <CardAction>{fluctBadge(stats.newAccountFluct)}</CardAction>
         </CardHeader>
         <CardContent className="text-4xl">
@@ -81,11 +94,12 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle className="flex gap-2 text-[16px]">
             <User />
-            Active Account
+            Tài khoản hoạt động
           </CardTitle>
-          <CardDescription>Accounts currently active</CardDescription>
+          <CardDescription>
+            Tổng số tài khoản hiện tại đang hoạt động
+          </CardDescription>
           <CardAction>
-            {/* No fluct value given in API for active accounts */}
             <Badge variant="outline" className="text-muted-foreground">
               —
             </Badge>
@@ -99,9 +113,9 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle className="flex gap-2 text-[16px]">
             <Library />
-            Published Stories
+            Truyện đã đăng tải
           </CardTitle>
-          <CardDescription>Published stories this week</CardDescription>
+          <CardDescription>Số truyện đăng tải trong tuần này</CardDescription>
           <CardAction>
             {fluctBadge(stats.publishedStoriesFluct ?? 0)}
           </CardAction>
@@ -114,11 +128,12 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle className="flex gap-2 text-[16px]">
             <Eye />
-            Stories views
+            Lượt xem truyện
           </CardTitle>
-          <CardDescription>Total story views</CardDescription>
+          <CardDescription>
+            Tổng số lượt xem của tất cả các truyện
+          </CardDescription>
           <CardAction>
-            {/* No fluct provided */}
             <Badge variant="outline" className="text-muted-foreground">
               —
             </Badge>

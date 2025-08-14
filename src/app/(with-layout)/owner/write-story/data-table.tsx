@@ -17,7 +17,7 @@ import Image from "next/image";
 import { StoryDetails } from "@/app/types/story";
 import Link from "next/link";
 import WritingAnimation from "@/components/misc/animated-icons/Writing";
-import CreateStoryForm from "@/components/CreateStoryForm";
+import AIGenerationForm from "@/components/AIGenerationForm";
 
 export default function DataTable() {
   const [search, setSearch] = useState("");
@@ -33,7 +33,7 @@ export default function DataTable() {
   const [optimizing, setOptimizing] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState<string>("");
   const [selectedStyle, setSelectedStyle] = useState<string>("cartoonish");
-  const [selectedLanguage, setSelectedLanguage] = useState<string>("ENG");
+  const [selectedLanguage, setSelectedLanguage] = useState<string>("");
 
   const router = useRouter();
 
@@ -282,7 +282,6 @@ export default function DataTable() {
           duration: 0,
           ageRange: ageRange || "",
           readingLevel: "Sơ cấp",
-          storyType: "SinglePanel",
           isAIGenerated: true,
           backgroundMusicUrl: "",
           panels: [
@@ -466,7 +465,7 @@ export default function DataTable() {
                 <WritingAnimation />
               </div>
             ) : (
-              <CreateStoryForm
+              <AIGenerationForm
                 title={title}
                 setTitle={setTitle}
                 prompt={prompt}

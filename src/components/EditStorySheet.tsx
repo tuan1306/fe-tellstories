@@ -384,7 +384,7 @@ export function EditStorySheet({
 
                     return (
                       <FormItem>
-                        <FormLabel>Thẻ (tags)</FormLabel>
+                        <FormLabel> Tags</FormLabel>
                         <FormControl>
                           <div className="flex flex-wrap items-center gap-2 border rounded-md p-2">
                             {(field.value?.tagNames || []).map((tag) => (

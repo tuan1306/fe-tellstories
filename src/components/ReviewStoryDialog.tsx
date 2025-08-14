@@ -40,7 +40,8 @@ export default function ReviewStoryDialog({
   const handleFinalConfirm = () => {
     onConfirm(notes, points || undefined);
     setIsConfirmStep(false);
-    onOpenChange(false); // close after confirming
+    // close after confirming
+    onOpenChange(false);
   };
 
   return (
@@ -48,7 +49,8 @@ export default function ReviewStoryDialog({
       open={open}
       onOpenChange={(val) => {
         onOpenChange(val);
-        if (!val) setIsConfirmStep(false); // reset when closed
+        // reset when closed
+        if (!val) setIsConfirmStep(false);
       }}
     >
       <DialogContent>
@@ -68,7 +70,7 @@ export default function ReviewStoryDialog({
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Hãy ghi lý do ở đây..."
+              placeholder="Ghí chú ở đây..."
             />
           </>
         ) : (
