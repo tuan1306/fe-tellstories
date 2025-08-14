@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/hover-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet } from "@/components/ui/sheet";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -26,17 +26,16 @@ export default function UserPage() {
   const [user, setUser] = useState<UserDetails | null>(null);
   const [activity, setActivity] = useState<ActivityLog[]>([]);
   const [stories, setStories] = useState<UserPublish[]>([]);
+  const [loading, setLoading] = useState(true);
 
   async function fetchUserById(id: string): Promise<UserDetails | null> {
     try {
       const res = await fetch(`/api/users/${id}`);
-
       if (!res.ok) {
         const err = await res.json();
         console.error("Failed to fetch user:", err.message);
         return null;
       }
-
       const json = await res.json();
       return json.data as UserDetails;
     } catch (error) {
@@ -57,19 +56,11 @@ export default function UserPage() {
     }
   }
 
-  useEffect(() => {
-    if (typeof id === "string") {
-      fetchUserById(id).then(setUser);
-      fetchUserActivity(id);
-    }
-  }, [id]);
-
   async function fetchPublishedStories(userId: string) {
     try {
       const res = await fetch(`/api/stories/user/published/${userId}`);
       if (!res.ok) throw new Error("Failed to fetch stories");
       const json = await res.json();
-      console.log(json);
       setStories(json.data.data);
     } catch (err) {
       console.error(err);
@@ -78,25 +69,35 @@ export default function UserPage() {
 
   useEffect(() => {
     if (typeof id === "string") {
-      fetchUserById(id).then(setUser);
-      fetchUserActivity(id);
-      fetchPublishedStories(id);
+      setLoading(true);
+      Promise.all([
+        fetchUserById(id).then(setUser),
+        fetchUserActivity(id),
+        fetchPublishedStories(id),
+      ]).finally(() => setLoading(false));
     }
   }, [id]);
 
-  if (!user) return <div>Loading...</div>;
+  if (loading)
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin w-12 h-12 text-muted-foreground" />
+      </div>
+    );
+
+  if (!user) return <div>Người dùng không tồn tại</div>;
 
   return (
     <div className="mt-4 flex flex-col xl:flex-row gap-8">
       {/* LEFT */}
       <div className="w-full xl:w-1/3 space-y-6">
-        {/* Info */}
+        {/* User Info */}
         <div className="bg-primary-foreground p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="w-1/2">
-              <h1 className="text-xl font-semibold">User Information</h1>
+              <h1 className="text-xl font-semibold">Thông tin cơ bản</h1>
               <h1 className="text-sm font-semibold text-muted-foreground">
-                User personal details
+                Thông tin của người dùng
               </h1>
             </div>
             <Sheet>
@@ -104,7 +105,7 @@ export default function UserPage() {
                 user={user}
                 onSuccess={() => fetchUserById(id as string).then(setUser)}
               >
-                <Button className="cursor-pointer">Edit User</Button>
+                <Button className="cursor-pointer">Chỉnh sửa</Button>
               </EditUserSheet>
             </Sheet>
           </div>
@@ -125,23 +126,23 @@ export default function UserPage() {
                   />
                 </HoverCardTrigger>
                 <HoverCardContent>
-                  <h1 className="font-bold mb-2">Verified User</h1>
+                  <h1 className="font-bold mb-2">Người dùng đã xác thực</h1>
                   <p className="text-sm text-muted-foreground">
-                    This user has verified their email account.
+                    Người dùng này đã xác thực email.
                   </p>
                 </HoverCardContent>
               </HoverCard>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold">Phone:</span>
-              <span>{user.phoneNumber || "N/A"}</span>
+              <span className="font-bold">Số điện thoại:</span>
+              <span>{user.phoneNumber || "Không có"}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold">DOB:</span>
+              <span className="font-bold">Ngày sinh:</span>
               <span>{user.dob?.slice(0, 10)}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold">Role:</span>
+              <span className="font-bold">Vai trò:</span>
               <Badge
                 className={
                   user.userType === "Admin"
@@ -151,11 +152,11 @@ export default function UserPage() {
                     : "bg-[#e06976] text-white"
                 }
               >
-                {user.userType || "Unknown"}
+                {user.userType || "Không rõ"}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold">Status:</span>
+              <span className="font-bold">Trạng thái:</span>
               <Badge
                 className={
                   user.status === "Active"
@@ -165,30 +166,31 @@ export default function UserPage() {
                     : "bg-[#e06976] text-white"
                 }
               >
-                {user.status || "Unknown"}
-              </Badge>{" "}
+                {user.status || "Không rõ"}
+              </Badge>
             </div>
           </div>
 
           <p className="text-sm text-muted-foreground mt-4">
-            Joined on {user.createdDate?.slice(0, 10)}
+            Tham gia từ {user.createdDate?.slice(0, 10)}
           </p>
           <p className="text-sm text-muted-foreground mt-4">
-            Updated on {user.updatedDate?.slice(0, 10)}
+            Cập nhật lần cuối {user.updatedDate?.slice(0, 10)}
           </p>
         </div>
-        {/* Card list */}
+
+        {/* List */}
         <div className="bg-primary-foreground p-4 rounded-lg">
           <UserCardList
-            title="Recent Published"
-            desc="This section features user recent published stories"
+            title="Truyện mới nhất"
+            desc="Danh sách truyện mới nhất người dùng đã đăng"
             userId={user.id}
           />
         </div>
         <div className="bg-primary-foreground p-4 mb-5 rounded-lg">
           <UserCardList
-            title="Top hit"
-            desc="This section features user most viewed stories"
+            title="Truyện nổi bật"
+            desc="Danh sách truyện được xem nhiều nhất của người dùng"
             userId={user.id}
           />
         </div>
@@ -214,72 +216,22 @@ export default function UserPage() {
               <p className="text-sm text-muted-foreground">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                 Suspendisse porttitor justo neque, non semper odio lobortis sed.
-                Ut sed porta arcu, ac vestibulum nisl. Vestibulum dapibus
-                finibus turpis, vel accumsan justo feugiat sed. Donec risus
-                mauris, malesuada in est nec, maximus semper ipsum. Vivamus eu
-                placerat justo. Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit. Curabitur ornare sapien blandit nisl pharetra,
-                vel venenatis tortor condimentum. Vestibulum non accumsan magna.
-                Fusce dignissim ornare ipsum, eget tincidunt eros tristique in.
               </p>
             </div>
           </div>
         </div>
-        {/* Funny User activity */}
-        {/* <div className="bg-primary-foreground p-4 rounded-lg">
-          <h1 className="text-xl font-semibold">User Activity</h1>
-          <h1 className="text-sm font-semibold text-muted-foreground">
-            This section records the user recent activity on the platform
-          </h1>
-          <div className="bg-card mt-4 p-5 rounded-lg space-y-2">
-            <div className="flex items-center ">
-              <div className="w-2 h-2 rounded-full bg-yellow-500" />
-              <span className="pl-3 truncate max-w-full">
-                15-06-2025 - JermaNguyen (comment): Yeah dude the story was
-                alright, I would give it around 10/11 rating
-              </span>
-            </div>
-            <div className="flex items-center ">
-              <div className="w-2 h-2 rounded-full bg-yellow-500" />
-              <span className="pl-3 truncate max-w-full">
-                15-06-2025 - JermaNguyen (rating): Something walked Among Us
-                (story) - 3/5
-              </span>
-            </div>
-            <div className="flex items-center ">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-              <span className="pl-3 truncate max-w-full">
-                15-06-2025 - JermaNguyen (publish): The Impostor Syndrome
-                (story) - Submitted for evaluation
-              </span>
-            </div>
-            <div className="flex items-center ">
-              <div className="w-2 h-2 rounded-full bg-green-500" />
-              <span className="pl-3 truncate max-w-full">
-                15-06-2025 - JermaNguyen (publish): The Impostor Syndrome
-                (story) - Has been accepted for publication
-              </span>
-            </div>
-            <div className="flex items-center ">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
-              <span className="pl-3 truncate max-w-full">
-                15-06-2025 - JermaNguyen (system): User logged out
-              </span>
-            </div>
-          </div>
-        </div> */}
 
-        {/* May have room for filtering by day. */}
+        {/* User activity */}
         <div className="bg-primary-foreground p-4 rounded-lg">
-          <h1 className="text-xl font-semibold">User Activity</h1>
+          <h1 className="text-xl font-semibold">Hoạt động người dùng</h1>
           <h1 className="text-sm font-semibold text-muted-foreground">
-            This section records the user recent activity on the platform
+            Ghi lại các hoạt động gần đây của người dùng trên nền tảng
           </h1>
           <div className="bg-card mt-4 p-5 rounded-lg">
             <ScrollArea className="h-[170px] space-y-2 pr-4">
               {activity.length === 0 ? (
                 <div className="h-[170px] flex items-center justify-center text-muted-foreground">
-                  This user has no recent activity.
+                  Người dùng này chưa có hoạt động gần đây.
                 </div>
               ) : (
                 activity.map((log) => (
@@ -288,7 +240,7 @@ export default function UserPage() {
                       className={`w-2 h-2 rounded-full ${
                         log.action === "Comment" || log.action === "Rating"
                           ? "bg-yellow-500"
-                          : log.action === "Publish"
+                          : log.action === "XuấT Bản Truyện"
                           ? "bg-green-500"
                           : "bg-red-500"
                       }`}
@@ -305,23 +257,22 @@ export default function UserPage() {
 
         {/* Funny User publishes */}
         <div className="bg-primary-foreground p-4 rounded-lg">
-          <h1 className="text-xl font-semibold">User Publishes</h1>
+          <h1 className="text-xl font-semibold">Truyện người dùng</h1>
           <h1 className="text-sm font-semibold text-muted-foreground">
-            This section records the user publishes on the platform
+            Ghi lại các truyện người dùng đã đăng trên nền tảng
           </h1>
-
           <div className="mt-4">
             <div className="bg-card mt-4 p-5 rounded-lg">
               <ScrollArea className="w-full h-[405px]">
                 {stories.length === 0 ? (
                   <div className="h-[405px] flex items-center justify-center text-muted-foreground">
-                    This user hasn’t published any stories yet.
+                    Người dùng này chưa đăng truyện nào.
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4">
                     {stories.map((story) => (
                       <Link
-                        href={`/owner/published-stories/${story.id}`}
+                        href={`/owner/stories/${story.id}`}
                         key={story.id}
                         className="space-y-2 block hover:opacity-80 transition"
                       >
@@ -335,7 +286,7 @@ export default function UserPage() {
                             />
                           ) : (
                             <span className="text-muted-foreground text-sm font-medium">
-                              No Cover
+                              Không có ảnh bìa
                             </span>
                           )}
                         </div>
