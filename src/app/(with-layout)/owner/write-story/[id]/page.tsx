@@ -31,11 +31,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { saveSonner } from "@/components/SaveSonner";
 
 export default function WriteStoryPage() {
   const { id } = useParams();
   const [story, setStory] = useState<StoryEditDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
   const [panelContents, setPanelContents] = useState<string[]>([]);
   const [currentPanelIndex, setCurrentPanelIndex] = useState(0);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -101,6 +104,9 @@ export default function WriteStoryPage() {
   const handleSave = async () => {
     if (!story) return;
 
+    setSaving(true); // start loading spinner
+    saveSonner("loading");
+
     const updatedPanels = story.panels.map((panel, i) => ({
       ...panel,
       content: panelContents[i] || "",
@@ -113,18 +119,27 @@ export default function WriteStoryPage() {
       tags: { tagNames: [] },
     };
 
-    const res = await fetch("/api/stories", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch("/api/stories", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    if (res.ok) {
-      alert("Saved!");
-      fetchStoryById(story.id);
-    } else {
-      const error = await res.json();
-      alert("Failed to save: " + error.message);
+      if (res.ok) {
+        saveSonner("success");
+        fetchStoryById(story.id);
+      } else {
+        const error = await res.json();
+        saveSonner("error", error.message);
+      }
+    } catch (err) {
+      saveSonner(
+        "error",
+        err instanceof Error ? err.message : "Không rõ nguyên nhân"
+      );
+    } finally {
+      setSaving(false); // stop loading spinner
     }
   };
 
@@ -430,10 +445,18 @@ export default function WriteStoryPage() {
 
         <div className="pt-2 border-t mt-2">
           <Button
-            className="w-full py-4 hover:bg-primary/90 transition"
+            className="w-full py-4 cursor-pointer"
             onClick={handleSave}
+            disabled={saving}
           >
-            Lưu truyện
+            {saving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Đang lưu...
+              </>
+            ) : (
+              "Lưu truyện"
+            )}
           </Button>
         </div>
       </div>

@@ -163,7 +163,7 @@ export function EditStorySheet({
                   name="author"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Author</FormLabel>
+                      <FormLabel>Tác giả</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Nhập tên của tác giả ở đây"
@@ -180,7 +180,7 @@ export function EditStorySheet({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>Mô tả truyện</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Nhập mô tả của câu truyện ở đây"
@@ -301,7 +301,7 @@ export function EditStorySheet({
                   name="meta.isCommunity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Truyện cộng đồng người dùng viết?</FormLabel>
+                      <FormLabel>Người dùng trong cộng đồng viết?</FormLabel>
                       <Select
                         onValueChange={(val) => field.onChange(val === "true")}
                         value={String(field.value)}
