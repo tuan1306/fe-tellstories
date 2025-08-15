@@ -442,7 +442,6 @@ export default function WriteStoryPage() {
             </AlertDialog>
           )}
         </div>
-
         <div className="pt-2 border-t mt-2">
           <Button
             className="w-full py-4 cursor-pointer"
