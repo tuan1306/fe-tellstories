@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import WritingAnimation from "@/components/misc/animated-icons/Writing";
+// import WritingAnimation from "@/components/misc/animated-icons/Writing";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
 interface ImagePanelDialogProps {
@@ -374,7 +374,8 @@ export function ImagePanelDialog({
                 ) : (
                   <div className="w-full flex justify-center items-center text-sm text-gray-500 text-center">
                     {generatingImage ? (
-                      <WritingAnimation />
+                      // <WritingAnimation />
+                      <Loader2 className="w-12 h-12 animate-spin" />
                     ) : (
                       <p>Ảnh của bạn sẽ được xuất ra ở đây.</p>
                     )}

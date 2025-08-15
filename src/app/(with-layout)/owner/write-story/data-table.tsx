@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PlusCircle } from "lucide-react";
+import { Loader2, PlusCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { StoryDetails } from "@/app/types/story";
 import Link from "next/link";
-import WritingAnimation from "@/components/misc/animated-icons/Writing";
+// import WritingAnimation from "@/components/misc/animated-icons/Writing";
 import AIGenerationForm from "@/components/AIGenerationForm";
 
 export default function DataTable() {
@@ -440,7 +440,8 @@ export default function DataTable() {
           {mode === "manual" &&
             (generating ? (
               <div className="flex justify-center items-center h-40">
-                <WritingAnimation />
+                {/* <WritingAnimation /> */}
+                <Loader2 className="w-16 h-16 animate-spin" />
               </div>
             ) : (
               <>
@@ -462,7 +463,8 @@ export default function DataTable() {
           {mode === "ai" &&
             (generating ? (
               <div className="flex justify-center items-center h-40">
-                <WritingAnimation />
+                {/* <WritingAnimation /> */}
+                <Loader2 className="w-16 h-16 animate-spin" />
               </div>
             ) : (
               <AIGenerationForm
