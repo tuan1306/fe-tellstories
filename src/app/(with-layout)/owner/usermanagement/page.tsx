@@ -3,8 +3,9 @@ import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { Suspense } from "react";
 import { UserDetails } from "@/app/types/user";
+import { Loader2 } from "lucide-react";
 
-// Remind my dumbass to return an array not a singer user.
+// Remind my dumbass to return an array not a single user.
 const getData = async (): Promise<UserDetails[]> => {
   const cookie = await cookies();
   const cookieToken = cookie.toString();
@@ -30,7 +31,13 @@ export default async function UserManagementPage() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4">
       <div className="col-span-4">
-        <Suspense fallback={<div>Loading user table...</div>}>
+        <Suspense
+          fallback={
+            <div className="w-full h-64 flex items-center justify-center">
+              <Loader2 className="animate-spin w-12 h-12 text-muted-foreground" />
+            </div>
+          }
+        >
           <DataTable columns={columns} data={data} />
         </Suspense>
       </div>

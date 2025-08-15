@@ -67,7 +67,7 @@ export const columns: ColumnDef<UserDetails>[] = [
   },
   {
     accessorKey: "displayName",
-    header: "Username",
+    header: "Tên người dùng",
     cell: ({ row }) => {
       const value = row.getValue("displayName") as string;
       return <div>{value}</div>;
@@ -90,7 +90,7 @@ export const columns: ColumnDef<UserDetails>[] = [
           className="gap-2 cursor-pointer"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Role
+          Vai trò
           <ArrowUpDown className="h-4 w-4" />
         </Button>
       </div>
@@ -108,7 +108,7 @@ export const columns: ColumnDef<UserDetails>[] = [
       return (
         <div className="flex justify-center items-center">
           <Badge className={roleColor[role] || "bg-[#F46A00] text-white"}>
-            {role || "Undefined"}
+            {role || "Không xác định"}
           </Badge>
         </div>
       );
@@ -128,7 +128,7 @@ export const columns: ColumnDef<UserDetails>[] = [
             className="gap-2 cursor-pointer"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Status
+            Trạng thái
             <ArrowUpDown className="h-4 w-4" />
           </Button>
         </div>
@@ -145,7 +145,7 @@ export const columns: ColumnDef<UserDetails>[] = [
       return (
         <div className="flex justify-center items-center">
           <Badge className={statusColor[status] || "bg-[#F46A00] text-white"}>
-            {status || "Undefined"}
+            {status || "Không xác định"}
           </Badge>
         </div>
       );
@@ -165,26 +165,26 @@ export const columns: ColumnDef<UserDetails>[] = [
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">Mở menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="action-dropdown">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>Hành động</DropdownMenuLabel>
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={() =>
                   router.push(`/owner/usermanagement/users/${user.id}`)
                 }
               >
-                View User Details
+                Xem chi tiết người dùng
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={() => navigator.clipboard.writeText(user.id)}
               >
-                Copy User ID
+                Sao chép ID người dùng
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={(e) => e.preventDefault()}
@@ -196,7 +196,7 @@ export const columns: ColumnDef<UserDetails>[] = [
                       variant="ghost"
                       className="w-full justify-start px-2 py-1.5 h-auto font-normal cursor-pointer"
                     >
-                      Quick Edit User
+                      Chỉnh sửa nhanh
                     </Button>
                   </EditUserSheet>
                 </div>
@@ -206,7 +206,7 @@ export const columns: ColumnDef<UserDetails>[] = [
                 className="cursor-pointer"
                 onClick={async () => {
                   const confirmed = confirm(
-                    "Are you sure you want to delete this user?"
+                    "Bạn có chắc chắn muốn xóa người dùng này?"
                   );
                   if (!confirmed) return;
 
@@ -215,11 +215,11 @@ export const columns: ColumnDef<UserDetails>[] = [
                   });
 
                   const data = await res.json();
-                  console.log("Delete result:", data);
+                  console.log("Kết quả xóa:", data);
                   // Optionally call `onSuccess?.()` if passed in to refresh
                 }}
               >
-                Delete User
+                Xóa người dùng
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

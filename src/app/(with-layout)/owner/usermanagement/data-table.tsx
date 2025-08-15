@@ -83,7 +83,7 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter emails..."
+          placeholder="Lọc theo email..."
           value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("email")?.setFilterValue(event.target.value)
@@ -93,14 +93,14 @@ export function DataTable<TData, TValue>({
         <div className="ml-auto flex gap-4">
           <AddUserSheet>
             <Button variant="outline" className="cursor-pointer">
-              Add User
+              Thêm người dùng
             </Button>
           </AddUserSheet>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="cursor-pointer">
-                Toggle
-              </Button>
+              {/* <Button variant="outline" className="cursor-pointer">
+                Hiển thị cột
+              </Button> */}
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
@@ -169,33 +169,13 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-center">
-                  No results.
+                  Không có kết quả.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      {/* <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-        className="cursor-pointer"
-        variant="outline"
-        size="sm"
-        onClick={() => table.previousPage()}
-        disabled={!table.getCanPreviousPage()}
-        >
-        Previous
-        </Button>
-        <Button
-        className="cursor-pointer"
-        variant="outline"
-        size="sm"
-        onClick={() => table.nextPage()}
-        disabled={!table.getCanNextPage()}
-        >
-        Next
-        </Button>
-        </div> */}
       <div className="py-4">
         <DataTablePagination table={table} />
       </div>

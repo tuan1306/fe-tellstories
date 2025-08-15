@@ -151,7 +151,7 @@ const AppSidebar = () => {
                 <SidebarMenuButton className="group cursor-pointer hover:bg-[#102134] hover:text-[#896F3D] flex items-center justify-between w-full transition-all duration-200">
                   <div className="flex items-center gap-2">
                     <Image
-                      src="/Avatar.jpg"
+                      src="/Avatar2.png"
                       alt="User avatar"
                       width={24}
                       height={24}

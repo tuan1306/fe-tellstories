@@ -112,10 +112,10 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
         <ScrollArea className="h-full">
           <div className="p-5">
             <SheetHeader className="p-0">
-              <SheetTitle className="text-2xl">Add User</SheetTitle>
+              <SheetTitle className="text-2xl">Thêm người dùng</SheetTitle>
               <SheetDescription className="mb-10">
-                Fill in the details below to add a new user to your system. Make
-                sure everything looks right before saving.
+                Điền thông tin bên dưới để thêm người dùng mới vào hệ thống. Đảm
+                bảo mọi thứ đúng trước khi lưu.
               </SheetDescription>
             </SheetHeader>
             <Form {...form}>
@@ -130,12 +130,12 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                   name="displayName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Display name</FormLabel>
+                      <FormLabel>Tên hiển thị</FormLabel>
                       <FormControl>
                         <Input placeholder="John420" {...field} />
                       </FormControl>
                       <FormDescription>
-                        This will be publicly displayed on the system
+                        Tên này sẽ hiển thị công khai trên hệ thống
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -164,7 +164,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                   name="phoneNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
+                      <FormLabel>Số điện thoại</FormLabel>
                       <FormControl>
                         <Input placeholder="0123456789" {...field} />
                       </FormControl>
@@ -178,7 +178,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>Mật khẩu</FormLabel>
                       <FormControl>
                         <Input placeholder="" {...field} />
                       </FormControl>
@@ -192,7 +192,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                   name="avatarUrl"
                   render={() => (
                     <FormItem>
-                      <FormLabel>Avatar</FormLabel>
+                      <FormLabel>Ảnh đại diện</FormLabel>
                       <FormControl>
                         <div className="flex gap-5">
                           <input
@@ -209,11 +209,11 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                             htmlFor="avatar"
                             className="inline-block cursor-pointer rounded-md border border-input bg-background px-4 py-2 text-sm text-foreground shadow-sm transition hover:bg-muted"
                           >
-                            Choose File
+                            Chọn tệp
                           </label>
                           {avatarFile && (
                             <p className="mt-2 text-sm text-muted-foreground">
-                              {avatarFile.name} selected
+                              {avatarFile.name} đã chọn
                             </p>
                           )}
                         </div>
@@ -229,14 +229,14 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                     name="userType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>User Role</FormLabel>
+                        <FormLabel>Vai trò</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a role" />
+                              <SelectValue placeholder="Chọn vai trò" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -254,20 +254,22 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                     name="status"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>User Status</FormLabel>
+                        <FormLabel>Trạng thái</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           value={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a status" />
+                              <SelectValue placeholder="Chọn trạng thái" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Active">Active</SelectItem>
-                            <SelectItem value="Inactive">Inactive</SelectItem>
-                            <SelectItem value="Banned">Banned</SelectItem>
+                            <SelectItem value="Active">Hoạt động</SelectItem>
+                            <SelectItem value="Inactive">
+                              Không hoạt động
+                            </SelectItem>
+                            <SelectItem value="Banned">Bị cấm</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -280,7 +282,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                   name="dob"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Date of birth</FormLabel>
+                      <FormLabel>Ngày sinh</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
@@ -294,7 +296,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                               {field.value ? (
                                 format(field.value, "PPP")
                               ) : (
-                                <span>Pick a date</span>
+                                <span>Chọn ngày</span>
                               )}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
@@ -322,7 +324,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                   className="cursor-pointer"
                   disabled={loading}
                 >
-                  {loading ? "Submitting..." : "Submit"}
+                  {loading ? "Đang lưu..." : "Lưu"}
                 </Button>
               </form>
             </Form>
