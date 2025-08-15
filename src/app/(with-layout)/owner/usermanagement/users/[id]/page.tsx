@@ -4,7 +4,7 @@ import { ActivityLog } from "@/app/types/activitylog";
 import { UserPublish } from "@/app/types/story";
 import { UserDetails } from "@/app/types/user";
 import { EditUserSheet } from "@/components/EditUserSheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -200,7 +200,7 @@ export default function UserPage() {
       <div className="w-full xl:w-2/3 space-y-6">
         <div className="bg-primary-foreground p-4 rounded-lg space-y-2">
           <div className="flex items-start gap-4">
-            <Avatar className="size-50 rounded-xl">
+            {/* <Avatar className="size-50 rounded-xl">
               {user.avatarUrl ? (
                 <AvatarImage src={user.avatarUrl} alt="User Avatar" />
               ) : (
@@ -208,7 +208,25 @@ export default function UserPage() {
                   {user.displayName?.slice(0, 2).toUpperCase() || "NA"}
                 </AvatarFallback>
               )}
-            </Avatar>
+            </Avatar> */}
+            {user.avatarUrl ? (
+              <Image
+                src={user.avatarUrl}
+                className="size-50 rounded-xl"
+                width={100}
+                height={100}
+                alt="Avatar"
+              ></Image>
+            ) : (
+              <Image
+                src="/fallback.jpg"
+                className="size-50 rounded-xl"
+                width={100}
+                height={100}
+                alt="Avatar"
+              ></Image>
+            )}
+
             <div className="flex flex-col">
               <h1 className="text-4xl mb-3 font-semibold">
                 {user.displayName}
