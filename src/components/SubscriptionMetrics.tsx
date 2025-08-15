@@ -62,10 +62,10 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
         <CardHeader>
           <CardTitle className="flex gap-2 text-[16px]">
             <BadgeDollarSign className="text-lime-500" />
-            Tổng số tiền
+            Doanh thu tháng
           </CardTitle>
           <CardDescription>
-            Tổng số tiền tích lũy trong tháng này{" "}
+            Tổng số tiền tích lũy trong tháng này
           </CardDescription>
           <CardAction>{fluctBadge(data.subscriptionRevenueFluct)}</CardAction>
         </CardHeader>
@@ -81,9 +81,7 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
               <Users className="text-pink-500" />
               Tổng số người đăng ký
             </CardTitle>
-            <CardDescription>
-              Người dùng mua gói trong tháng này
-            </CardDescription>
+            <CardDescription>Người dùng mua gói</CardDescription>
             <CardAction>{fluctBadge(data.subscriberFluct)}</CardAction>
           </CardHeader>
           <CardContent className="text-4xl">

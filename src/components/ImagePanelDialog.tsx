@@ -261,7 +261,7 @@ export function ImagePanelDialog({
           {!imageMode && !pickingFile && (
             <div className="space-y-2">
               <Button className="w-full" onClick={handleUploadClick}>
-                Đăng tải từ ổ đĩa
+                Đăng tải từ máy tính
               </Button>
 
               <Button

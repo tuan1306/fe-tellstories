@@ -276,7 +276,7 @@ export function EditStorySheet({
                   name="meta.isPublished"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Đăng lên cộng đồng?</FormLabel>
+                      <FormLabel>Xuất bản truyện?</FormLabel>
                       <Select
                         onValueChange={(val) => field.onChange(val === "true")}
                         value={String(field.value)}
@@ -301,7 +301,7 @@ export function EditStorySheet({
                   name="meta.isCommunity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Người dùng trong cộng đồng viết?</FormLabel>
+                      <FormLabel>Truyện cộng đồng?</FormLabel>
                       <Select
                         onValueChange={(val) => field.onChange(val === "true")}
                         value={String(field.value)}
@@ -326,7 +326,7 @@ export function EditStorySheet({
                   name="meta.isFeatured"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Mang ra trưng bày cho người dùng?</FormLabel>
+                      <FormLabel>Truyện nổi bật?</FormLabel>
                       <Select
                         onValueChange={(val) => field.onChange(val === "true")}
                         value={String(field.value)}
