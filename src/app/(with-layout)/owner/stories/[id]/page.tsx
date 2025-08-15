@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
-import { ChevronLeft, ChevronRight, Music } from "lucide-react";
+import { ChevronLeft, ChevronRight, Music, PenLine } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -112,7 +112,8 @@ export default function StoryPage() {
             <div className="pb-2 border-b mt-4">
               <Link href={`/owner/write-story/${story.id}`}>
                 <Button className="w-full py-4 hover:bg-primary/90 transition cursor-pointer">
-                  Edit Story
+                  <PenLine />
+                  Chỉnh sửa truyện
                 </Button>
               </Link>
             </div>

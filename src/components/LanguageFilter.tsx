@@ -19,7 +19,7 @@ export function LanguageFilter({
   return (
     <Collapsible defaultOpen={false} className="group/collapsible space-y-2">
       <CollapsibleTrigger className="flex items-center w-full cursor-pointer">
-        <span className="text-sm font-medium">Language</span>
+        <span className="text-sm font-medium">Ngôn ngữ</span>
         <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-2 pl-2">
@@ -31,7 +31,11 @@ export function LanguageFilter({
               onCheckedChange={() => onChange(lang)}
             />
             <Label htmlFor={`lang-${lang}`} className="text-sm">
-              {lang}
+              {lang === "ENG"
+                ? "Tiếng Anh"
+                : lang === "VIE"
+                ? "Tiếng Việt"
+                : lang}
             </Label>
           </div>
         ))}

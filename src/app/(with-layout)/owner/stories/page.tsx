@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { PendingStoryRequest, StoryDetails } from "@/app/types/story";
 import { AgeGroupFilter } from "@/components/AgeGroupFilter";
-import { PanelCountFilter } from "@/components/PanelCountFilter";
+// import { PanelCountFilter } from "@/components/PanelCountFilter";
 import { LanguageFilter } from "@/components/LanguageFilter";
 import { ReadingLevelFilter } from "@/components/ReadingLevelFilter";
 // import { TTSAudioFilter } from "@/components/TTSAudioFilter";
@@ -30,7 +30,7 @@ export default function StoriesManagement() {
   const [statusFilter, setStatusFilter] = useState<
     "Published" | "Pending" | "Featured"
   >("Published");
-  const [panelFilter, setPanelFilter] = useState<string[]>([]);
+  // const [panelFilter, setPanelFilter] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   // const [selectedAudio, setSelectedAudio] = useState<string[]>([]);
@@ -101,12 +101,12 @@ export default function StoriesManagement() {
   }, [statusFilter]);
 
   const filtered = userStories
-    .filter((story) => {
-      const panelCount = story.panels?.length || 0;
-      if (panelFilter.includes("Single") && panelCount === 1) return true;
-      if (panelFilter.includes("Multiple") && panelCount > 1) return true;
-      return panelFilter.length === 0; // All
-    })
+    // .filter((story) => {
+    //   const panelCount = story.panels?.length || 0;
+    //   if (panelFilter.includes("Single") && panelCount === 1) return true;
+    //   if (panelFilter.includes("Multiple") && panelCount > 1) return true;
+    //   return panelFilter.length === 0; // All
+    // })
     .filter((story) => {
       return (
         selectedLanguages.length === 0 ||
@@ -171,7 +171,7 @@ export default function StoriesManagement() {
       <div className="w-1/4 bg-card rounded-lg p-4 space-y-4 overflow-auto">
         <Input
           type="text"
-          placeholder="Search title"
+          placeholder="Tìm kiếm tiêu đề"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -184,7 +184,7 @@ export default function StoriesManagement() {
                 : "bg-card hover:bg-muted/70"
             }`}
           >
-            Published Stories
+            Truyện đã xuất bản
           </div>
 
           <div
@@ -195,7 +195,7 @@ export default function StoriesManagement() {
                 : "bg-card hover:bg-muted/70"
             }`}
           >
-            Featured Stories
+            Truyện nổi bật
           </div>
 
           <div
@@ -206,13 +206,13 @@ export default function StoriesManagement() {
                 : "bg-card hover:bg-muted/70"
             }`}
           >
-            Pending Approval
+            Chờ phê duyệt
           </div>
 
           <div className="my-3 border-t border-border" />
 
           <AgeGroupFilter selected={selectedAges} onChange={toggleAge} />
-          <PanelCountFilter
+          {/* <PanelCountFilter
             selected={panelFilter}
             onChange={(panel) =>
               setPanelFilter((prev) =>
@@ -221,7 +221,7 @@ export default function StoriesManagement() {
                   : [...prev, panel]
               )
             }
-          />
+          /> */}
           <LanguageFilter
             selected={selectedLanguages}
             onChange={toggleLanguage}
@@ -268,7 +268,7 @@ export default function StoriesManagement() {
 
                   <PaginationItem>
                     <span className="text-sm font-medium px-4">
-                      Page {currentPage} of {totalPages}
+                      Trang {currentPage} / {totalPages}
                     </span>
                   </PaginationItem>
 

@@ -22,10 +22,10 @@ export function AgeGroupFilter({
         htmlFor="filter"
         className="text-[12px] text-muted-foreground font-semibold"
       >
-        Filter
+        Bộ lọc
       </Label>
       <CollapsibleTrigger className="flex items-center w-full cursor-pointer">
-        <span className="text-sm font-medium">Age Group</span>
+        <span className="text-sm font-medium">Nhóm tuổi</span>
         <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-2 pl-2">
@@ -37,7 +37,7 @@ export function AgeGroupFilter({
               onCheckedChange={() => onChange(range)}
             />
             <Label htmlFor={`age-${range}`} className="text-sm">
-              {range}
+              {range} tuổi
             </Label>
           </div>
         ))}

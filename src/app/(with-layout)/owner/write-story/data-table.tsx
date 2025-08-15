@@ -338,7 +338,7 @@ export default function DataTable() {
     <div className="space-y-4 mt-4">
       <Input
         type="text"
-        placeholder="Search title or author"
+        placeholder="Tìm kiếm tựa đề..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="px-4 py-2 border rounded w-full"

@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Images,
+  Loader2,
   NotebookText,
   Plus,
   Trash2,
@@ -127,8 +128,19 @@ export default function WriteStoryPage() {
     }
   };
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (!story) return <div className="p-4">Story not found.</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="animate-spin w-12 h-12 text-muted-foreground" />
+      </div>
+    );
+
+  if (!story)
+    return (
+      <div className="flex justify-center items-center min-h-screen text-muted-foreground">
+        Story not found.
+      </div>
+    );
 
   return (
     <div className="mt-4 h-[90vh] flex flex-col xl:flex-row gap-8">
