@@ -58,13 +58,37 @@ export default function StoryPage() {
     }
   };
 
+  const handleStop = (shouldPlay?: boolean) => {
+    if (bgMusicRef.current && !bgMusicRef.current.paused) {
+      bgMusicRef.current.pause();
+      bgMusicRef.current.currentTime = 0;
+      if (shouldPlay) {
+        bgMusicRef.current.play();
+      }
+    }
+  };
+
   const handleEnded = () => {
     if (!story) return;
 
     if (currentPanelIndex < story.panels.length - 1) {
       setCurrentPanelIndex((prev) => prev + 1);
+      handleStop(true);
     }
   };
+
+  // useEffect(() => {
+  //   if (ttsAudioRef.current) {
+  //     ttsAudioRef.current.pause(); // Ensure not playing
+  //     ttsAudioRef.current.load();
+  //     const timer = setTimeout(() => {
+  //       ttsAudioRef.current?.play().catch((err) => {
+  //         console.warn("Autoplay blocked:", err);
+  //       });
+  //     }, 300);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [currentPanelIndex]);
 
   async function fetchStoryById(id: string): Promise<StoryDetails | null> {
     try {
@@ -272,6 +296,7 @@ export default function StoryPage() {
                 onPause={handlePause}
                 onEnded={handleEnded}
                 showJumpControls={false}
+                autoPlay
                 layout="stacked-reverse"
                 customAdditionalControls={[
                   <div
