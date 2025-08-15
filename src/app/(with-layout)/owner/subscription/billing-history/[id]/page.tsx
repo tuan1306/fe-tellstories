@@ -30,8 +30,7 @@ export default async function BillingHistoryPage({
 }) {
   const data = await getData((await params).id);
   const metricsData = data.data;
-  const billingData = data.data.billingHistory;
-
+  const billingData = data.data.billingHistory.items;
   return (
     <div className="grid grid-cols-1">
       {/* Page Header */}

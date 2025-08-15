@@ -1,11 +1,21 @@
-export type BillingHistory = {
+export type BillingHistoryItem = {
   id: string;
-  paidAt: string;
+  paidAt: string | null;
   paymentMethod: string;
   status: string;
   subscriptionId: string;
   plan: string;
   price: number;
+};
+
+export type PaginatedBillingHistory = {
+  currentPage: number;
+  pageCount: number;
+  totalItems: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  items: BillingHistoryItem[];
 };
 
 export type BillingResponse = {
@@ -18,6 +28,6 @@ export type BillingResponse = {
     subscriptionPrice: number;
     subscriptionDurationDays: number;
     subscriptionEndDate: string;
-    billingHistory: BillingHistory[];
+    billingHistory: PaginatedBillingHistory;
   };
 };

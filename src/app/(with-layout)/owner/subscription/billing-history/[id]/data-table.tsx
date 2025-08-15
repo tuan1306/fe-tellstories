@@ -40,11 +40,11 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  defaultSort,
-}: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>(
-    defaultSort ?? [{ id: "paidAt", desc: true }]
-  );
+}: // defaultSort,
+DataTableProps<TData, TValue>) {
+  // const [sorting, setSorting] = React.useState<SortingState>(
+  //   defaultSort ?? [{ id: "paidAt", desc: true }]
+  // );
 
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -60,14 +60,14 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
+    // onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColumnVisibility,
     state: {
-      sorting,
+      // sorting,
       columnFilters,
       columnVisibility,
       globalFilter,

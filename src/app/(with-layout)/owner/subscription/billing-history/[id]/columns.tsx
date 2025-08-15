@@ -1,6 +1,5 @@
 "use client";
 
-import { BillingHistory } from "@/app/types/billing-history";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
@@ -12,8 +11,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BillingHistoryItem } from "@/app/types/billing-history";
 
-export const columns: ColumnDef<BillingHistory>[] = [
+export const columns: ColumnDef<BillingHistoryItem>[] = [
   {
     id: "rowNumber",
     header: () => <div className="flex justify-center">#</div>,
@@ -54,7 +54,11 @@ export const columns: ColumnDef<BillingHistory>[] = [
       </div>
     ),
     cell: ({ row }) => {
-      const date = new Date(row.getValue("paidAt") as string);
+      const paidAt = row.getValue("paidAt") as string | null;
+      if (!paidAt)
+        return <div className="flex justify-center">Chưa thanh toán</div>;
+
+      const date = new Date(paidAt);
       const formattedDate = date.toLocaleDateString("vi-VN");
       const formattedTime = date.toLocaleTimeString("vi-VN", { hour12: false });
       return (
@@ -64,8 +68,12 @@ export const columns: ColumnDef<BillingHistory>[] = [
       );
     },
     sortingFn: (rowA, rowB, columnId) => {
-      const dateA = new Date(rowA.getValue(columnId) as string).getTime();
-      const dateB = new Date(rowB.getValue(columnId) as string).getTime();
+      const dateA = rowA.getValue(columnId)
+        ? new Date(rowA.getValue(columnId) as string).getTime()
+        : 0;
+      const dateB = rowB.getValue(columnId)
+        ? new Date(rowB.getValue(columnId) as string).getTime()
+        : 0;
       return dateB - dateA;
     },
   },
@@ -76,7 +84,6 @@ export const columns: ColumnDef<BillingHistory>[] = [
     ),
     cell: ({ row }) => {
       const method = row.getValue("paymentMethod") as string;
-
       return <div className="flex justify-center">{method}</div>;
     },
   },

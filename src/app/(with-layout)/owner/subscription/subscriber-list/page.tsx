@@ -27,7 +27,7 @@ const getData = async (
   if (!res.ok) throw new Error("Failed to fetch subscriber");
 
   const json = await res.json();
-  return json.data as SubscriptionDetail[];
+  return json.data.items as SubscriptionDetail[];
 };
 
 export default async function SubscriptionListPage({

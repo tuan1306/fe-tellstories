@@ -8,9 +8,13 @@ export async function GET(
   try {
     const token = (await cookies()).get("authToken")?.value;
     const userId = (await params).id;
+    const { searchParams } = new URL(req.url);
+    const ascOrder = searchParams.get("ascOrder") ?? "false";
+    const page = searchParams.get("page") ?? "1";
+    const pageSize = searchParams.get("pageSize") ?? "999";
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/billing-history/${userId}/?ascOrder=false`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/User/billing-history/${userId}?ascOrder=${ascOrder}&page=${page}&pageSize=${pageSize}`,
       {
         method: "GET",
         headers: {
