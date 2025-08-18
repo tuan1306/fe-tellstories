@@ -290,31 +290,33 @@ export default function StoryPage() {
             <div className="w-full">
               {/* Currently fixated, because if multiple audioURL on multiple pannels, then the audio player will auto-replay alot */}
               {/* Needed to put every audioURL for every panel, then concat them together. */}
-              <AudioPlayer
-                src={story.panels[currentPanelIndex]?.audioUrl || ""}
-                onPlay={handlePlay}
-                onPause={handlePause}
-                onEnded={handleEnded}
-                showJumpControls={false}
-                autoPlay
-                layout="stacked-reverse"
-                customAdditionalControls={[
-                  <div
-                    key="bgm-volume-control"
-                    className="flex items-center -mr-18"
-                    style={{ width: 100 }}
-                  >
-                    <Music className="h-8 w-8 mr-2 text-[#4d72a2]" />
-                    <Slider
-                      value={[bgmVolume * 100]}
-                      max={100}
-                      onValueChange={(value) => setBgmVolume(value[0] / 100)}
-                      step={1}
-                      className="h-5 [&_[role=slider]]:h-2 [&_[role=slider]]:w-2"
-                    />
-                  </div>,
-                ]}
-              />
+              {story.panels[currentPanelIndex]?.audioUrl && (
+                <AudioPlayer
+                  src={story.panels[currentPanelIndex]?.audioUrl || ""}
+                  onPlay={handlePlay}
+                  onPause={handlePause}
+                  onEnded={handleEnded}
+                  showJumpControls={false}
+                  autoPlay
+                  layout="stacked-reverse"
+                  customAdditionalControls={[
+                    <div
+                      key="bgm-volume-control"
+                      className="flex items-center -mr-18"
+                      style={{ width: 100 }}
+                    >
+                      <Music className="h-8 w-8 mr-2 text-[#4d72a2]" />
+                      <Slider
+                        value={[bgmVolume * 100]}
+                        max={100}
+                        onValueChange={(value) => setBgmVolume(value[0] / 100)}
+                        step={1}
+                        className="h-5 [&_[role=slider]]:h-2 [&_[role=slider]]:w-2"
+                      />
+                    </div>,
+                  ]}
+                />
+              )}
             </div>
           </div>
         </div>
