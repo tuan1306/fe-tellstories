@@ -81,7 +81,7 @@ export function SubscriptionMetrics({ data }: { data: DashboardData }) {
               <Users className="text-pink-500" />
               Tổng số người đăng ký
             </CardTitle>
-            <CardDescription>Người dùng mua gói</CardDescription>
+            <CardDescription>Tổng số người dùng đã mua gói</CardDescription>
             <CardAction>{fluctBadge(data.subscriberFluct)}</CardAction>
           </CardHeader>
           <CardContent className="text-4xl">

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { StoryEditDetails } from "@/app/types/story";
 import { EditStorySheet } from "@/components/EditStorySheet";
@@ -84,12 +83,12 @@ export function StoryMetadataCard({
           </Button>
         </ManageAudioSheet>
 
-        <Link href={`/owner/stories/${story.id}`}>
+        <a href={`/owner/stories/${story.id}`}>
           <Button className="w-full py-4 cursor-pointer mt-3">
             <BookOpenText />
-            Xem truyện
+            Review truyện
           </Button>
-        </Link>
+        </a>
 
         {visualMode && (
           <Button
