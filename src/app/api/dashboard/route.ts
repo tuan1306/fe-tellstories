@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
 
     const { searchParams } = new URL(req.url);
-    const statisticPeriod = searchParams.get("statisticPeriod") ?? "7";
+    const statisticPeriod = searchParams.get("statisticPeriod") ?? "90";
     const page = searchParams.get("page") ?? "1";
     const pageSize = searchParams.get("pageSize") ?? "999";
 

@@ -61,12 +61,8 @@ export function ChartAreaInteractive() {
 
   React.useEffect(() => {
     const period = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
-
-    console.log("📊 Fetching dashboard with period:", period);
-
     fetch(`/api/dashboard?statisticPeriod=${period}&page=1&pageSize=999`)
       .then((res) => {
-        console.log("📊 API raw response status:", res.status);
         return res.json();
       })
       .then((data) => {
