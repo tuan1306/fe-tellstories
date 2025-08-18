@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { saveSonner } from "@/components/SaveSonner";
 import UnsavedChangesDialog from "@/components/UnsavedChangesDialog";
+import { StoryPanel } from "@/app/types/panel";
 
 export default function WriteStoryPage() {
   const { id } = useParams();
@@ -47,24 +48,52 @@ export default function WriteStoryPage() {
   // Draft, because when the user changed their mind to use the picture + panel mode.
   const [showDraftOnly, setShowDraftOnly] = useState(false);
   const [draftContent, setDraftContent] = useState("");
-  // This is for the only purpose of tracking the draft.
+  // This is for the only purpose of tracking the draft changes for comparision.
   const [savedDraft, setSavedDraft] = useState("");
 
-  // Mode changing
+  // Mode changing.
   const [visualMode, setVisualMode] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  // Tracking the saving state
+  // Backup when switching between modes.
+  const [originalVisualPanels, setOriginalVisualPanels] = useState<
+    StoryPanel[]
+  >([]);
   const originalContents = story?.panels.map((p) => p.content || "") || [];
+
+  // Tracking the unsaved changes.
   const unsavedChanges =
     JSON.stringify(originalContents) !== JSON.stringify(panelContents) ||
     savedDraft !== draftContent;
 
+  // If draft changed, then unsaved is true.
   useEffect(() => {
     if (story?.id) {
       const stored = localStorage.getItem(`draft-content-${story.id}`) || "";
       setSavedDraft(stored);
     }
   }, [story?.id]);
+
+  // Only force visual mode on initial load.
+  useEffect(() => {
+    if (!story || initialized) return;
+
+    console.log("Story loaded:", story);
+
+    const savedDraft = localStorage.getItem(`draft-content-${story.id}`);
+    if (savedDraft) {
+      setDraftContent(savedDraft);
+      console.log("Loaded draft content from localStorage:", savedDraft);
+    }
+
+    if (story.storyType === "Illustrated") {
+      setVisualMode(true);
+    } else {
+      setVisualMode(false);
+    }
+
+    setInitialized(true); // mark as initialized
+  }, [story, initialized]);
 
   // Delete the panel
   useEffect(() => {
@@ -78,20 +107,20 @@ export default function WriteStoryPage() {
   }, [confirmingDelete]);
 
   // Load the drafted content & the state
-  useEffect(() => {
-    if (story?.id) {
-      const savedDraft = localStorage.getItem(`draft-content-${story.id}`);
-      if (savedDraft) {
-        setDraftContent(savedDraft);
-      }
+  // useEffect(() => {
+  //   if (story?.id) {s
+  //     const savedDraft = localStorage.getItem(`draft-content-${story.id}`);
+  //     if (savedDraft) {
+  //       setDraftContent(savedDraft);
+  //     }
 
-      const savedVisualMode = localStorage.getItem(`visual-mode-${story.id}`);
-      if (savedVisualMode === "true") {
-        setVisualMode(true);
-        setShowDraftOnly(true);
-      }
-    }
-  }, [story?.id]);
+  //     const savedVisualMode = localStorage.getItem(`visual-mode-${story.id}`);
+  //     if (savedVisualMode === "true") {
+  //       setVisualMode(true);
+  //       setShowDraftOnly(true);
+  //     }
+  //   }
+  // }, [story?.id]);
 
   const fetchStoryById = async (storyId: string) => {
     try {
@@ -210,21 +239,19 @@ export default function WriteStoryPage() {
         <div className="bg-primary-foreground p-4 rounded-lg flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-hidden flex flex-col">
             <ScrollArea className="flex-1 pr-2">
-              <ScrollArea className="flex-1 pr-2">
-                {/* Each index represent each url differentiate from panels. */}
-                <PanelEditor
-                  panels={story.panels}
-                  panelContents={panelContents}
-                  setPanelContents={setPanelContents}
-                  currentPanelIndex={currentPanelIndex}
-                  visualMode={visualMode}
-                  onImageChange={(index, url) => {
-                    const updatedPanels = [...story.panels];
-                    updatedPanels[index].imageUrl = url;
-                    setStory({ ...story, panels: updatedPanels });
-                  }}
-                />
-              </ScrollArea>
+              {/* Each index represent each url differentiate from panels. */}
+              <PanelEditor
+                panels={story.panels}
+                panelContents={panelContents}
+                setPanelContents={setPanelContents}
+                currentPanelIndex={currentPanelIndex}
+                visualMode={visualMode}
+                onImageChange={(index, url) => {
+                  const updatedPanels = [...story.panels];
+                  updatedPanels[index].imageUrl = url;
+                  setStory({ ...story, panels: updatedPanels });
+                }}
+              />
             </ScrollArea>
 
             {/* Navigation */}
@@ -323,7 +350,16 @@ export default function WriteStoryPage() {
                         <AlertDialogAction
                           className="bg-amber-300 hover:bg-amber-400 cursor-pointer"
                           onClick={() => {
-                            // Remove visual mode and draft flags from local storage
+                            if (!story) return;
+
+                            // Backup current visual panels
+                            setOriginalVisualPanels([...story.panels]);
+                            // localStorage.setItem(
+                            //   `visual-panels-${story.id}`,
+                            //   JSON.stringify(story.panels)
+                            // );
+
+                            // Remove visual mode and draft flags
                             localStorage.removeItem(`visual-mode-${story.id}`);
                             localStorage.removeItem(
                               `draft-content-${story.id}`
@@ -332,9 +368,10 @@ export default function WriteStoryPage() {
                             setVisualMode(false);
                             setShowDraftOnly(false);
 
-                            // Merge all panel contents into one string
+                            // Merge all panel contents into one panel
+                            if (!story) return;
                             const mergedContent = story.panels
-                              .map((panel) => panel.content?.trim() || "")
+                              .map((p: StoryPanel) => p.content?.trim() || "")
                               .filter(Boolean)
                               .join("\n\n");
 
@@ -419,10 +456,34 @@ export default function WriteStoryPage() {
                       onClick={() => {
                         if (!story) return;
 
-                        // Concat every panel into 1 drafted page
+                        // Restore previous visual panels from backup or localStorage
+                        const restoredPanels =
+                          originalVisualPanels.length > 0
+                            ? originalVisualPanels
+                            : JSON.parse(
+                                localStorage.getItem(
+                                  `visual-panels-${story.id}`
+                                ) || "[]"
+                              );
+
+                        if (restoredPanels.length === 0) {
+                          // If no backup exists, create a new empty panel
+                          const newPanel = {
+                            content: "",
+                            imageUrl: "",
+                            audioUrl: "",
+                            isEndPanel: false,
+                            languageCode: story.language,
+                            panelNumber: 1,
+                          };
+                          restoredPanels.push(newPanel);
+                        }
+
+                        // Save the current draft content
                         const combinedText =
-                          story.panels?.map((p) => p.content).join("\n\n") ||
-                          "";
+                          story.panels
+                            ?.map((p: StoryPanel) => p.content)
+                            .join("\n\n") || "";
                         setDraftContent(combinedText);
                         localStorage.setItem(
                           `draft-content-${story.id}`,
@@ -432,27 +493,14 @@ export default function WriteStoryPage() {
                         // Stay in visual mode upon reload
                         localStorage.setItem(`visual-mode-${story.id}`, "true");
 
-                        // Change the mode
+                        // Update state
                         setVisualMode(true);
                         setShowDraftOnly(true);
+                        setStory({ ...story, panels: restoredPanels });
+                        setPanelContents(
+                          restoredPanels.map((p: StoryPanel) => p.content || "")
+                        );
 
-                        // Add an empty panel for visual mode
-                        const newPanelNumber = story.panels.length + 1;
-                        const newPanel = {
-                          content: "",
-                          imageUrl: "",
-                          audioUrl: "",
-                          isEndPanel: false,
-                          languageCode: story.language,
-                          panelNumber: newPanelNumber,
-                        };
-
-                        setStory({
-                          ...story,
-                          panels: [...story.panels, newPanel],
-                        });
-
-                        setPanelContents([...panelContents, ""]);
                         setCurrentPanelIndex(0);
                       }}
                     >

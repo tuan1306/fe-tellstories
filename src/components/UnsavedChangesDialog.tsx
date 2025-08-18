@@ -80,10 +80,16 @@ export default function UnsavedChangesDialog({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowDialog(false)}>
+            <AlertDialogCancel
+              className="cursor-pointer"
+              onClick={() => setShowDialog(false)}
+            >
               Ở lại
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmLeave}>
+            <AlertDialogAction
+              className="cursor-pointer"
+              onClick={handleConfirmLeave}
+            >
               Rời đi
             </AlertDialogAction>
           </AlertDialogFooter>
