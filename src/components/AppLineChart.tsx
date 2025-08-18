@@ -60,26 +60,41 @@ export function ChartAreaInteractive() {
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    fetch("/api/dashboard")
-      .then((res) => res.json())
+    const period = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
+
+    console.log("📊 Fetching dashboard with period:", period);
+
+    fetch(`/api/dashboard?statisticPeriod=${period}&page=1&pageSize=999`)
+      .then((res) => {
+        console.log("📊 API raw response status:", res.status);
+        return res.json();
+      })
       .then((data) => {
-        const stats = data?.data?.statistics ?? [];
-        const transformed: DashboardStat[] = stats.map(
-          (item: DashboardResponse) => ({
-            date: item.date.split("T")[0],
-            newAccount: item.newAccount,
-            publishedStories: item.publishedStories,
-          })
-        );
+        const stats: DashboardResponse[] = data?.data?.statistics?.items ?? [];
+        const transformed: DashboardStat[] = stats.map((item) => ({
+          date: item.date.split("T")[0],
+          newAccount: item.newAccount,
+          publishedStories: item.publishedStories,
+        }));
+
+        // console.log("Transformed stats:", transformed);
+
         setDashboardData(transformed);
         setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch dashboard:", err);
+        setIsLoading(false);
       });
-  }, []);
+  }, [timeRange]);
 
   const filledData = React.useMemo(() => {
-    if (dashboardData.length === 0) return [];
+    if (dashboardData.length === 0) {
+      console.log("No dashboard data yet");
+      return [];
+    }
 
-    const referenceDate = new Date("2025-08-15");
+    const referenceDate = new Date();
     const days = timeRange === "30d" ? 30 : timeRange === "7d" ? 7 : 90;
     const start = new Date(referenceDate);
     start.setDate(start.getDate() - days);
@@ -227,7 +242,7 @@ export function ChartAreaInteractive() {
           </ChartContainer>
         ) : (
           <div className="h-[250px] flex items-center justify-center text-gray-500">
-            Đang tải dữ liệu...
+            {isLoading ? "Đang tải dữ liệu..." : "Không có dữ liệu để hiển thị"}
           </div>
         )}
       </CardContent>
