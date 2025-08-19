@@ -105,3 +105,11 @@ export interface UserRecentPublish {
   coverImageUrl: string;
   ageRange: string;
 }
+
+export interface UserTopHit {
+  id: string;
+  title: string;
+  viewCount: number;
+  coverImageUrl: string;
+  ageRange: string;
+}

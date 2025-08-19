@@ -4,11 +4,11 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardFooter, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
-import { UserRecentPublish } from "@/app/types/story";
+import { UserTopHit } from "@/app/types/story";
 import Link from "next/link";
 import { Eye } from "lucide-react";
 
-const UserCardList = ({
+const UserTopHitCardList = ({
   title,
   desc,
   userId,
@@ -17,14 +17,14 @@ const UserCardList = ({
   desc: string;
   userId: string;
 }) => {
-  const [stories, setStories] = useState<UserRecentPublish[]>([]);
+  const [stories, setStories] = useState<UserTopHit[]>([]);
 
   useEffect(() => {
     const fetchStories = async () => {
       try {
-        const res = await fetch(`/api/stories/user/recently/${userId}`);
+        const res = await fetch(`/api/stories/user/top-hit/${userId}`);
         const json = await res.json();
-        setStories(json.data.data || []);
+        setStories(json.data || []);
       } catch (err) {
         console.error("Failed to fetch recent stories", err);
       }
@@ -81,4 +81,4 @@ const UserCardList = ({
   );
 };
 
-export default UserCardList;
+export default UserTopHitCardList;

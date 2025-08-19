@@ -19,7 +19,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import UserCardList from "@/components/UserCardList";
 import {
   Popover,
   PopoverContent,
@@ -27,6 +26,8 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import UserRecentPublishCardList from "@/components/UserRecentPublishCardList";
+import UserTopHitCardList from "@/components/UserTopHitCardList";
 
 export default function UserPage() {
   // General
@@ -215,14 +216,14 @@ export default function UserPage() {
 
         {/* List */}
         <div className="bg-primary-foreground p-4 rounded-lg">
-          <UserCardList
+          <UserRecentPublishCardList
             title="Truyện mới nhất"
             desc="Danh sách truyện mới nhất người dùng đã đăng"
             userId={user.id}
           />
         </div>
         <div className="bg-primary-foreground p-4 mb-5 rounded-lg">
-          <UserCardList
+          <UserTopHitCardList
             title="Truyện nổi bật"
             desc="Danh sách truyện được xem nhiều nhất của người dùng"
             userId={user.id}
