@@ -373,9 +373,9 @@ export default function WriteStoryPage() {
 
                             // Remove visual mode and draft flags
                             localStorage.removeItem(`visual-mode-${story.id}`);
-                            localStorage.removeItem(
-                              `draft-content-${story.id}`
-                            );
+                            // localStorage.removeItem(
+                            //   `draft-content-${story.id}`
+                            // );
 
                             setVisualMode(false);
                             setShowDraftOnly(false);
