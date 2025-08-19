@@ -9,14 +9,16 @@ export const logInSchema = z.object({
 
 // May change based on business
 export const addUserSchema = z.object({
-  email: z.string().email(),
-  displayName: z.string().min(1),
+  email: z.string().email({ message: "Email không hợp lệ" }),
+  displayName: z
+    .string()
+    .min(1, { message: "Tên hiển thị không được để trống" }),
   avatarUrl: z.string().optional(),
   userType: z.enum(["Admin", "Moderator", "User"]).optional(),
   status: z.enum(["Active", "Disabled", "Banned"]).optional(),
   phoneNumber: z.string().optional(),
   password: z.string().regex(/[!@#$%^&*(),.?":{}|<>]/, {
-    message: "Password must contain a special character",
+    message: "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
   }),
   dob: z.date(),
 });

@@ -287,17 +287,15 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant={"outline"}
+                              variant="outline"
                               className={cn(
                                 "w-[240px] pl-3 text-left font-normal",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Chọn ngày</span>
-                              )}
+                              {field.value
+                                ? format(field.value, "dd-MM-yyyy") // <-- changed format here
+                                : "Chọn ngày sinh"}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                           </FormControl>
@@ -307,9 +305,17 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date("1900-01-01")
-                            }
+                            disabled={(date) => {
+                              const today = new Date();
+                              const minDate = new Date("1900-01-01");
+                              const maxDate = new Date(
+                                today.getFullYear() - 18,
+                                today.getMonth(),
+                                today.getDate()
+                              ); // 18 years ago from today
+
+                              return date < minDate || date > maxDate;
+                            }}
                             captionLayout="dropdown"
                             className="calendar"
                           />
