@@ -338,7 +338,7 @@ export default function WriteStoryPage() {
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="outline"
-                        className="h-10 cursor-pointer items-center align-middle text-amber-300 hover:text-amber-300"
+                        className="h-10 cursor-pointer items-center align-middle text-amber-300 hover:text-amber-300 ml-auto"
                       >
                         <NotebookText />
                         Trở về chế độ truyện chữ
