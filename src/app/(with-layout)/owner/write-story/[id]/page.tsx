@@ -64,7 +64,17 @@ export default function WriteStoryPage() {
   // Tracking the unsaved changes.
   const unsavedChanges =
     JSON.stringify(originalContents) !== JSON.stringify(panelContents) ||
-    savedDraft !== draftContent;
+    savedDraft !== draftContent ||
+    (() => {
+      if (!story) return false;
+
+      // if illu -> true
+      const currentSavedMode = story.storyType === "Illustrated";
+      // check the local
+      const currentLocalMode =
+        localStorage.getItem(`visual-mode-${story.id}`) === "true";
+      return currentSavedMode !== currentLocalMode;
+    })();
 
   // If draft changed, then unsaved is true.
   useEffect(() => {
@@ -346,7 +356,9 @@ export default function WriteStoryPage() {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                        <AlertDialogCancel className="cursor-pointer">
+                          Hủy
+                        </AlertDialogCancel>
                         <AlertDialogAction
                           className="bg-amber-300 hover:bg-amber-400 cursor-pointer"
                           onClick={() => {
@@ -450,7 +462,9 @@ export default function WriteStoryPage() {
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                    <AlertDialogCancel className="cursor-pointer">
+                      Hủy
+                    </AlertDialogCancel>
                     <AlertDialogAction
                       className="bg-amber-300 hover:bg-amber-400 cursor-pointery"
                       onClick={() => {

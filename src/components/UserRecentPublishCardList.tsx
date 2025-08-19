@@ -42,7 +42,7 @@ const UserRecentPublishCardList = ({
       <div className="flex flex-col gap-2">
         {stories.length === 0 ? (
           <div className="text-muted-foreground text-sm text-center py-15 bg-card font-medium">
-            No recent stories
+            Không tìm thấy truyện
           </div>
         ) : (
           stories.slice(0, 3).map((story) => (
@@ -58,7 +58,7 @@ const UserRecentPublishCardList = ({
                     />
                   ) : (
                     <span className="text-muted-foreground text-[10px] text-center">
-                      No Cover
+                      Không bìa
                     </span>
                   )}
                 </div>
