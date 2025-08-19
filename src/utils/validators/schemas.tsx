@@ -66,13 +66,30 @@ export const addStorySchema = z.object({
 });
 
 export const subscriptionSchema = z.object({
-  name: z.string().min(1),
-  price: z.number().min(0),
-  pointsCost: z.number().min(0),
+  name: z.string().min(1, { message: "Tên gói không được để trống" }),
+  price: z
+    .number({
+      required_error: "Giá tiền là bắt buộc",
+      invalid_type_error: "Giá phải là số",
+    })
+    .min(0, { message: "Giá phải lớn hơn hoặc bằng 0" }),
+  pointsCost: z
+    .number({
+      required_error: "Số điểm là bắt buộc",
+      invalid_type_error: "Số điểm phải là số",
+    })
+    .min(0, { message: "Số điểm phải lớn hơn hoặc bằng 0" }),
   type: z.string().optional(),
-  rewardPoints: z.number().min(0).optional(),
-  durationDays: z.number().min(1),
+  rewardPoints: z
+    .number({ invalid_type_error: "Số điểm thưởng phải là số" })
+    .min(0, { message: "Số điểm thưởng phải lớn hơn hoặc bằng 0" })
+    .optional(),
+  durationDays: z
+    .number({ invalid_type_error: "Số ngày phải là số" })
+    .min(1, { message: "Số ngày phải lớn hơn hoặc bằng 1" }),
   isActive: z.boolean(),
-  purchaseMethod: z.string().min(1),
+  purchaseMethod: z
+    .string()
+    .min(1, { message: "Phương thức mua hàng không được để trống" }),
   isDefault: z.boolean(),
 });

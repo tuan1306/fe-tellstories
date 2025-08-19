@@ -79,7 +79,7 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                   />
                 ) : (
                   <div className="bg-muted w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                    No Image
+                    Không bìa
                   </div>
                 )}
               </div>
@@ -105,12 +105,12 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                   <DropdownMenuItem
                     className="cursor-pointer"
                     onClick={() => router.push(`/owner/stories/${story.id}`)}
                   >
-                    View Story Details
+                    Xem chi tiết câu truyện
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
 
@@ -121,7 +121,7 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                       setOpenApproveId(item.id);
                     }}
                   >
-                    Approve
+                    Phê duyệt
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="cursor-pointer"
@@ -130,7 +130,7 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                       setOpenDenyId(item.id);
                     }}
                   >
-                    Deny
+                    Từ chối
                   </DropdownMenuItem>
 
                   <ReviewStoryDialog

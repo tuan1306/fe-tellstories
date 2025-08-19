@@ -22,14 +22,14 @@ export async function POST(req: NextRequest) {
       prompt = `Tối ưu hóa prompt sau đây để tạo truyện, chia nội dung thành các phần rõ ràng theo thứ tự:
       1. Nội dung ngắn gọn (tóm tắt)
       2. Nhân vật (mô tả từng nhân vật)
-      3. Các yếu tố quan trọng khác (bối cảnh, phong cách, chủ đề)
+      3. Các yếu tố quan trọng khác (bối cảnh, chủ đề)
       Chỉ trả lời nội dung prompt, không giải thích thêm, độ dài dưới 400 từ, bằng tiếng Việt:
       ${receivedPrompt}`;
     } else {
       prompt = `Optimize the following prompt for creating a children's story, separating it into clear ordered sections:
       1. Short content (summary)
       2. Characters (describe each character)
-      3. Other important elements (setting, style, theme)
+      3. Other important elements (setting, theme)
       Only return the optimized prompt (under 400 words), no extra text:
       ${receivedPrompt}`;
     }

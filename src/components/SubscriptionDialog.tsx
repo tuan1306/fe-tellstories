@@ -32,6 +32,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertTriangle,
   CheckCircle,
+  ClipboardList,
   Loader2,
   Plus,
   XCircle,
@@ -220,6 +221,7 @@ export const SubscriptionDialog = ({
     <Dialog>
       <DialogTrigger asChild>
         <Button className="mb-4 w-full px-4 py-2 cursor-pointer">
+          <ClipboardList />
           Quản lý gói đăng ký
         </Button>
       </DialogTrigger>
