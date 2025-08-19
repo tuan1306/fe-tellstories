@@ -14,19 +14,35 @@ import {
 } from "@/components/ui/hover-card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet } from "@/components/ui/sheet";
-import { BadgeCheck, Loader2 } from "lucide-react";
+import { BadgeCheck, CalendarIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import UserCardList from "@/components/UserCardList";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 export default function UserPage() {
+  // General
+  const [loading, setLoading] = useState(false);
+
+  // User centric
   const { id } = useParams();
   const [user, setUser] = useState<UserDetails | null>(null);
-  const [activity, setActivity] = useState<ActivityLog[]>([]);
   const [stories, setStories] = useState<UserPublish[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // Activity
+  const [activity, setActivity] = useState<ActivityLog[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date()
+  );
+  const [activityLoading, setActivityLoading] = useState(false);
 
   async function fetchUserById(id: string): Promise<UserDetails | null> {
     try {
@@ -44,15 +60,33 @@ export default function UserPage() {
     }
   }
 
-  async function fetchUserActivity(userId: string) {
+  // Today user activity log load.
+  useEffect(() => {
+    if (user?.id) {
+      setLoading(true);
+      fetchUserActivity(user.id, new Date()).finally(() => setLoading(false));
+    }
+  }, [user?.id]);
+
+  async function fetchUserActivity(userId: string, date: Date) {
+    setActivityLoading(true);
     try {
-      const res = await fetch(`/api/activitylog/${userId}`);
-      if (!res.ok) throw new Error("Failed to fetch activity");
-      const json: { data: ActivityLog[] } = await res.json();
-      const logs = json.data.filter((log) => log.user.id === userId);
-      setActivity(logs);
-    } catch (err) {
-      console.error(err);
+      const formattedDate = format(date, "yyyy-MM-dd");
+
+      const res = await fetch(
+        `/api/activitylog/${userId}?getByDateFrom=${formattedDate}&getByDateTo=${formattedDate}&page=1&pageSize=10`
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch user activity");
+      }
+
+      const data = await res.json();
+      setActivity(data?.data?.items || []);
+    } catch (error) {
+      console.error("Failed to fetch activity logs", error);
+    } finally {
+      setActivityLoading(false);
     }
   }
 
@@ -72,7 +106,7 @@ export default function UserPage() {
       setLoading(true);
       Promise.all([
         fetchUserById(id).then(setUser),
-        fetchUserActivity(id),
+        fetchUserActivity(id, new Date()),
         fetchPublishedStories(id),
       ]).finally(() => setLoading(false));
     }
@@ -241,26 +275,86 @@ export default function UserPage() {
 
         {/* User activity */}
         <div className="bg-primary-foreground p-4 rounded-lg">
-          <h1 className="text-xl font-semibold">Hoạt động người dùng</h1>
-          <h1 className="text-sm font-semibold text-muted-foreground">
-            Ghi lại các hoạt động gần đây của người dùng trên nền tảng
-          </h1>
+          {/* Header row */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-semibold">Hoạt động người dùng</h1>
+              <h1 className="text-sm font-semibold text-muted-foreground">
+                Ghi lại các hoạt động gần đây của người dùng trên nền tảng
+              </h1>
+            </div>
+
+            {/* Calendar button on far right */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 cursor-pointer"
+                  disabled={activityLoading}
+                >
+                  {activityLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CalendarIcon className="h-4 w-4" />
+                  )}
+                  {selectedDate
+                    ? selectedDate.toLocaleDateString("vi-VN", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })
+                    : "Chọn ngày"}
+                </Button>
+              </PopoverTrigger>
+
+              <PopoverContent className="p-0 w-auto" align="end" sideOffset={4}>
+                <div className="p-4">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    defaultMonth={new Date()}
+                    disabled={(date) => date > new Date()}
+                    onSelect={(date) => {
+                      if (date) {
+                        setSelectedDate(date);
+                        fetchUserActivity(user.id, date);
+                      }
+                    }}
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Activity list */}
           <div className="bg-card mt-4 p-5 rounded-lg">
             <ScrollArea className="h-[170px] space-y-2 pr-4">
-              {activity.length === 0 ? (
+              {activityLoading ? (
+                <div className="h-[170px] flex items-center justify-center">
+                  <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+                </div>
+              ) : activity.length === 0 ? (
                 <div className="h-[170px] flex items-center justify-center text-muted-foreground">
-                  Người dùng này chưa có hoạt động gần đây.
+                  Không có hoạt động trong ngày này.
                 </div>
               ) : (
                 activity.map((log) => (
                   <div key={log.id} className="flex items-center">
                     <div
                       className={`w-2 h-2 rounded-full ${
-                        log.action === "Comment" || log.action === "Rating"
-                          ? "bg-yellow-500"
-                          : log.action === "XuấT Bản Truyện"
+                        log.action === "Hệ Thống"
+                          ? "bg-red-500"
+                          : log.action === "Xuất Bản Truyện"
                           ? "bg-green-500"
-                          : "bg-red-500"
+                          : log.action === "Bình Luận"
+                          ? "bg-yellow-500"
+                          : log.action === "Đánh Giá"
+                          ? "bg-yellow-600"
+                          : log.action === "Xem Truyện"
+                          ? "bg-purple-500"
+                          : log.action === "Báo Cáo"
+                          ? "bg-orange-500"
+                          : "bg-gray-400"
                       }`}
                     />
                     <span className="pl-3 truncate max-w-full">
