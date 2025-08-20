@@ -4,11 +4,12 @@ import {
   BookOpen,
   ChevronUp,
   CircleDollarSign,
+  Cog,
   LayoutDashboard,
   // LucideMessageSquareText,
   PenBoxIcon,
   // Receipt,
-  Scroll,
+  // Scroll,
   Settings,
   Sparkles,
   SwatchBook,
@@ -84,9 +85,9 @@ const items = [
     icon: BookOpen,
   },
   {
-    title: "Nhân sự",
-    url: "/owner/staff-log",
-    icon: Scroll,
+    title: "Quản lý hệ thống",
+    url: "/owner/system-config",
+    icon: Cog,
   },
 ];
 
