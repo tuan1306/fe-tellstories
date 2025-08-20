@@ -74,37 +74,40 @@ export default function StoriesManagement() {
   };
 
   useEffect(() => {
-    if (statusFilter === "Published" || statusFilter === "Featured") {
-      const endpoint =
-        statusFilter === "Published"
-          ? `/api/stories/published?page=${currentPage}&pageSize=${pageSize}`
-          : `/api/stories/featured?page=${currentPage}&pageSize=${pageSize}`;
+    const fetchStories = async () => {
+      try {
+        setLoading(true);
 
-      setLoading(true);
+        if (statusFilter === "Published" || statusFilter === "Featured") {
+          const endpoint =
+            statusFilter === "Published"
+              ? `/api/stories/published?page=${currentPage}&pageSize=${pageSize}`
+              : `/api/stories/featured?page=${currentPage}&pageSize=${pageSize}`;
 
-      fetch(endpoint)
-        .then((res) => res.json())
-        .then((json) => {
-          const stories = json?.data?.items || [];
-          setUserStories(stories);
+          const res = await fetch(endpoint);
+          const json = await res.json();
+
+          setUserStories(json?.data?.items || []);
           setTotalPages(json?.data?.totalPages || 1);
-        })
-        .catch((err) => console.error("Fetch error:", err))
-        .finally(() => setLoading(false));
-    }
-  }, [statusFilter, currentPage]);
+        }
 
-  useEffect(() => {
-    if (statusFilter === "Pending") {
-      fetch("/api/stories/pending?page=1&pageSize=10")
-        .then((res) => res.json())
-        .then((data) => {
-          // console.log("Pending API Response", data);
-          setPendingStories(data?.data.items || []);
-        })
-        .catch((err) => console.error("Pending fetch error:", err));
-    }
-  }, [statusFilter]);
+        if (statusFilter === "Pending") {
+          const res = await fetch("/api/stories/pending?page=1&pageSize=10");
+          const json = await res.json();
+
+          setPendingStories(
+            Array.isArray(json?.data.items) ? json.data.items : []
+          );
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStories();
+  }, [statusFilter, currentPage]);
 
   const filtered = userStories
     // .filter((story) => {
@@ -151,25 +154,6 @@ export default function StoriesManagement() {
       if (statusFilter === "Featured") return story.isFeatured;
       return true;
     });
-
-  // Pagination
-  useEffect(() => {
-    if (statusFilter === "Published" || statusFilter === "Featured") {
-      const endpoint =
-        statusFilter === "Published"
-          ? `/api/stories/published?page=${currentPage}&pageSize=${pageSize}`
-          : `/api/stories/featured?page=${currentPage}&pageSize=${pageSize}`;
-
-      fetch(endpoint)
-        .then((res) => res.json())
-        .then((json) => {
-          const stories = json?.data?.items || [];
-          setUserStories(stories);
-          setTotalPages(json?.data?.totalPages || 1);
-        })
-        .catch((err) => console.error("Fetch error:", err));
-    }
-  }, [statusFilter, currentPage]);
 
   return (
     <div className="flex gap-6 mt-4 h-[90vh]">
@@ -247,6 +231,18 @@ export default function StoriesManagement() {
             {loading ? (
               <div className="flex items-center justify-center h-full w-full">
                 <Loader2 className="w-15 h-15 animate-spin text-muted-foreground" />
+              </div>
+            ) : statusFilter === "Pending" && pendingStories.length === 0 ? (
+              <div className="flex items-center justify-center h-full w-full text-muted-foreground">
+                Không có truyện để duyệt
+              </div>
+            ) : statusFilter === "Published" && filtered.length === 0 ? (
+              <div className="flex items-center justify-center h-full w-full text-muted-foreground">
+                Không có truyện đã xuất bản
+              </div>
+            ) : statusFilter === "Featured" && filtered.length === 0 ? (
+              <div className="flex items-center justify-center h-full w-full text-muted-foreground">
+                Không có truyện nổi bật
               </div>
             ) : (
               <ManageStoryGrid
