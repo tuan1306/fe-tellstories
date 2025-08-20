@@ -1,6 +1,7 @@
 "use client";
 
 import { StoryDetails } from "@/app/types/story";
+import PendingActionButtons from "@/components/PendingActionButtons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,7 +9,7 @@ import { Slider } from "@/components/ui/slider";
 import { ChevronLeft, ChevronRight, Music, PenLine } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
@@ -38,6 +39,10 @@ export default function StoryPage() {
   //     });
   //   }
   // }, [currentPanelIndex]);
+
+  // Check for pending
+  const searchParams = useSearchParams();
+  const pendingId = searchParams.get("pendingId");
 
   const handlePlay = async () => {
     if (!story) return;
@@ -140,6 +145,12 @@ export default function StoryPage() {
                   Chỉnh sửa truyện
                 </Button>
               </Link>
+              {pendingId && (
+                <PendingActionButtons
+                  pendingId={pendingId}
+                  userId={story.createdBy.id}
+                />
+              )}
             </div>
           </div>
 

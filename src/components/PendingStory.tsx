@@ -20,14 +20,18 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
   const [openDenyId, setOpenDenyId] = useState<string | null>(null);
 
   const handlePointAdding = async (userId: string, points: number) => {
-    await fetch(`/api/wallet/`, {
+    const res = await fetch(`/api/wallet/${userId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: userId,
         amount: points,
       }),
     });
+
+    if (!res.ok) {
+      console.error("Failed to add points:", await res.text());
+    }
+
     setOpenApproveId(null);
   };
 
@@ -88,7 +92,9 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                   {story.title}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {story.author?.trim() ? story.author : "Unknown author"}
+                  {story.author?.trim()
+                    ? story.createdBy.displayName
+                    : "Unknown author"}
                 </p>
                 <p className="text-base">{story.description}</p>
               </div>
@@ -108,7 +114,11 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                   <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                   <DropdownMenuItem
                     className="cursor-pointer"
-                    onClick={() => router.push(`/owner/stories/${story.id}`)}
+                    onClick={() =>
+                      router.push(
+                        `/owner/stories/${story.id}?from=pending&pendingId=${item.id}`
+                      )
+                    }
                   >
                     Xem chi tiết câu truyện
                   </DropdownMenuItem>

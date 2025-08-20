@@ -1,10 +1,16 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const token = (await cookies()).get("authToken")?.value;
-    const { userId, amount } = await req.json();
+    const userId = (await params).id;
+    const { amount } = await req.json();
+
+    console.log("UserID: " + userId + "\nAmount: " + amount);
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/UserWallet/add/${userId}?amount=${amount}`,

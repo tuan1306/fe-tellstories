@@ -16,6 +16,7 @@ import {
   PaginationItem,
 } from "@/components/ui/pagination";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function StoriesManagement() {
   // Stories
@@ -25,11 +26,16 @@ export default function StoriesManagement() {
     []
   );
 
+  // For redirection purpose
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from");
+
   // Filter
   const [selectedAges, setSelectedAges] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<
     "Published" | "Pending" | "Featured"
-  >("Published");
+  >(from === "pending" ? "Pending" : "Published");
+
   // const [panelFilter, setPanelFilter] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
