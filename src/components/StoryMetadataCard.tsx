@@ -79,7 +79,7 @@ export function StoryMetadataCard({
         <ManageAudioSheet story={story} currentPanelIndex={currentPanelIndex}>
           <Button className="w-full py-4 mt-3 cursor-pointer">
             <Headphones />
-            Quản lý âm thanh
+            Quản lý nhạc nền & TTS
           </Button>
         </ManageAudioSheet>
 

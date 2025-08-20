@@ -45,6 +45,9 @@ export default function WriteStoryPage() {
   const [currentPanelIndex, setCurrentPanelIndex] = useState(0);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
+  // Check if the story is saved
+  const [isSaved, setIsSaved] = useState(false);
+
   // Draft, because when the user changed their mind to use the picture + panel mode.
   const [showDraftOnly, setShowDraftOnly] = useState(false);
   const [draftContent, setDraftContent] = useState("");
@@ -63,11 +66,11 @@ export default function WriteStoryPage() {
 
   // Tracking the unsaved changes.
   const unsavedChanges =
+    !isSaved ||
     JSON.stringify(originalContents) !== JSON.stringify(panelContents) ||
     savedDraft !== draftContent ||
     (() => {
       if (!story) return false;
-
       // if illu -> true
       const currentSavedMode = story.storyType === "Illustrated";
       // check the local
@@ -184,6 +187,7 @@ export default function WriteStoryPage() {
 
       if (res.ok) {
         saveSonner("success");
+        setIsSaved(true);
         fetchStoryById(story.id);
       } else {
         const error = await res.json();

@@ -308,7 +308,9 @@ export function ManageAudioSheet({
             {/* Save Button */}
             <Button
               onClick={handleSave}
-              disabled={saving || (!selectedVoice && !musicUrl)}
+              disabled={
+                saving || (!selectedVoice && !musicUrl && !selectedFile)
+              }
               className="w-full mt-6"
             >
               {saving ? "Đang lưu..." : "Lưu thay đổi"}
