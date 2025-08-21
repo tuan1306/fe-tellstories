@@ -23,6 +23,35 @@ export default function PendingActionButtons({
   const [dialogOpen, setDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<"approve" | "reject">("approve");
 
+  const handleNotifyUser = async (title: string, message: string) => {
+    try {
+      const res = await fetch("/api/notification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          title,
+          message,
+          type: "story-review",
+          sender: "Admin",
+          targetType: "user",
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        console.error("Failed to notify user:", error);
+        return;
+      }
+
+      const data = await res.json();
+      toast.success("Đã gửi thông báo đến người dùng!");
+      return data;
+    } catch (err) {
+      console.error("Notification error:", err);
+    }
+  };
+
   const handlePointAdding = async (points: number) => {
     const res = await fetch(`/api/wallet/${userId}`, {
       method: "POST",
@@ -37,7 +66,7 @@ export default function PendingActionButtons({
     }
   };
 
-  const approveStory = async (notes: string) => {
+  const handleApprove = async (notes: string) => {
     return fetch("/api/stories/pending", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -49,7 +78,7 @@ export default function PendingActionButtons({
     });
   };
 
-  const rejectStory = async (notes: string) => {
+  const handleReject = async (notes: string) => {
     return fetch("/api/stories/pending", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -64,12 +93,32 @@ export default function PendingActionButtons({
   const handleConfirm = async (notes: string, points?: number) => {
     try {
       if (actionType === "approve") {
-        await approveStory(notes);
+        await handleApprove(notes);
         if (points) await handlePointAdding(points);
+
+        const title = "Truyện của bạn đã được phê duyệt! 🎉";
+        const message = notes
+          ? `Ghi chú từ quản trị viên: ${notes}.\nBạn nhận được ${
+              points || 0
+            } điểm!`
+          : `Truyện của bạn đã vượt qua kiểm duyệt và bạn nhận được ${
+              points || 0
+            } điểm!`;
+
+        await handleNotifyUser(title, message);
+
         onApprove?.();
         toast.success("Đã phê duyệt truyện!");
       } else {
-        await rejectStory(notes);
+        await handleReject(notes);
+
+        const title = "Truyện của bạn đã bị từ chối ❌";
+        const message = notes
+          ? `Lý do từ chối: ${notes}`
+          : "Truyện của bạn không đáp ứng yêu cầu kiểm duyệt.";
+
+        await handleNotifyUser(title, message);
+
         onReject?.();
         toast.error("Đã từ chối truyện!");
       }

@@ -19,6 +19,33 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
   const [openApproveId, setOpenApproveId] = useState<string | null>(null);
   const [openDenyId, setOpenDenyId] = useState<string | null>(null);
 
+  const handelNotifyUser = async (
+    userId: string,
+    title: string,
+    message: string
+  ) => {
+    try {
+      const res = await fetch("/api/notification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          title,
+          message,
+          type: "story-review",
+          sender: "Admin",
+          targetType: "user",
+        }),
+      });
+
+      if (!res.ok) {
+        console.error("Failed to send notification:", await res.text());
+      }
+    } catch (err) {
+      console.error("Notification error:", err);
+    }
+  };
+
   const handlePointAdding = async (userId: string, points: number) => {
     const res = await fetch(`/api/wallet/${userId}`, {
       method: "POST",
@@ -159,6 +186,21 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                           points
                         );
                       }
+
+                      const title = "Truyện của bạn đã được phê duyệt! 🎉";
+                      const message = notes
+                        ? `Ghi chú từ quản trị viên: ${notes}.\nBạn nhận được ${
+                            points || 0
+                          } điểm!`
+                        : `Truyện của bạn đã vượt qua kiểm duyệt và bạn nhận được ${
+                            points || 0
+                          } điểm!`;
+
+                      await handelNotifyUser(
+                        item.story.createdBy.id,
+                        title,
+                        message
+                      );
                     }}
                   />
 
@@ -169,7 +211,20 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                     confirmLabel="Từ chối"
                     confirmDesc="Nhập lý do từ chối truyện."
                     confirmColor="red"
-                    onConfirm={(notes: string) => handleDeny(item.id, notes)}
+                    onConfirm={async (notes: string) => {
+                      await handleDeny(item.id, notes);
+
+                      const title = "Truyện của bạn đã bị từ chối ❌";
+                      const message = notes
+                        ? `Lý do từ chối: ${notes}`
+                        : "Truyện của bạn không đáp ứng yêu cầu kiểm duyệt.";
+
+                      await handelNotifyUser(
+                        item.story.createdBy.id,
+                        title,
+                        message
+                      );
+                    }}
                   />
                 </DropdownMenuContent>
               </DropdownMenu>

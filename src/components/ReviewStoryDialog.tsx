@@ -69,6 +69,7 @@ export default function ReviewStoryDialog({
 
   const handleMainConfirmClick = () => setIsConfirmStep(true);
   const handleFinalConfirm = () => {
+    // Pass the note
     onConfirm(notes, totalPoints);
     setIsConfirmStep(false);
     onOpenChange(false);
