@@ -302,9 +302,9 @@ export const SubscriptionDialog = ({
                         <SelectContent>
                           <SelectItem value="MoneyOnly">Tiền</SelectItem>
                           <SelectItem value="PointsOnly">Điểm</SelectItem>
-                          <SelectItem value="MoneyOrPoints">
+                          {/* <SelectItem value="MoneyOrPoints">
                             Tiền & Điểm
-                          </SelectItem>
+                          </SelectItem> */}
                         </SelectContent>
                       </Select>
                       <FormMessage />
