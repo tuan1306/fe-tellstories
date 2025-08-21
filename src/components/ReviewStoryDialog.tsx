@@ -10,7 +10,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "./ui/input";
+// import { Input } from "./ui/input";
 
 export default function ReviewStoryDialog({
   open,
@@ -47,7 +47,7 @@ export default function ReviewStoryDialog({
   ];
 
   // Extra points
-  const [extraPoints, setExtraPoints] = useState(0);
+  // const [extraPoints, setExtraPoints] = useState(0);
 
   // Track the criteria
   const [activeCriteria, setActiveCriteria] = useState<boolean[]>(
@@ -55,10 +55,10 @@ export default function ReviewStoryDialog({
   );
 
   // If activeCriteria exist then cal sum + criteria index
-  const totalPoints =
-    activeCriteria.reduce((sum, active, idx) => {
-      return active ? sum + criteria[idx].points : sum;
-    }, 0) + extraPoints;
+  const totalPoints = activeCriteria.reduce((sum, active, idx) => {
+    return active ? sum + criteria[idx].points : sum;
+  }, 0);
+  // + extraPoints;
 
   // The state of points being added, updated upon switching.
   const handleSwitchChange = (idx: number) => {
@@ -145,7 +145,7 @@ export default function ReviewStoryDialog({
                     </div>
                   ))}
 
-                  <div className="pt-2">
+                  {/* <div className="pt-2">
                     <label className="block font-semibold mb-1">
                       Điểm thêm:
                     </label>
@@ -156,7 +156,7 @@ export default function ReviewStoryDialog({
                       onChange={(e) => setExtraPoints(Number(e.target.value))}
                       placeholder="Nhập điểm thêm..."
                     />
-                  </div>
+                  </div> */}
 
                   <div className="pt-2 font-semibold">
                     Tổng điểm: {totalPoints}

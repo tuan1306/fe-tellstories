@@ -66,7 +66,7 @@ export function ChartAreaInteractive() {
         return res.json();
       })
       .then((data) => {
-        const stats: DashboardResponse[] = data?.data?.statistics?.items ?? [];
+        const stats: DashboardResponse[] = data?.data?.statistics ?? [];
         const transformed: DashboardStat[] = stats.map((item) => ({
           date: item.date.split("T")[0],
           newAccount: item.newAccount,

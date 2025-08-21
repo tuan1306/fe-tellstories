@@ -20,8 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import WritingAnimation from "@/components/misc/animated-icons/Writing";
+// import WritingAnimation from "@/components/misc/animated-icons/Writing";
 import { StoryEditDetails } from "@/app/types/story";
+import { Loader2 } from "lucide-react";
 
 interface StoryCoverImageDialogProps {
   story: StoryEditDetails;
@@ -196,7 +197,7 @@ export function StoryCoverImageDialog({
           />
         ) : (
           <div className="w-full h-full bg-gray-300 flex items-center justify-center text-sm text-gray-500">
-            Click to Add Image
+            Nhấp để thêm ảnh
           </div>
         )}
       </div>
@@ -225,7 +226,7 @@ export function StoryCoverImageDialog({
           className={imageMode === "ai" ? "sm:max-w-4xl" : "sm:max-w-md"}
         >
           <DialogHeader>
-            <DialogTitle>Update Cover Image</DialogTitle>
+            <DialogTitle>Đăng tải ảnh bìa</DialogTitle>
           </DialogHeader>
 
           {!imageMode && (
@@ -234,7 +235,7 @@ export function StoryCoverImageDialog({
                 className="w-full"
                 onClick={() => fileInputRef.current?.click()}
               >
-                Upload from Device
+                Đăng tải từ máy tính
               </Button>
               <Button
                 className="w-full"
@@ -243,7 +244,7 @@ export function StoryCoverImageDialog({
                   setImagePrompt(story.description || "");
                 }}
               >
-                Generate with AI
+                Tạo bằng AI
               </Button>
             </div>
           )}
@@ -261,7 +262,7 @@ export function StoryCoverImageDialog({
                     setImagePrompt("");
                   }}
                 >
-                  ← Back
+                  ← Quay lại
                 </Button>
 
                 <Textarea
@@ -276,11 +277,11 @@ export function StoryCoverImageDialog({
                     <SelectValue placeholder="Select a style" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="cartoonish">Cartoonish</SelectItem>
-                    <SelectItem value="realistic">Realistic</SelectItem>
+                    <SelectItem value="cartoonish">Hoạt hình</SelectItem>
+                    <SelectItem value="realistic">Ảnh thật</SelectItem>
                     <SelectItem value="anime">Anime</SelectItem>
-                    <SelectItem value="sketch">Sketch</SelectItem>
-                    <SelectItem value="watercolor">Watercolor</SelectItem>
+                    <SelectItem value="sketch">Màu chì</SelectItem>
+                    <SelectItem value="watercolor">Màu nước</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -289,7 +290,7 @@ export function StoryCoverImageDialog({
                   onClick={handleAIImageGenerate}
                   disabled={!imagePrompt || generatingImage}
                 >
-                  {generatingImage ? "Generating..." : "Generate Image"}
+                  {generatingImage ? "Đang tạo..." : "Tạo ảnh bằng AI"}
                 </Button>
 
                 {croppedImageUrl && (
@@ -298,7 +299,7 @@ export function StoryCoverImageDialog({
                     onClick={handleFinalUpload}
                     disabled={generatingImage}
                   >
-                    {generatingImage ? "Please wait..." : "Use This Image"}
+                    {generatingImage ? "Xin chờ..." : "Sử dụng ảnh này"}
                   </Button>
                 )}
               </div>
@@ -331,9 +332,9 @@ export function StoryCoverImageDialog({
                 ) : (
                   <div className="w-full flex justify-center items-center text-sm text-gray-500 text-center">
                     {generatingImage ? (
-                      <WritingAnimation />
+                      <Loader2 className="w-12 h-12 animate-spin" />
                     ) : (
-                      <p>Your preview image will be here.</p>
+                      <p>Ảnh bìa của bạn sẽ xuất hiện ở đây để preview</p>
                     )}
                   </div>
                 )}

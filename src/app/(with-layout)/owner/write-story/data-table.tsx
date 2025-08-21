@@ -446,7 +446,7 @@ export default function DataTable() {
             ) : (
               <>
                 <Input
-                  placeholder="Story title..."
+                  placeholder="Nhập tựa đề truyện ở đây..."
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                 />
