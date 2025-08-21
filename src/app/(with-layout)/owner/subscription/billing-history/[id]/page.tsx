@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { BillingResponse } from "@/app/types/billing-history";
-import { DataTableWrapper } from "./DataTableWrapper";
+import { DataTableWrapper } from "./wrapper";
 import { UserBillingMetrics } from "@/components/ui/UserBillingMetrics";
 import { Info } from "lucide-react";
 import { cookies } from "next/headers";

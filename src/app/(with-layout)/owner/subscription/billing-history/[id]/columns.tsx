@@ -162,23 +162,23 @@ export const columns = (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">Menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="action-dropdown">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>Hành động</DropdownMenuLabel>
               <DropdownMenuItem
                 onClick={() => navigator.clipboard.writeText(bill.billingId)}
               >
-                Copy Transaction ID
+                Copy ID thanh toán
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
                   openDialog(bill);
                 }}
               >
-                View Subscription
+                Xem chi tiết gói
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
