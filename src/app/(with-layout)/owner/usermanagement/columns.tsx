@@ -105,10 +105,17 @@ export const columns: ColumnDef<UserDetails>[] = [
         null: "bg-[#e06976] text-white",
       };
 
+      const roleLabel: Record<string, string> = {
+        Admin: "Quản trị viên",
+        Moderator: "Người kiểm duyệt",
+        User: "Người dùng",
+        null: "Không xác định",
+      };
+
       return (
         <div className="flex justify-center items-center">
           <Badge className={roleColor[role] || "bg-[#F46A00] text-white"}>
-            {role || "Không xác định"}
+            {roleLabel[role] || "Không xác định"}
           </Badge>
         </div>
       );
@@ -136,16 +143,23 @@ export const columns: ColumnDef<UserDetails>[] = [
     },
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
+
       const statusColor: Record<string, string> = {
         Active: "bg-green-500 text-white",
         Pending: "bg-yellow-500 text-white",
         Inactive: "bg-red-500 text-white",
       };
 
+      const statusLabel: Record<string, string> = {
+        Active: "Hoạt động",
+        Pending: "Đang chờ",
+        Inactive: "Vô hiệu hóa",
+      };
+
       return (
         <div className="flex justify-center items-center">
           <Badge className={statusColor[status] || "bg-[#F46A00] text-white"}>
-            {status || "Không xác định"}
+            {statusLabel[status] || "Không xác định"}
           </Badge>
         </div>
       );

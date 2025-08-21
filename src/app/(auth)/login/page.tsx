@@ -89,9 +89,7 @@ export default function Login() {
             </div>
             <div className="absolute top-6 left-6 text-white flex gap-2">
               <SwatchBook className="drop-shadow-lg/80" />
-              <p className="text-xl font-bold text-shadow-lg/80">
-                TellStories Inc
-              </p>
+              <p className="text-xl font-bold text-shadow-lg/80">TellStories</p>
             </div>
             <div className="absolute bottom-5 left-0 right-0 text-white flex justify-center items-center">
               <p className="text-4xl font-semibold text-shadow-lg/80 text-center tracking-wide pb-12">
