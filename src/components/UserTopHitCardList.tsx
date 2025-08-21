@@ -24,7 +24,7 @@ const UserTopHitCardList = ({
       try {
         const res = await fetch(`/api/stories/user/top-hit/${userId}`);
         const json = await res.json();
-        setStories(json.data || []);
+        setStories(json.data.data || []);
       } catch (err) {
         console.error("Failed to fetch recent stories", err);
       }

@@ -294,7 +294,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                               )}
                             >
                               {field.value
-                                ? format(field.value, "dd-MM-yyyy") // <-- changed format here
+                                ? format(field.value, "dd-MM-yyyy")
                                 : "Chọn ngày sinh"}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
