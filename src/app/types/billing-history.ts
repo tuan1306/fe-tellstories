@@ -1,11 +1,37 @@
-export type BillingHistoryItem = {
+export type UserInfo = {
   id: string;
+  displayName: string;
+  avatarUrl: string;
+};
+
+export type SubscriptionInfo = {
+  id: string;
+  name: string;
+  price: number;
+  type: string;
+  rewardPoints: number;
+  durationDays: number;
+  isActive: boolean;
+  pointsCost: number;
+  purchaseMethod: string;
+};
+
+export type BillingHistoryItem = {
+  billingId: string;
+  userId: string;
+  user: UserInfo;
+  subscriptionId: string;
+  subscription: SubscriptionInfo;
+  subtotal: number;
+  discountAmount: number;
+  total: number;
   paidAt: string | null;
   paymentMethod: string;
+  paymentGateway: string;
+  transactionId: string;
   status: string;
-  subscriptionId: string;
-  plan: string;
-  price: number;
+  invoiceUrl: string | null;
+  notes: string;
 };
 
 export type PaginatedBillingHistory = {

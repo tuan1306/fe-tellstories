@@ -13,7 +13,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { BillingHistoryItem } from "@/app/types/billing-history";
 
-export const columns: ColumnDef<BillingHistoryItem>[] = [
+export const columns = (
+  openDialog: (bill: BillingHistoryItem) => void
+): ColumnDef<BillingHistoryItem>[] => [
   {
     id: "rowNumber",
     header: () => <div className="flex justify-center">#</div>,
@@ -28,14 +30,14 @@ export const columns: ColumnDef<BillingHistoryItem>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "id",
+    accessorKey: "billingId",
     header: "ID",
     cell: ({ row }) => (
       <span
         className="inline-block max-w-[150px] truncate"
-        title={row.getValue("id") as string}
+        title={row.getValue("billingId") as string}
       >
-        {row.getValue("id")}
+        {row.getValue("billingId")}
       </span>
     ),
   },
@@ -78,7 +80,8 @@ export const columns: ColumnDef<BillingHistoryItem>[] = [
     },
   },
   {
-    accessorKey: "paymentMethod",
+    accessorFn: (row) => row.paymentMethod,
+    id: "paymentMethod",
     header: () => (
       <div className="flex justify-center">Phương thức thanh toán</div>
     ),
@@ -88,7 +91,8 @@ export const columns: ColumnDef<BillingHistoryItem>[] = [
     },
   },
   {
-    accessorKey: "status",
+    accessorFn: (row) => row.status,
+    id: "status",
     header: ({ column }) => (
       <div className="flex justify-center">
         <Button
@@ -126,7 +130,8 @@ export const columns: ColumnDef<BillingHistoryItem>[] = [
     },
   },
   {
-    accessorKey: "plan",
+    accessorFn: (row) => row.subscription.name,
+    id: "plan",
     header: () => <div className="flex justify-center">Gói</div>,
     cell: ({ row }) => {
       const plan = row.getValue("plan") as string;
@@ -138,7 +143,8 @@ export const columns: ColumnDef<BillingHistoryItem>[] = [
     },
   },
   {
-    accessorKey: "price",
+    accessorFn: (row) => row.total,
+    id: "price",
     header: () => <div className="flex justify-center">Giá thành</div>,
     cell: ({ row }) => {
       const price = row.getValue("price") as number;
@@ -155,7 +161,7 @@ export const columns: ColumnDef<BillingHistoryItem>[] = [
         <div className="flex justify-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
+              <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
@@ -163,16 +169,14 @@ export const columns: ColumnDef<BillingHistoryItem>[] = [
             <DropdownMenuContent align="end" className="action-dropdown">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => navigator.clipboard.writeText(bill.id)}
+                onClick={() => navigator.clipboard.writeText(bill.billingId)}
               >
                 Copy Transaction ID
               </DropdownMenuItem>
               <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() =>
-                  alert(`Viewing subscription ${bill.subscriptionId}`)
-                }
+                onClick={() => {
+                  openDialog(bill);
+                }}
               >
                 View Subscription
               </DropdownMenuItem>

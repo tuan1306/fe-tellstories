@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { BillingResponse } from "@/app/types/billing-history";
-import { columns } from "./columns";
-import { DataTable } from "./data-table";
+import { DataTableWrapper } from "./DataTableWrapper";
 import { UserBillingMetrics } from "@/components/ui/UserBillingMetrics";
 import { Info } from "lucide-react";
 import { cookies } from "next/headers";
@@ -31,9 +30,9 @@ export default async function BillingHistoryPage({
   const data = await getData((await params).id);
   const metricsData = data.data;
   const billingData = data.data.billingHistory.items;
+
   return (
     <div className="grid grid-cols-1">
-      {/* Page Header */}
       <div className="w-full mt-4">
         <h1 className="text-2xl font-semibold">
           Lịch sử thanh toán của người dùng
@@ -42,19 +41,18 @@ export default async function BillingHistoryPage({
           Đây là nơi chứa thông tin lịch sử thanh toán của người dùng
         </p>
 
-        {/* User basic info */}
         <div className="max-w-full w-full mt-4">
           <h2 className="text-lg flex gap-2 items-center font-semibold">
             <Info className="w-5 h-5" /> Thông tin cơ bản của người dùng
           </h2>
         </div>
+
         <UserBillingMetrics data={metricsData} />
       </div>
 
-      {/* Billing History Table */}
       <div className="w-full mt-6">
         <Suspense fallback={<div>Loading user table...</div>}>
-          <DataTable columns={columns} data={billingData} />
+          <DataTableWrapper billingData={billingData} />
         </Suspense>
       </div>
     </div>
