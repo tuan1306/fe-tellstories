@@ -67,6 +67,9 @@ export const SubscriptionDialog = ({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
 
+  // If user choosing editting the package
+  const [isEditing, setIsEditing] = useState(false);
+
   const form = useForm<z.infer<typeof subscriptionSchema>>({
     resolver: zodResolver(subscriptionSchema),
     defaultValues: {
@@ -210,7 +213,11 @@ export const SubscriptionDialog = ({
       <Button
         variant="link"
         className="px-0 text-sm cursor-pointer text-chart-1"
-        onClick={() => setSelectedPackage(pkg)}
+        onClick={() => {
+          setSelectedPackage(pkg);
+          setIsEditing(true);
+          setShowForm(true);
+        }}
       >
         Chỉnh sửa gói
       </Button>
@@ -228,11 +235,18 @@ export const SubscriptionDialog = ({
       <DialogContent className="w-[700px] max-w-full max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>
-            {showForm ? "Đăng ký gói mới" : "Hệ thống quản lý gói"}
+            {showForm
+              ? isEditing
+                ? "Chỉnh sửa gói đăng ký"
+                : "Đăng ký gói mới"
+              : "Hệ thống quản lý gói"}
           </DialogTitle>
+
           <DialogDescription>
             {showForm
-              ? "Vui lòng điền đầy đủ thông tin để tạo gói đăng ký mới."
+              ? isEditing
+                ? "Vui lòng chỉnh sửa thông tin gói đăng ký."
+                : "Vui lòng điền đầy đủ thông tin để tạo gói đăng ký mới."
               : "Xem hoặc quản lý các gói đăng ký hiện có bên dưới."}
           </DialogDescription>
           {!showForm && (
