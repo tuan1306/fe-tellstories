@@ -159,7 +159,7 @@ export const columns: ColumnDef<SubscriptionDetail>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="action-dropdown">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>Hoạt động</DropdownMenuLabel>
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={() =>

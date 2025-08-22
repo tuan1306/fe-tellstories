@@ -175,9 +175,9 @@ export function DataTable<TData, TValue>({
         <div className="ml-auto flex gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="cursor-pointer">
+              {/* <Button variant="outline" className="cursor-pointer">
                 Ẩn/Hiện Cột
-              </Button>
+              </Button> */}
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
