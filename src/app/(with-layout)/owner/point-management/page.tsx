@@ -59,8 +59,8 @@ export default function WalletTransactionPage() {
       <div className="w-full">
         <h1 className="text-2xl font-semibold">Danh sách giao dịch ví</h1>
         <h2 className="text-md text-muted-foreground">
-          Hiển thị 10 giao dịch ví gần đây nhất, bao gồm người dùng, số dư và
-          loại giao dịch.
+          Các giao dịch ví gần đây nhất, bao gồm người dùng, số dư và loại giao
+          dịch.
         </h2>
       </div>
 
