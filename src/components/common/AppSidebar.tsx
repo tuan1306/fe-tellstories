@@ -56,7 +56,7 @@ const items = [
   },
   {
     title: "Quản lý điểm",
-    url: "/owner/sparks",
+    url: "/owner/point-management",
     icon: Sparkles,
   },
   {
