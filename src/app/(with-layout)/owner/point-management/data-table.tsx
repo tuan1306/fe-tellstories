@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -31,32 +31,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DataTablePagination } from "@/components/TablePagination";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon, X } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import DateRangeFilter from "@/components/DateRangeFilter"; // ✅ imported here
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   defaultSort?: SortingState;
+  loading?: boolean;
+  onDateRangeApply?: (from?: string, to?: string) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   defaultSort = [],
+  loading,
+  onDateRangeApply,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>(defaultSort);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -65,11 +55,6 @@ export function DataTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>();
-
-  const [selectedColumn, setSelectedColumn] =
-    React.useState<string>("createdAt");
-  const dateColumns = [{ key: "createdAt", label: "Ngày giao dịch" }];
 
   const table = useReactTable({
     data,
@@ -92,80 +77,28 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4">
+      <div className="flex items-center py-4 gap-4">
+        {/* Search */}
         <Input
           placeholder="Tìm kiếm giao dịch..."
           value={globalFilter ?? ""}
           onChange={(event) => setGlobalFilter(event.target.value)}
-          className="max-w-sm mr-3"
+          className="max-w-sm"
         />
 
-        {/* Calendar filter */}
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4" />
-              {selectedDate
-                ? format(selectedDate, "dd/MM/yyyy")
-                : "Lọc theo ngày"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-3 space-y-3" align="start">
-            {/* Select which date column to filter */}
-            <Select value={selectedColumn} onValueChange={setSelectedColumn}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Chọn cột ngày" />
-              </SelectTrigger>
-              <SelectContent>
-                {dateColumns.map((col) => (
-                  <SelectItem key={col.key} value={col.key}>
-                    {col.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        <DateRangeFilter
+          onApply={(from, to) => {
+            if (onDateRangeApply) {
+              onDateRangeApply(from, to);
+            }
+          }}
+        />
 
-            <Calendar
-              mode="single"
-              selected={selectedDate}
-              onSelect={(date) => {
-                if (date && selectedColumn) {
-                  setSelectedDate(date);
-                  const iso = format(date, "yyyy-MM-dd");
-                  table.getColumn(selectedColumn)?.setFilterValue(iso);
-                }
-              }}
-              captionLayout="dropdown"
-              disabled={!selectedColumn}
-              startMonth={new Date(2000, 0)}
-              endMonth={new Date(2035, 11)}
-            />
-
-            {/* Clean the date filter */}
-            {selectedDate && (
-              <Button
-                onClick={() => {
-                  if (selectedColumn) {
-                    table.getColumn(selectedColumn)?.setFilterValue(undefined);
-                  }
-                  setSelectedDate(undefined);
-                }}
-                variant="outline"
-                className="w-full text-sm text-muted-foreground"
-              >
-                <X className="h-4 w-4 mr-2 text-red-500" />
-                Xóa bộ lọc ngày
-              </Button>
-            )}
-          </PopoverContent>
-        </Popover>
-
+        {/* Column visibility dropdown */}
         <div className="ml-auto flex gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              {/* <Button variant="outline" className="cursor-pointer">
-                Ẩn/Hiện Cột
-              </Button> */}
+              {/* <Button variant="outline">Ẩn/Hiện Cột</Button> */}
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
@@ -193,6 +126,7 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
 
+      {/* Table */}
       <div className="rounded-md border shadow-sm">
         <Table>
           <TableHeader>
@@ -216,7 +150,16 @@ export function DataTable<TData, TValue>({
           </TableHeader>
 
           <TableBody>
-            {table.getRowModel().rows.length ? (
+            {loading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center py-6"
+                >
+                  Đang tải dữ liệu...
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (

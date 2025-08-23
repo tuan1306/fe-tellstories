@@ -1,36 +1,52 @@
+"use client";
+
 import * as React from "react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
-import { cookies } from "next/headers";
 import {
   WalletTransaction,
   WalletTransactionResponse,
 } from "@/app/types/wallet";
 
-const getData = async (): Promise<WalletTransaction[]> => {
-  const cookie = await cookies();
-  const cookieToken = cookie.toString();
+export default function WalletTransactionPage() {
+  const [data, setData] = React.useState<WalletTransaction[]>([]);
+  const [loading, setLoading] = React.useState(false);
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/wallet/transaction?page=1&pageSize=10`,
-    {
-      cache: "no-store",
-      headers: {
-        Cookie: cookieToken,
-      },
+  const fetchData = async (from?: string, to?: string) => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams({
+        page: "1",
+        pageSize: "10",
+        ...(from ? { from } : {}),
+        ...(to ? { to } : {}),
+      });
+
+      const res = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_URL
+        }/api/wallet/transaction?${params.toString()}`,
+        {
+          cache: "no-store",
+          credentials: "include",
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch wallet transactions");
+
+      const json = (await res.json()) as WalletTransactionResponse;
+      setData(json.items);
+    } catch (error) {
+      console.error(error);
+      setData([]);
+    } finally {
+      setLoading(false);
     }
-  );
+  };
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch wallet transactions");
-  }
-
-  const json = (await res.json()) as WalletTransactionResponse;
-  return json.items;
-};
-
-export default async function WalletTransactionPage() {
-  const data = await getData();
+  React.useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div className="p-4">
@@ -42,7 +58,12 @@ export default async function WalletTransactionPage() {
         </h2>
       </div>
 
-      <DataTable columns={columns} data={data} />
+      <DataTable
+        columns={columns}
+        data={data}
+        loading={loading}
+        onDateRangeApply={(from, to) => fetchData(from, to)}
+      />
     </div>
   );
 }
