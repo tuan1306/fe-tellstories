@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { WalletTransaction } from "@/app/types/wallet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -39,11 +39,22 @@ export const columns: ColumnDef<WalletTransaction>[] = [
 
   {
     accessorKey: "type",
-    header: () => <div className="flex justify-center">Loại giao dịch</div>,
+    header: ({ column }) => (
+      <div className="flex justify-center items-center">
+        <Button
+          variant="ghost"
+          className="gap-2 cursor-pointer"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Loại giao dịch
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+      </div>
+    ),
     cell: ({ row }) => {
       const type = row.getValue<"Credit" | "Debit">("type");
       return (
-        <div className="flex justify-center">
+        <div className="flex justify-center items-center">
           <Badge
             className={
               type === "Credit"
@@ -57,6 +68,7 @@ export const columns: ColumnDef<WalletTransaction>[] = [
       );
     },
   },
+
   {
     accessorKey: "amount",
     header: () => <div className="flex justify-center">Số điểm</div>,
@@ -66,6 +78,7 @@ export const columns: ColumnDef<WalletTransaction>[] = [
       </div>
     ),
   },
+
   {
     accessorKey: "balanceBefore",
     header: () => (
@@ -77,6 +90,7 @@ export const columns: ColumnDef<WalletTransaction>[] = [
       </div>
     ),
   },
+
   {
     accessorKey: "balanceAfter",
     header: () => (
@@ -113,6 +127,7 @@ export const columns: ColumnDef<WalletTransaction>[] = [
         <div className="flex justify-center items-center">Hệ thống</div>
       ),
   },
+
   {
     id: "actions",
     cell: ({ row }) => {
