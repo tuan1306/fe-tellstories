@@ -30,8 +30,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DataTablePagination } from "@/components/TablePagination";
-import DateRangeFilter from "@/components/DateRangeFilter"; // ✅ imported here
+import DateRangeFilter from "@/components/DateRangeFilter";
+import { Button } from "@/components/ui/button";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -39,6 +39,7 @@ interface DataTableProps<TData, TValue> {
   defaultSort?: SortingState;
   loading?: boolean;
   onDateRangeApply?: (from?: string, to?: string) => void;
+  onPageChange: (page: number, pageSize: number) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -47,6 +48,7 @@ export function DataTable<TData, TValue>({
   defaultSort = [],
   loading,
   onDateRangeApply,
+  onPageChange,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>(defaultSort);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -189,8 +191,33 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="py-4">
-        <DataTablePagination table={table} />
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            onPageChange(
+              table.getState().pagination.pageIndex - 1,
+              table.getState().pagination.pageSize
+            )
+          }
+          disabled={!table.getCanPreviousPage()}
+        >
+          Trước
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            onPageChange(
+              table.getState().pagination.pageIndex + 1,
+              table.getState().pagination.pageSize
+            )
+          }
+          disabled={!table.getCanNextPage()}
+        >
+          Sau
+        </Button>
       </div>
     </div>
   );

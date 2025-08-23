@@ -12,12 +12,17 @@ export default function WalletTransactionPage() {
   const [data, setData] = React.useState<WalletTransaction[]>([]);
   const [loading, setLoading] = React.useState(false);
 
-  const fetchData = async (from?: string, to?: string) => {
+  const fetchData = async (
+    from?: string,
+    to?: string,
+    page = 1,
+    pageSize = 10
+  ) => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
-        page: "1",
-        pageSize: "10",
+        page: page.toString(),
+        pageSize: pageSize.toString(),
         ...(from ? { from } : {}),
         ...(to ? { to } : {}),
       });
@@ -36,6 +41,7 @@ export default function WalletTransactionPage() {
 
       const json = (await res.json()) as WalletTransactionResponse;
       setData(json.items);
+      return json;
     } catch (error) {
       console.error(error);
       setData([]);
@@ -63,6 +69,9 @@ export default function WalletTransactionPage() {
         data={data}
         loading={loading}
         onDateRangeApply={(from, to) => fetchData(from, to)}
+        onPageChange={(page, pageSize) =>
+          fetchData(undefined, undefined, page, pageSize)
+        }
       />
     </div>
   );
