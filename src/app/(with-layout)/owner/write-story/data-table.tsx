@@ -62,7 +62,7 @@ export default function DataTable() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
-          author: "Super Admin",
+          author: "Admin",
           description: "",
           isDraft: true,
           coverImageUrl: "",
@@ -366,7 +366,7 @@ export default function DataTable() {
                   <PlusCircle className="w-10 h-10 text-primary" />
                 </div>
                 <h1 className="text-sm font-semibold text-muted-foreground">
-                  Super Admin
+                  Admin
                 </h1>
                 <h1 className="text-xl font-semibold">Thêm truyện mới</h1>
               </div>

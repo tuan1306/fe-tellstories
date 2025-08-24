@@ -25,7 +25,7 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
     message: string
   ) => {
     try {
-      const res = await fetch("/api/notification", {
+      const res = await fetch("/api/send-notification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

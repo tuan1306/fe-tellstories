@@ -239,9 +239,11 @@ export function EditUserSheet({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Admin">Admin</SelectItem>
-                            <SelectItem value="Moderator">Moderator</SelectItem>
-                            <SelectItem value="User">User</SelectItem>
+                            <SelectItem value="Admin">Quản trị viên</SelectItem>
+                            <SelectItem value="Moderator">
+                              Người kiểm duyệt
+                            </SelectItem>
+                            <SelectItem value="User">Người dùng</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

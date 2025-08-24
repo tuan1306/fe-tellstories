@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const page = searchParams.get("page") ?? "1";
     const pageSize = searchParams.get("pageSize") ?? "10";
-    const userId = searchParams.get("userId") ?? "";
+    const userQuery = searchParams.get("userQuery") ?? "";
     const type = searchParams.get("type") ?? "";
     const from = searchParams.get("from") ?? "";
     const to = searchParams.get("to") ?? "";
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
       pageSize,
     });
 
-    if (userId) query.append("userId", userId);
+    if (userQuery) query.append("userQuery", userQuery);
     if (type) query.append("type", type);
     if (from) query.append("from", from);
     if (to) query.append("to", to);

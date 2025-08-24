@@ -55,11 +55,6 @@ const items = [
     icon: Users,
   },
   {
-    title: "Quản lý điểm",
-    url: "/owner/point-management",
-    icon: Sparkles,
-  },
-  {
     title: "Quản lý gói",
     url: "/owner/subscription",
     icon: CircleDollarSign,
@@ -75,14 +70,19 @@ const items = [
     icon: AlertTriangle,
   },
   {
+    title: "Quản lý truyện",
+    url: "/owner/stories",
+    icon: BookOpen,
+  },
+  {
     title: "Viết truyện",
     url: "/owner/write-story",
     icon: PenBoxIcon,
   },
   {
-    title: "Quản lý truyện",
-    url: "/owner/stories",
-    icon: BookOpen,
+    title: "Danh sách giao dịch điểm",
+    url: "/owner/point-management",
+    icon: Sparkles,
   },
   {
     title: "Quản lý hệ thống",
