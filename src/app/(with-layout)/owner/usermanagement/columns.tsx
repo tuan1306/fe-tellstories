@@ -146,14 +146,14 @@ export const columns: ColumnDef<UserDetails>[] = [
 
       const statusColor: Record<string, string> = {
         Active: "bg-green-500 text-white",
-        Pending: "bg-yellow-500 text-white",
-        Inactive: "bg-red-500 text-white",
+        Suspended: "bg-yellow-500 text-white",
+        Banned: "bg-red-500 text-white",
       };
 
       const statusLabel: Record<string, string> = {
         Active: "Hoạt động",
-        Pending: "Đang chờ",
-        Inactive: "Vô hiệu hóa",
+        Suspended: "Tạm khóa",
+        Banned: "Bị cấm",
       };
 
       return (

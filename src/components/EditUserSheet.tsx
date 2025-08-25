@@ -89,8 +89,10 @@ export function EditUserSheet({
       const payload = {
         ...values,
         avatarUrl,
-        dob: values.dob.toISOString().split("T")[0],
+        dob: values.dob.toISOString(),
       };
+
+      // console.log("Payload:", payload);
 
       if (!user?.id) throw new Error("User ID is missing");
 
@@ -268,9 +270,7 @@ export function EditUserSheet({
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="Active">Hoạt động</SelectItem>
-                            <SelectItem value="Disabled">
-                              Vô hiệu hóa
-                            </SelectItem>
+                            <SelectItem value="Suspended">Tạm khóa</SelectItem>
                             <SelectItem value="Banned">Bị cấm</SelectItem>
                           </SelectContent>
                         </Select>

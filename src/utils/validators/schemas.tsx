@@ -15,7 +15,7 @@ export const addUserSchema = z.object({
     .min(1, { message: "Tên hiển thị không được để trống" }),
   avatarUrl: z.string().optional(),
   userType: z.enum(["Admin", "Moderator", "User"]).optional(),
-  status: z.enum(["Active", "Disabled", "Banned"]).optional(),
+  status: z.enum(["Active", "Suspended", "Banned"]).optional(),
   phoneNumber: z.string().optional(),
   password: z.string().regex(/[!@#$%^&*(),.?":{}|<>]/, {
     message: "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
@@ -28,7 +28,7 @@ export const editUserSchema = z.object({
   displayName: z.string().min(1),
   avatarUrl: z.string().optional(),
   userType: z.enum(["Admin", "Moderator", "User"]).optional(),
-  status: z.enum(["Active", "Disabled", "Banned"]).optional(),
+  status: z.enum(["Active", "Suspended", "Banned"]).optional(),
   phoneNumber: z.string().optional(),
   dob: z.date(),
 });

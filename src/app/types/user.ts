@@ -3,7 +3,7 @@ export type UserDetails = {
   displayName: string;
   email: string;
   userType: "Admin" | "User" | null;
-  status: "Active" | "Disabled" | "Banned" | null;
+  status: "Active" | "Suspended" | "Banned" | null;
   avatarUrl: string;
   phoneNumber: string | null;
   dob: string | null;
