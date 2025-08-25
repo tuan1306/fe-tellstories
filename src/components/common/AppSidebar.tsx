@@ -5,12 +5,13 @@ import {
   ChevronUp,
   CircleDollarSign,
   Cog,
+  DoorOpen,
   LayoutDashboard,
   // LucideMessageSquareText,
   PenBoxIcon,
   // Receipt,
   // Scroll,
-  Settings,
+  // Settings,
   Sparkles,
   SwatchBook,
   User2,
@@ -107,7 +108,7 @@ const moderatorItems = [
 
 const AppSidebar = () => {
   const pathname = usePathname();
-  const { role, user } = useAuth();
+  const { role, user, logout } = useAuth();
 
   const items = role === "Admin" ? ownerItems : moderatorItems;
 
@@ -188,9 +189,12 @@ const AppSidebar = () => {
                   <User2 className="w-4 h-4" />
                   <span>Account</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200">
-                  <Settings className="w-4 h-4" />
-                  <span>Settings</span>
+                <DropdownMenuItem
+                  onClick={logout}
+                  className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-red-500 transition-all duration-200"
+                >
+                  <DoorOpen className="w-4 h-4" />
+                  <span>Logout</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
