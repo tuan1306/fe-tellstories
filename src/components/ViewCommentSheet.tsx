@@ -28,7 +28,7 @@ import {
 } from "./ui/dropdown-menu";
 import { StoryDetails } from "@/app/types/story";
 import Image from "next/image";
-import { useAuth } from "@/context/AuthContext";
+// import { useAuth } from "@/context/AuthContext";
 
 function CommentThread({
   comment,
@@ -226,7 +226,7 @@ export function ViewCommentSheet({
             {story && (
               <div className="mt-4 p-4 border rounded-lg shadow-sm bg-card">
                 <div className="flex items-start gap-3">
-                  <div className="relative w-14 h-20">
+                  <div className="relative w-16 h-22">
                     <Image
                       src={story.coverImageUrl || "/Goated fucking cat.png"}
                       alt={
@@ -240,13 +240,23 @@ export function ViewCommentSheet({
                     />
                   </div>
                   <div>
-                    <Link href={`stories/${story.id}`}>
+                    <Link
+                      href={`stories/${story.id}`}
+                      className="hover:underline"
+                    >
                       <h3 className="font-semibold text-lg truncate w-48">
                         {story.title || "Testing"}
                       </h3>
                     </Link>
+
                     <p className="text-sm text-gray-500">
-                      by {story.author ?? "Không tên"}
+                      Tác giả:{" "}
+                      <Link
+                        href={`/owner/usermanagement/users/${story.createdBy.id}`}
+                        className="hover:underline"
+                      >
+                        {story.author ?? "Không tên"}
+                      </Link>
                     </p>
                   </div>
                 </div>
