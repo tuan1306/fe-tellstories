@@ -5,17 +5,13 @@ export async function POST(req: NextRequest) {
   try {
     const token = (await cookies()).get("authToken")?.value;
 
-    if (!token) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     const body = await req.json();
     const { userId, title, message, type, sender, targetType } = body;
 
     console.log("Notification body received:", body);
 
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/Notification/send`,
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Notification/send`,
       {
         method: "POST",
         headers: {
