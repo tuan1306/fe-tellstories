@@ -10,12 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  // CheckCircle,
-  Loader2,
-  MessageSquare,
-  MoreHorizontal,
-} from "lucide-react";
+import { Loader2, MessageSquare, MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CommentDetail, CommentSummary } from "@/app/types/comment";
@@ -28,6 +23,8 @@ import {
 } from "./ui/dropdown-menu";
 import { StoryDetails } from "@/app/types/story";
 import Image from "next/image";
+// import { Button } from "./ui/button";
+import { ResolveItem } from "./ApproveProblemAlertDialog";
 // import { useAuth } from "@/context/AuthContext";
 
 function CommentThread({
@@ -223,6 +220,7 @@ export function ViewCommentSheet({
                 </SheetDescription>
               </div>
             </SheetHeader>
+
             {story && (
               <div className="mt-4 p-4 border rounded-lg shadow-sm bg-card">
                 <div className="flex items-start gap-3">
@@ -263,6 +261,15 @@ export function ViewCommentSheet({
               </div>
             )}
 
+            <div className="mt-4">
+              <ResolveItem
+                itemId={comment.issueId}
+                userId={comment.reporterId}
+                onSuccess={() => onOpenChange(false)}
+                className="w-full"
+              />
+            </div>
+
             {loading ? (
               <div className="flex justify-center mt-6">
                 <Loader2 className="w-10 h-10 animate-spin text-muted-foreground" />
@@ -273,15 +280,6 @@ export function ViewCommentSheet({
                   comment={detailedComment}
                   onDelete={handleDeleteComment}
                 />
-                {/* <button
-                  onClick={handleResolve}
-                  disabled={resolving}
-                  className="w-[150px] ml-5 inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium disabled:opacity-50"
-                >
-                  {resolving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <CheckCircle className="w-4 h-4" />
-                  Resolve
-                </button> */}
               </div>
             ) : (
               <p className="mt-6 text-muted-foreground">

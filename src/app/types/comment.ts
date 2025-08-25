@@ -35,6 +35,8 @@ export type IssueType = "comment" | "bug" | "other";
 
 export interface FlaggedComment {
   id: string;
+  reporterId: string;
+  reporterName: string;
   issueId: string;
   content: string;
   flaggedReason: string;
@@ -53,6 +55,8 @@ export type CommentSummary = {
   createdDate: string;
   displayName: string;
   flaggedReason?: string;
+  reporterId: string;
+  reporterName: string;
 };
 
 export type CommentDetail = {

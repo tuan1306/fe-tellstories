@@ -30,13 +30,13 @@ export function DeleteComment({
       });
 
       if (!res.ok) {
-        console.error("Failed to delete comment");
+        console.error("Xóa bình luận thất bại");
         return;
       }
 
       onSuccess(commentId);
     } catch (error) {
-      console.error("Error deleting comment", error);
+      console.error("Lỗi khi xóa bình luận", error);
     } finally {
       setDeleting(false);
     }
@@ -54,28 +54,27 @@ export function DeleteComment({
           ) : (
             <Trash2 className="text-red-600 w-4 h-4 mr-2" />
           )}
-          Delete
+          Xóa
         </DropdownMenuItem>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Comment</AlertDialogTitle>
+          <AlertDialogTitle>Xóa bình luận</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the
-            comment and remove it from the thread.
+            Hành động này không thể hoàn tác. Bình luận sẽ bị xóa vĩnh viễn khỏi
+            phần thảo luận và những người dùng khác sẽ không thể nhìn thấy nó
+            nữa.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="cursor-pointer">
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel className="cursor-pointer">Hủy</AlertDialogCancel>
           <AlertDialogAction
             className="bg-red-600 hover:bg-red-700 text-white cursor-pointer"
             onClick={handleDelete}
             disabled={deleting}
           >
             {deleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Delete
+            Xóa
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

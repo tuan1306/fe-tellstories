@@ -110,6 +110,8 @@ export default function CommentIssueList({
                   createdDate: issue.createdAt,
                   displayName: issue.displayName,
                   flaggedReason: issue.flaggedReason,
+                  reporterId: issue.reporterId,
+                  reporterName: issue.reporterName,
                 }}
                 issueId={issue.issueId}
               >

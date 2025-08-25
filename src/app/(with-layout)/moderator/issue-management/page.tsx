@@ -56,6 +56,11 @@ export default function IssueMangement() {
 
               return {
                 id: comment.id,
+                // Comment author
+                userId: comment.user.id,
+                // Reporter ID
+                reporterId: item.user.id,
+                reporterName: item.user.displayName,
                 issueId: item.id,
                 content: comment.content,
                 flaggedReason: item.issueType,
@@ -71,6 +76,10 @@ export default function IssueMangement() {
             if (targetType === "bug") {
               return {
                 id: item.id,
+                // Bug reporter (or author?)
+                userId: item.user.id,
+                reporterId: item.user.id,
+                reporterName: item.user.displayName,
                 issueId: item.id,
                 content: item.description ?? "",
                 flaggedReason: item.issueType,
@@ -85,6 +94,9 @@ export default function IssueMangement() {
 
             return {
               id: item.id,
+              userId: item.user.id,
+              reporterId: item.user.id,
+              reporterName: item.user.displayName,
               issueId: item.id,
               content: item.description ?? "",
               flaggedReason: item.issueType,
