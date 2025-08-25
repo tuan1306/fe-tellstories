@@ -41,6 +41,11 @@ export default function StoriesManagement() {
   const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
   // const [selectedAudio, setSelectedAudio] = useState<string[]>([]);
 
+  // Tracking purpose
+  const handleRemovePending = (id: string) => {
+    setPendingStories((prev) => prev.filter((story) => story.id !== id));
+  };
+
   // Paging
   const pageSize = 12;
   const [currentPage, setCurrentPage] = useState(1);
@@ -250,6 +255,7 @@ export default function StoriesManagement() {
                 statusFilter={statusFilter}
                 pendingStories={pendingStories}
                 filtered={filtered}
+                onRemovePending={handleRemovePending}
               />
             )}
           </div>

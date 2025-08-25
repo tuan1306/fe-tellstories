@@ -13,12 +13,14 @@ type Props = {
   statusFilter: "Pending" | "Published" | "Featured";
   pendingStories: PendingStoryRequest[];
   filtered: PublishedStories[];
+  onRemovePending?: (id: string) => void;
 };
 
 export default function ManageStoryGrid({
   statusFilter,
   pendingStories,
   filtered,
+  onRemovePending,
 }: Props) {
   if (statusFilter === "Pending") {
     return pendingStories.length === 0 ? (
@@ -28,7 +30,7 @@ export default function ManageStoryGrid({
     ) : (
       <ScrollArea className="h-full w-full pr-4">
         <div className="flex flex-col gap-4">
-          <PendingStory items={pendingStories} />
+          <PendingStory items={pendingStories} onRemove={onRemovePending} />
         </div>
       </ScrollArea>
     );

@@ -15,7 +15,13 @@ import { useState } from "react";
 import ReviewStoryDialog from "./ReviewStoryDialog";
 import { toast } from "sonner";
 
-export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
+export function PendingStory({
+  items,
+  onRemove,
+}: {
+  items: PendingStoryRequest[];
+  onRemove?: (id: string) => void;
+}) {
   // Approval
   const [openApproveId, setOpenApproveId] = useState<string | null>(null);
   const [openDenyId, setOpenDenyId] = useState<string | null>(null);
@@ -26,7 +32,7 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
     message: string
   ) => {
     try {
-      const res = await fetch("/api/send-notification", {
+      const res = await fetch("/api/notification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -231,6 +237,8 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                         title,
                         message
                       );
+
+                      if (onRemove) onRemove(item.id);
                     }}
                   />
 
@@ -254,6 +262,8 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
                         title,
                         message
                       );
+
+                      if (onRemove) onRemove(item.id);
                     }}
                   />
                 </DropdownMenuContent>
