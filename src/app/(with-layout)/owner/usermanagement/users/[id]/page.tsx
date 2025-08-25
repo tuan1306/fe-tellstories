@@ -184,10 +184,14 @@ export default function UserPage() {
                     ? "bg-[#deac4a] text-white"
                     : user.userType === "User"
                     ? "bg-[#2F629A] text-white"
-                    : "bg-[#e06976] text-white"
+                    : "bg-[#F46A00] text-white"
                 }
               >
-                {user.userType || "Không rõ"}
+                {user.userType === "Admin"
+                  ? "Quản trị viên"
+                  : user.userType === "User"
+                  ? "Người dùng"
+                  : "Người kiểm duyệt"}
               </Badge>
             </div>
             <div className="flex items-center gap-2">
@@ -196,12 +200,18 @@ export default function UserPage() {
                 className={
                   user.status === "Active"
                     ? "bg-green-500 text-white"
-                    : user.status === "Disabled"
+                    : user.status === "Suspended"
                     ? "bg-yellow-500 text-white"
                     : "bg-[#e06976] text-white"
                 }
               >
-                {user.status || "Không rõ"}
+                {user.status === "Active"
+                  ? "Hoạt động"
+                  : user.status === "Suspended"
+                  ? "Tạm khóa"
+                  : user.status === "Banned"
+                  ? "Bị cấm"
+                  : "Không rõ"}
               </Badge>
             </div>
           </div>
@@ -266,10 +276,10 @@ export default function UserPage() {
               <h1 className="text-4xl mb-3 font-semibold">
                 {user.displayName}
               </h1>
-              <p className="text-sm text-muted-foreground">
+              {/* <p className="text-sm text-muted-foreground">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                 Suspendisse porttitor justo neque, non semper odio lobortis sed.
-              </p>
+              </p> */}
             </div>
           </div>
         </div>
