@@ -60,6 +60,7 @@ export function PendingStory({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         amount: points,
+        reason: "Publication success",
       }),
     });
 
