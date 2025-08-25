@@ -12,6 +12,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { FlaggedComment, StatusFilter } from "@/app/types/comment";
 import CommentIssueList from "@/components/IssueList";
+import BugIssueList from "@/components/BugIssueList";
 
 function toLocalDateString(date: Date) {
   return `${date.getFullYear()}-${(date.getMonth() + 1)
@@ -76,19 +77,31 @@ export default function IssueMangement() {
             if (targetType === "bug") {
               return {
                 id: item.id,
-                // Bug reporter
+
+                // Reporter
                 userId: item.user.id,
                 reporterId: item.user.id,
                 reporterName: item.user.displayName,
                 issueId: item.id,
+
                 content: item.description ?? "",
                 flaggedReason: item.issueType,
                 createdAt: item.createdDate,
+
                 displayName: item.user.displayName,
                 avatarUrl: item.user.avatarUrl,
+
                 status: normalizedStatus as StatusFilter,
                 replies: [],
                 type: "bug",
+
+                attachment: item.attachment ?? null,
+
+                user: {
+                  id: item.user.id,
+                  displayName: item.user.displayName,
+                  avatarUrl: item.user.avatarUrl ?? "",
+                },
               };
             }
 
@@ -251,6 +264,8 @@ export default function IssueMangement() {
               No flagged {typeFilter.toLowerCase()}s found.
             </p>
           </div>
+        ) : typeFilter.toLowerCase() === "bug" ? (
+          <BugIssueList loading={loading} issues={filtered} />
         ) : (
           <CommentIssueList loading={loading} issues={filtered} />
         )}

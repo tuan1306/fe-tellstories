@@ -65,3 +65,18 @@ export interface IssueReportResponse {
   message: string;
   errors: string[];
 }
+export interface BugIssue {
+  id: string;
+  issueId: string;
+  user: {
+    id: string;
+    displayName: string;
+    avatarUrl: string;
+  };
+  issueType: string;
+  targetType: string;
+  attachment: string | null;
+  description: string | null;
+  status: string;
+  createdDate: string;
+}

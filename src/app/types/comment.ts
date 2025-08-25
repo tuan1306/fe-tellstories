@@ -46,6 +46,7 @@ export interface FlaggedComment {
   status: StatusFilter;
   type: IssueType;
   replies?: CommentReply[];
+  attachment?: string | null;
 }
 
 export type CommentSummary = {
