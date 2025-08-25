@@ -27,6 +27,7 @@ export async function GET(
     }
 
     const data = await res.json();
+    console.log("Fetched story data:", data);
     return NextResponse.json({ data }, { status: 200 });
   } catch (err) {
     console.error("GET /api/stories/[id]:", err);

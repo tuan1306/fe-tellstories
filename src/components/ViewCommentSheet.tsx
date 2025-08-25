@@ -26,6 +26,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { StoryDetails } from "@/app/types/story";
+import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
 
 function CommentThread({
   comment,
@@ -106,14 +109,39 @@ export function ViewCommentSheet({
     null
   );
 
+  // Get the damn story
+  const [story, setStory] = useState<StoryDetails | null>(null);
+  // const { role } = useAuth();
+
   useEffect(() => {
     if (open && comment) {
       setLoading(true);
+
       fetch(`/api/comments/thread/${comment.id}`)
         .then((res) => res.json())
-        .then((json) => {
+        .then(async (json) => {
           if (json.success && json.data) {
             setDetailedComment(json.data);
+
+            if (json.data.storyId) {
+              try {
+                const storyRes = await fetch(
+                  `/api/stories/${json.data.storyId}`
+                );
+
+                const storyJson = await storyRes.json();
+
+                // I love it when the error is data.data, good lord fuck me in the ass.
+                if (storyRes.ok && storyJson.data) {
+                  setStory(storyJson.data.data as StoryDetails);
+                } else {
+                  setStory(null);
+                }
+              } catch (err) {
+                console.error("Error fetching story info", err);
+                setStory(null);
+              }
+            }
           } else {
             setDetailedComment(null);
             console.error("Failed to load comment thread");
@@ -122,10 +150,12 @@ export function ViewCommentSheet({
         .catch((e) => {
           setDetailedComment(null);
           console.error("Error fetching comment thread", e);
+          setDetailedComment(null);
         })
         .finally(() => setLoading(false));
     } else {
       setDetailedComment(null);
+      setStory(null);
     }
   }, [open, comment]);
 
@@ -193,6 +223,35 @@ export function ViewCommentSheet({
                 </SheetDescription>
               </div>
             </SheetHeader>
+            {story && (
+              <div className="mt-4 p-4 border rounded-lg shadow-sm bg-card">
+                <div className="flex items-start gap-3">
+                  <div className="relative w-14 h-20">
+                    <Image
+                      src={story.coverImageUrl || "/Goated fucking cat.png"}
+                      alt={
+                        story.coverImageUrl
+                          ? `Cover image for ${story.title}`
+                          : `Placeholder cover image for ${story.title}`
+                      }
+                      fill
+                      className="object-cover rounded"
+                      sizes="128px"
+                    />
+                  </div>
+                  <div>
+                    <Link href={`stories/${story.id}`}>
+                      <h3 className="font-semibold text-lg truncate w-48">
+                        {story.title || "Testing"}
+                      </h3>
+                    </Link>
+                    <p className="text-sm text-gray-500">
+                      by {story.author ?? "Không tên"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {loading ? (
               <div className="flex justify-center mt-6">
