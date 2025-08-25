@@ -12,6 +12,8 @@ import {
 import { Loader2 } from "lucide-react";
 import { FlaggedComment, StatusFilter } from "@/app/types/comment";
 import CommentIssueList from "@/components/IssueList";
+import BugIssueList from "@/components/BugIssueList";
+import { vi } from "date-fns/locale";
 
 function toLocalDateString(date: Date) {
   return `${date.getFullYear()}-${(date.getMonth() + 1)
@@ -28,6 +30,12 @@ export default function IssueMangement() {
   //   const [statusFilter, setStatusFilter] = useState<StatusFilter>("Pending");
   const [typeFilter, setTypeFilter] = useState<string>("Comment");
   const [loading, setLoading] = useState(false);
+
+  const handleResolved = (id: string) => {
+    setFlaggedComments((prev) =>
+      prev.filter((issue) => issue.id !== id && issue.issueId !== id)
+    );
+  };
 
   useEffect(() => {
     const fetchFlaggedComments = async () => {
@@ -56,11 +64,11 @@ export default function IssueMangement() {
 
               return {
                 id: comment.id,
-                // Comment author
+                // Reported commentor
                 userId: comment.user.id,
-                // Reporter ID
+                // Reporter
                 reporterId: item.user.id,
-                reporterName: item.user.displayName,
+                reporterName: item.user?.displayName || "Unknown Reporter",
                 issueId: item.id,
                 content: comment.content,
                 flaggedReason: item.issueType,
@@ -76,19 +84,31 @@ export default function IssueMangement() {
             if (targetType === "bug") {
               return {
                 id: item.id,
-                // Bug reporter (or author?)
+
+                // Reporter
                 userId: item.user.id,
                 reporterId: item.user.id,
                 reporterName: item.user.displayName,
                 issueId: item.id,
+
                 content: item.description ?? "",
                 flaggedReason: item.issueType,
                 createdAt: item.createdDate,
+
                 displayName: item.user.displayName,
                 avatarUrl: item.user.avatarUrl,
+
                 status: normalizedStatus as StatusFilter,
                 replies: [],
                 type: "bug",
+
+                attachment: item.attachment ?? null,
+
+                user: {
+                  id: item.user.id,
+                  displayName: item.user.displayName,
+                  avatarUrl: item.user.avatarUrl ?? "",
+                },
               };
             }
 
@@ -182,13 +202,19 @@ export default function IssueMangement() {
     ).length,
   }));
 
+  const typeLabels: Record<string, string> = {
+    comment: "bình luận",
+    bug: "lỗi app",
+    other: "khác",
+  };
+
   return (
     <div className="flex gap-6 mt-4 h-[90vh]">
       {/* LEFT */}
       <div className="w-1/4 bg-card rounded-lg p-4 space-y-4 overflow-auto">
         <Input
           type="text"
-          placeholder="Search content, author, or story"
+          placeholder="Tìm kiếm..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -196,6 +222,7 @@ export default function IssueMangement() {
         <div className="border-t pt-4 w-full">
           <Calendar
             mode="single"
+            locale={vi}
             selected={selectedDate}
             // defaultMonth={selectedDate}
             onSelect={(date) => {
@@ -217,7 +244,7 @@ export default function IssueMangement() {
             className="w-full text-xs text-muted-foreground mt-4"
             onClick={() => setSelectedDate(undefined)}
           >
-            Clear date filter
+            Tắt bộ lọc theo ngày
           </Button>
         </div>
 
@@ -230,7 +257,7 @@ export default function IssueMangement() {
                 typeFilter === type ? "bg-muted" : "hover:bg-muted/60"
               }`}
             >
-              <span>Pending {type}</span>
+              <span>Vấn đề về {typeLabels[type.toLowerCase()] || type}</span>
               <span className="ml-2 text-xs bg-red-500 text-white px-2 py-0.5 rounded-md">
                 {count}
               </span>
@@ -248,11 +275,21 @@ export default function IssueMangement() {
         ) : filtered.length === 0 ? (
           <div className="flex items-center justify-center h-full w-full">
             <p className="text-muted-foreground text-sm">
-              No flagged {typeFilter.toLowerCase()}s found.
+              Không tìm thấy {typeFilter.toLowerCase()} nào.
             </p>
           </div>
+        ) : typeFilter.toLowerCase() === "bug" ? (
+          <BugIssueList
+            loading={loading}
+            issues={filtered}
+            onResolved={handleResolved}
+          />
         ) : (
-          <CommentIssueList loading={loading} issues={filtered} />
+          <CommentIssueList
+            loading={loading}
+            issues={filtered}
+            onResolved={handleResolved}
+          />
         )}
       </div>
     </div>

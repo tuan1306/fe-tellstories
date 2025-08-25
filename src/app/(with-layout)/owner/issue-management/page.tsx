@@ -13,6 +13,7 @@ import { Loader2 } from "lucide-react";
 import { FlaggedComment, StatusFilter } from "@/app/types/comment";
 import CommentIssueList from "@/components/IssueList";
 import BugIssueList from "@/components/BugIssueList";
+import { vi } from "date-fns/locale";
 
 function toLocalDateString(date: Date) {
   return `${date.getFullYear()}-${(date.getMonth() + 1)
@@ -213,7 +214,7 @@ export default function IssueMangement() {
       <div className="w-1/4 bg-card rounded-lg p-4 space-y-4 overflow-auto">
         <Input
           type="text"
-          placeholder="Search content, author, or story"
+          placeholder="Tìm kiếm..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
@@ -221,6 +222,7 @@ export default function IssueMangement() {
         <div className="border-t pt-4 w-full">
           <Calendar
             mode="single"
+            locale={vi}
             selected={selectedDate}
             // defaultMonth={selectedDate}
             onSelect={(date) => {
@@ -242,7 +244,7 @@ export default function IssueMangement() {
             className="w-full text-xs text-muted-foreground mt-4"
             onClick={() => setSelectedDate(undefined)}
           >
-            Clear date filter
+            Tắt bộ lọc theo ngày
           </Button>
         </div>
 
