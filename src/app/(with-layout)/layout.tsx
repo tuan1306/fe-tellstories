@@ -7,6 +7,7 @@ import AppSidebar from "@/components/common/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { cookies } from "next/headers";
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,14 +43,17 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${manrope.variable} antialiased`}
       >
-        <SidebarProvider defaultOpen={defaultOpen}>
-          <AppSidebar />
-          <main className="w-full">
-            <Navbar />
-            <div className="px-4">{children}</div>
-          </main>
-        </SidebarProvider>
-        <Toaster richColors position="top-right" />
+        {/* 👇 wrap everything inside AuthProvider */}
+        <AuthProvider>
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <AppSidebar />
+            <main className="w-full">
+              <Navbar />
+              <div className="px-4">{children}</div>
+            </main>
+          </SidebarProvider>
+          <Toaster richColors position="top-right" />
+        </AuthProvider>
       </body>
     </html>
   );

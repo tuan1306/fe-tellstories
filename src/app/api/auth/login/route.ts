@@ -43,7 +43,8 @@ export async function POST(req: NextRequest) {
     const decoded = jwtDecode<RawJwtPayload>(token);
     const role =
       decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-    if (role !== "Admin") {
+
+    if (role !== "Admin" && role !== "Moderator") {
       return NextResponse.json(
         { message: "Unauthorized role" },
         { status: 403 }
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
     const maxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24;
 
     const response = NextResponse.json(
-      { message: "Login successful" },
+      { message: "Login successful", role },
       { status: 200 }
     );
 

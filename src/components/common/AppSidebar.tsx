@@ -37,13 +37,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
+import { useAuth } from "../../context/AuthContext";
 
 // Voodoo magic idk
 // So for all of the classes that's associated
 const cn = (...classes: (string | false | undefined)[]) =>
   classes.filter(Boolean).join(" ");
 
-const items = [
+const ownerItems = [
   {
     title: "Dashboard",
     url: "/owner/dashboard",
@@ -59,11 +60,6 @@ const items = [
     url: "/owner/subscription",
     icon: CircleDollarSign,
   },
-  // {
-  //   title: "Billing History",
-  //   url: "/owner/billing",
-  //   icon: Receipt,
-  // },
   {
     title: "Quản lý báo cáo",
     url: "/owner/issue-management",
@@ -89,29 +85,42 @@ const items = [
     url: "/owner/system-config",
     icon: Cog,
   },
-  // {
-  //   title: "Test",
-  //   url: "/owner/test-page",
-  //   icon: Cog,
-  // },
+];
+
+const moderatorItems = [
+  {
+    title: "Quản lý truyện",
+    url: "/moderator/stories",
+    icon: BookOpen,
+  },
+  {
+    title: "Viết truyện",
+    url: "/moderator/write-story",
+    icon: PenBoxIcon,
+  },
+  {
+    title: "Báo cáo",
+    url: "/moderator/issue-management",
+    icon: AlertTriangle,
+  },
 ];
 
 const AppSidebar = () => {
-  // Highlight the tab that is active.
   const pathname = usePathname();
+  const { role, user } = useAuth();
+
+  const items = role === "Admin" ? ownerItems : moderatorItems;
 
   return (
     <Sidebar
       className="text-white font-semibold border-r border-gray-700 transition-all ease-in-out duration-300"
       collapsible="icon"
     >
-      <SidebarHeader className="h-12 bg-[#1A293F] border-b border-gray-700 transition-all duration-200">
+      {/* Header */}
+      <SidebarHeader className="h-12 bg-[#1A293F] border-b border-gray-700">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200"
-            >
+            <SidebarMenuButton asChild>
               <Link href="/">
                 <SwatchBook />
                 <span>TellStories</span>
@@ -121,10 +130,11 @@ const AppSidebar = () => {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="bg-[#0D1A2C] transition-all duration-200">
+      {/* Content */}
+      <SidebarContent className="bg-[#0D1A2C]">
         <SidebarGroup>
           <SidebarGroupLabel className="text-[#9c9c9c]">
-            Application
+            Các tác vụ
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -133,14 +143,14 @@ const AppSidebar = () => {
                   <SidebarMenuButton
                     asChild
                     className={cn(
-                      "hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200",
+                      "hover:bg-[#102134] hover:text-[#896F3D]",
                       pathname === item.url && "bg-[#102134] text-[#896F3D]"
                     )}
                   >
-                    <a href={item.url}>
-                      <item.icon className="transition-all duration-200" />
+                    <Link href={item.url}>
+                      <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -157,13 +167,13 @@ const AppSidebar = () => {
                 <SidebarMenuButton className="group cursor-pointer hover:bg-[#102134] hover:text-[#896F3D] flex items-center justify-between w-full transition-all duration-200">
                   <div className="flex items-center gap-2">
                     <Image
-                      src="/Avatar2.png"
+                      src={user?.avatarUrl || "/fallback.jpg"}
                       alt="User avatar"
                       width={24}
                       height={24}
                       className="rounded-full object-cover"
                     />
-                    <span>Super Admin</span>
+                    <span>{user?.displayName}</span>
                   </div>
                   <ChevronUp className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </SidebarMenuButton>
