@@ -7,22 +7,36 @@ import { Loader2 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ViewCommentSheet } from "@/components/ViewCommentSheet";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FlaggedComment } from "@/app/types/comment";
 
 interface CommentIssueListProps {
   loading: boolean;
   issues: FlaggedComment[];
+  onResolved?: (id: string) => void;
 }
 
 export default function CommentIssueList({
   loading,
   issues,
+  onResolved,
 }: CommentIssueListProps) {
   const [selectedIssue, setSelectedIssue] = useState<FlaggedComment | null>(
     null
   );
   const [open, setOpen] = useState(false);
+  const [issueList, setIssueList] = useState<FlaggedComment[]>(issues);
+
+  useEffect(() => {
+    setIssueList(issues);
+  }, [issues]);
+
+  // Remove comment from list after resolved
+  const handleResolved = (id: string) => {
+    setIssueList((prev) => prev.filter((issue) => issue.id !== id));
+    onResolved?.(id);
+    setOpen(false);
+  };
 
   if (loading) {
     return (
@@ -32,7 +46,7 @@ export default function CommentIssueList({
     );
   }
 
-  if (issues.length === 0) {
+  if (issueList.length === 0) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <p className="text-muted-foreground text-sm">
@@ -45,7 +59,7 @@ export default function CommentIssueList({
   return (
     <ScrollArea className="h-full w-full pr-4">
       <div className="space-y-4">
-        {issues.map((issue, index) => (
+        {issueList.map((issue, index) => (
           <div
             key={`${issue.id}-${index}`}
             className="rounded-lg p-4 shadow-sm bg-background border"
@@ -70,7 +84,7 @@ export default function CommentIssueList({
                   </Avatar>
                   <div>
                     <Link
-                      href={`/owner/usermanagement/users/${issue.id}`}
+                      href={`/owner/usermanagement/users/${issue.reporterId}`}
                       className="font-medium text-primary hover:underline"
                     >
                       <h2 className="font-semibold text-sm">
@@ -114,6 +128,7 @@ export default function CommentIssueList({
                   reporterName: issue.reporterName,
                 }}
                 issueId={issue.issueId}
+                onResolved={handleResolved}
               >
                 <Button
                   variant="secondary"

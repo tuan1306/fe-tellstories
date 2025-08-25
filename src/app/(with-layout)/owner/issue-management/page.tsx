@@ -30,6 +30,12 @@ export default function IssueMangement() {
   const [typeFilter, setTypeFilter] = useState<string>("Comment");
   const [loading, setLoading] = useState(false);
 
+  const handleResolved = (id: string) => {
+    setFlaggedComments((prev) =>
+      prev.filter((issue) => issue.id !== id && issue.issueId !== id)
+    );
+  };
+
   useEffect(() => {
     const fetchFlaggedComments = async () => {
       setLoading(true);
@@ -195,6 +201,12 @@ export default function IssueMangement() {
     ).length,
   }));
 
+  const typeLabels: Record<string, string> = {
+    comment: "bình luận",
+    bug: "lỗi app",
+    other: "khác",
+  };
+
   return (
     <div className="flex gap-6 mt-4 h-[90vh]">
       {/* LEFT */}
@@ -243,7 +255,7 @@ export default function IssueMangement() {
                 typeFilter === type ? "bg-muted" : "hover:bg-muted/60"
               }`}
             >
-              <span>Pending {type}</span>
+              <span>Vấn đề về {typeLabels[type.toLowerCase()] || type}</span>
               <span className="ml-2 text-xs bg-red-500 text-white px-2 py-0.5 rounded-md">
                 {count}
               </span>
@@ -261,13 +273,21 @@ export default function IssueMangement() {
         ) : filtered.length === 0 ? (
           <div className="flex items-center justify-center h-full w-full">
             <p className="text-muted-foreground text-sm">
-              No flagged {typeFilter.toLowerCase()}s found.
+              Không tìm thấy {typeFilter.toLowerCase()} nào.
             </p>
           </div>
         ) : typeFilter.toLowerCase() === "bug" ? (
-          <BugIssueList loading={loading} issues={filtered} />
+          <BugIssueList
+            loading={loading}
+            issues={filtered}
+            onResolved={handleResolved}
+          />
         ) : (
-          <CommentIssueList loading={loading} issues={filtered} />
+          <CommentIssueList
+            loading={loading}
+            issues={filtered}
+            onResolved={handleResolved}
+          />
         )}
       </div>
     </div>

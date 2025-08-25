@@ -13,13 +13,24 @@ import { ViewBugSheet } from "./ViewBugSheet";
 interface BugIssueListProps {
   loading: boolean;
   issues: FlaggedComment[];
+  onResolved?: (id: string) => void;
 }
 
-export default function BugIssueList({ loading, issues }: BugIssueListProps) {
+export default function BugIssueList({
+  loading,
+  issues,
+  onResolved,
+}: BugIssueListProps) {
   const [selectedIssue, setSelectedIssue] = useState<FlaggedComment | null>(
     null
   );
   const [open, setOpen] = useState(false);
+
+  // Remove issue after resolve
+  const handleResolved = (id: string) => {
+    onResolved?.(id);
+    setOpen(false);
+  };
 
   if (loading) {
     return (
@@ -32,7 +43,9 @@ export default function BugIssueList({ loading, issues }: BugIssueListProps) {
   if (issues.length === 0) {
     return (
       <div className="flex items-center justify-center h-full w-full">
-        <p className="text-muted-foreground text-sm">No flagged bugs found.</p>
+        <p className="text-muted-foreground text-sm">
+          Hiện tại không có lỗi ở app.
+        </p>
       </div>
     );
   }
@@ -114,6 +127,7 @@ export default function BugIssueList({ loading, issues }: BugIssueListProps) {
                     avatarUrl: issue.avatarUrl ?? "",
                   },
                 }}
+                onResolved={handleResolved}
               >
                 <Button
                   variant="secondary"
@@ -123,7 +137,7 @@ export default function BugIssueList({ loading, issues }: BugIssueListProps) {
                     setOpen(true);
                   }}
                 >
-                  View Detailed Bug
+                  Xem chi tiết lỗi
                 </Button>
               </ViewBugSheet>
             </div>

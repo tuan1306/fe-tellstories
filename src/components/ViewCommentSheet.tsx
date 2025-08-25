@@ -93,12 +93,14 @@ export function ViewCommentSheet({
   comment,
   open,
   onOpenChange,
+  onResolved,
 }: {
   children: React.ReactNode;
   comment: CommentSummary | null;
   open: boolean;
   issueId: string;
   onOpenChange: (open: boolean) => void;
+  onResolved?: (id: string) => void;
 }) {
   const [loading, setLoading] = useState(false);
   // const [resolving, setResolving] = useState(false);
@@ -265,7 +267,10 @@ export function ViewCommentSheet({
               <ResolveItem
                 itemId={comment.issueId}
                 userId={comment.reporterId}
-                onSuccess={() => onOpenChange(false)}
+                onSuccess={() => {
+                  onResolved?.(comment.id);
+                  onOpenChange(false);
+                }}
                 className="w-full"
               />
             </div>

@@ -21,11 +21,13 @@ export function ViewBugSheet({
   bug,
   open,
   onOpenChange,
+  onResolved,
 }: {
   children: React.ReactNode;
   bug: BugIssue | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onResolved?: (id: string) => void;
 }) {
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -86,7 +88,7 @@ export function ViewBugSheet({
 
             {bug.attachment && (
               <div className="mt-4">
-                <strong>Attachment:</strong>
+                <strong>Hình ảnh:</strong>
                 <div className="mt-2 relative w-full h-64">
                   <Image
                     src={bug.attachment}
@@ -127,7 +129,7 @@ export function ViewBugSheet({
             )}
 
             <div className="mt-4">
-              <strong>Attachment:</strong>
+              <strong>Hình ảnh:</strong>
               <div className="mt-2 relative w-full h-64">
                 <Image
                   src="https://images.pexels.com/photos/33545207/pexels-photo-33545207.jpeg"
@@ -156,7 +158,10 @@ export function ViewBugSheet({
               <ResolveItem
                 itemId={bug.id}
                 userId={bug.user.id}
-                onSuccess={() => onOpenChange(false)}
+                onSuccess={() => {
+                  onOpenChange(false);
+                  onResolved?.(bug.id);
+                }}
                 className="w-full"
               />
             </div>
