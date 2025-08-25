@@ -13,6 +13,7 @@ import { MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ReviewStoryDialog from "./ReviewStoryDialog";
+import { toast } from "sonner";
 
 export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
   // Approval
@@ -32,13 +33,14 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
           userId,
           title,
           message,
-          type: "story-review",
+          type: "publication-request",
           sender: "Admin",
-          targetType: "user",
+          targetType: "User",
         }),
       });
 
       if (!res.ok) {
+        toast.error("Gửi thông báo thất bại");
         console.error("Failed to send notification:", await res.text());
       }
     } catch (err) {
@@ -63,29 +65,57 @@ export function PendingStory({ items }: { items: PendingStoryRequest[] }) {
   };
 
   const handleApprove = async (itemId: string, notes: string) => {
-    await fetch("/api/stories/pending", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: itemId,
-        action: "approve",
-        reviewNotes: notes || "Approved by admin",
-      }),
-    });
-    setOpenApproveId(null);
+    try {
+      const res = await fetch("/api/stories/pending", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: itemId,
+          action: "approve",
+          reviewNotes: notes || "Approved by admin",
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        console.error("Approve failed:", error);
+        toast.error("Phê duyệt không thành công!");
+        return;
+      }
+
+      toast.success("Đã phê duyệt truyện!");
+    } catch (err) {
+      console.error("Approve error:", err);
+    } finally {
+      setOpenApproveId(null);
+    }
   };
 
   const handleDeny = async (itemId: string, notes: string) => {
-    await fetch("/api/stories/pending", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: itemId,
-        action: "reject",
-        reviewNotes: notes || "Rejected by admin",
-      }),
-    });
-    setOpenDenyId(null);
+    try {
+      const res = await fetch("/api/stories/pending", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: itemId,
+          action: "reject",
+          reviewNotes: notes || "Rejected by admin",
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        console.error("Reject failed:", error);
+        toast.error("Từ chối không thành công!");
+        return;
+      }
+
+      toast.error("Đã từ chối truyện!");
+    } catch (err) {
+      console.error("Reject error:", err);
+    } finally {
+      setOpenDenyId(null);
+    }
   };
 
   const router = useRouter();

@@ -32,15 +32,15 @@ export default function PendingActionButtons({
           userId,
           title,
           message,
-          type: "story-review",
+          type: "publication-request",
           sender: "Admin",
-          targetType: "user",
+          targetType: "User",
         }),
       });
 
       if (!res.ok) {
-        const error = await res.text();
-        console.error("Failed to notify user:", error);
+        console.error("Failed to send notification:", await res.text());
+        toast.error("Gửi thông báo thất bại");
         return;
       }
 
