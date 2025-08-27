@@ -62,7 +62,7 @@ export const SubscriptionForm = ({
       : {
           name: "",
           price: 0,
-          type: "",
+          type: "default",
           durationDays: 1,
           pointsCost: 0,
           rewardPoints: 0,

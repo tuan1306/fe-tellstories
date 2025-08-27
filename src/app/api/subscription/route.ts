@@ -76,6 +76,8 @@ export async function PUT(req: NextRequest) {
     const token = (await cookies()).get("authToken")?.value;
     const body = await req.json();
 
+    console.log("PUT /api/subscription body:", body);
+
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/Subscription/update`,
       {
