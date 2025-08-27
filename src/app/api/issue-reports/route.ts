@@ -7,7 +7,7 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const page = searchParams.get("page") || "1";
-    const pageSize = searchParams.get("pageSize") || "10";
+    const pageSize = searchParams.get("pageSize") || "99";
 
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/IssueReport/staff/get-all?page=${page}&pageSize=${pageSize}`,
