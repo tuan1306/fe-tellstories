@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { FlaggedComment } from "@/app/types/comment";
 import { ViewBugSheet } from "./ViewBugSheet";
+import { useAuth } from "@/context/AuthContext";
 
 interface BugIssueListProps {
   loading: boolean;
@@ -25,6 +26,8 @@ export default function BugIssueList({
     null
   );
   const [open, setOpen] = useState(false);
+
+  const { role } = useAuth();
 
   // Remove issue after resolve
   const handleResolved = (id: string) => {
@@ -77,14 +80,25 @@ export default function BugIssueList({
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <Link
-                      href={`/owner/usermanagement/users/${issue.reporterId}`}
-                      className="font-medium text-primary hover:underline"
-                    >
-                      <h2 className="font-semibold text-sm">
-                        {issue.displayName}
-                      </h2>
-                    </Link>
+                    {role === "Admin" ? (
+                      <Link
+                        href={`/owner/usermanagement/users/${issue.reporterId}`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        <h2 className="font-semibold text-sm">
+                          {issue.displayName}
+                        </h2>
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/moderator/users/${issue.reporterId}`}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        <h2 className="font-semibold text-sm">
+                          {issue.displayName}
+                        </h2>
+                      </Link>
+                    )}
                     <p className="text-xs text-muted-foreground">
                       {new Date(issue.createdAt).toLocaleString()}
                     </p>

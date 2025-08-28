@@ -50,9 +50,13 @@ export default function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL("/owner/dashboard", request.url));
       }
 
+      const isStoryDetails = pathname.startsWith("/moderator/stories/");
+      const isUserDetails = pathname.startsWith("/moderator/users/");
+
       if (
         !moderatorAllowed.includes(pathname) &&
-        !pathname.startsWith("/moderator/stories/")
+        !isStoryDetails &&
+        !isUserDetails
       ) {
         return NextResponse.redirect(
           new URL("/moderator/stories", request.url)
