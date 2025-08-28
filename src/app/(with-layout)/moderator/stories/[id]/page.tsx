@@ -139,7 +139,7 @@ export default function StoryPage() {
               </h1>
             </div>
             <div className="pb-2 border-b mt-4">
-              <Link href={`/owner/write-story/${story.id}`}>
+              <Link href={`/moderator/write-story/${story.id}`}>
                 <Button className="w-full py-4 hover:bg-primary/90 transition cursor-pointer">
                   <PenLine />
                   Chỉnh sửa truyện
@@ -149,6 +149,7 @@ export default function StoryPage() {
                 <PendingActionButtons
                   pendingId={pendingId}
                   userId={story.createdBy.id}
+                  storyTitle={story.title}
                 />
               )}
             </div>

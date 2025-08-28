@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ReviewStoryDialog from "./ReviewStoryDialog";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 export function PendingStory({
   items,
@@ -25,6 +26,9 @@ export function PendingStory({
   // Approval
   const [openApproveId, setOpenApproveId] = useState<string | null>(null);
   const [openDenyId, setOpenDenyId] = useState<string | null>(null);
+
+  // Identification
+  const { role } = useAuth();
 
   const handelNotifyUser = async (
     userId: string,
@@ -46,7 +50,6 @@ export function PendingStory({
       });
 
       if (!res.ok) {
-        toast.error("Gửi thông báo thất bại");
         console.error("Failed to send notification:", await res.text());
       }
     } catch (err) {
@@ -131,6 +134,10 @@ export function PendingStory({
     <div className="space-y-4 w-full">
       {items.map((item) => {
         const story = item.story;
+        const storyLink =
+          role === "Admin"
+            ? `/owner/stories/${story.id}?from=pending&pendingId=${item.id}`
+            : `/moderator/stories/${story.id}?from=pending&pendingId=${item.id}`;
         return (
           <div
             key={item.id}
@@ -178,11 +185,7 @@ export function PendingStory({
                   <DropdownMenuLabel>Hành động</DropdownMenuLabel>
                   <DropdownMenuItem
                     className="cursor-pointer"
-                    onClick={() =>
-                      router.push(
-                        `/owner/stories/${story.id}?from=pending&pendingId=${item.id}`
-                      )
-                    }
+                    onClick={() => router.push(storyLink)}
                   >
                     Xem chi tiết câu truyện
                   </DropdownMenuItem>
@@ -224,14 +227,16 @@ export function PendingStory({
                         );
                       }
 
-                      const title = "Truyện của bạn đã được phê duyệt! 🎉";
-                      const message = notes
-                        ? `Ghi chú từ quản trị viên: ${notes}.\nBạn nhận được ${
-                            points || 0
-                          } điểm!`
-                        : `Truyện của bạn đã vượt qua kiểm duyệt và bạn nhận được ${
-                            points || 0
-                          } điểm!`;
+                      const title = `Truyện "${story.title}" đã được phê duyệt! 🎉`;
+                      const pointText =
+                        points && points > 0
+                          ? ` và dựa trên sự cố gắng của bạn, bạn nhận được ${points} điểm!`
+                          : "";
+
+                      const message =
+                        notes && notes.trim() !== ""
+                          ? `Ghi chú từ quản trị viên: ${notes}.\nTruyện "${story.title}" đã vượt qua kiểm duyệt${pointText}`
+                          : `Truyện "${story.title}" đã vượt qua kiểm duyệt${pointText}`;
 
                       await handelNotifyUser(
                         item.story.createdBy.id,
@@ -253,10 +258,11 @@ export function PendingStory({
                     onConfirm={async (notes: string) => {
                       await handleDeny(item.id, notes);
 
-                      const title = "Truyện của bạn đã bị từ chối ❌";
-                      const message = notes
-                        ? `Lý do từ chối: ${notes}`
-                        : "Truyện của bạn không đáp ứng yêu cầu kiểm duyệt.";
+                      const title = `Truyện "${story.title}" đã bị từ chối ❌`;
+                      const message =
+                        notes && notes.trim() !== ""
+                          ? `Lý do từ chối: ${notes}.\nTruyện "${story.title}" không đáp ứng yêu cầu kiểm duyệt.`
+                          : `Truyện "${story.title}" không đáp ứng yêu cầu kiểm duyệt.`;
 
                       await handelNotifyUser(
                         item.story.createdBy.id,

@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ReviewStoryDialog from "./ReviewStoryDialog";
 import { toast } from "sonner";
+import { useAuth } from "@/context/AuthContext";
 
 interface PendingActionButtonsProps {
   pendingId: string;
   userId: string;
+  storyTitle: string;
   onApprove?: () => void;
   onReject?: () => void;
 }
@@ -16,12 +18,16 @@ interface PendingActionButtonsProps {
 export default function PendingActionButtons({
   pendingId,
   userId,
+  storyTitle,
   onApprove,
   onReject,
 }: PendingActionButtonsProps) {
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<"approve" | "reject">("approve");
+
+  // Identification
+  const { role } = useAuth();
 
   const handleNotifyUser = async (title: string, message: string) => {
     try {
@@ -40,12 +46,10 @@ export default function PendingActionButtons({
 
       if (!res.ok) {
         console.error("Failed to send notification:", await res.text());
-        toast.error("Gửi thông báo thất bại");
         return;
       }
 
       const data = await res.json();
-      toast.success("Đã gửi thông báo đến người dùng!");
       return data;
     } catch (err) {
       console.error("Notification error:", err);
@@ -97,14 +101,15 @@ export default function PendingActionButtons({
         await handleApprove(notes);
         if (points) await handlePointAdding(points);
 
-        const title = "Truyện của bạn đã được phê duyệt! 🎉";
-        const message = notes
-          ? `Ghi chú từ quản trị viên: ${notes}.\nBạn nhận được ${
-              points || 0
-            } điểm!`
-          : `Truyện của bạn đã vượt qua kiểm duyệt và bạn nhận được ${
-              points || 0
-            } điểm!`;
+        const title = `Truyện "${storyTitle}" đã được phê duyệt! 🎉`;
+        const message =
+          notes && notes.trim() !== ""
+            ? `Ghi chú từ quản trị viên: ${notes}.\nTruyện "${storyTitle}" đã vượt qua kiểm duyệt${
+                points ? ` và bạn nhận được ${points} điểm!` : "!"
+              }`
+            : `Truyện "${storyTitle}" đã vượt qua kiểm duyệt${
+                points ? ` và bạn nhận được ${points} điểm!` : "!"
+              }`;
 
         await handleNotifyUser(title, message);
 
@@ -113,10 +118,11 @@ export default function PendingActionButtons({
       } else {
         await handleReject(notes);
 
-        const title = "Truyện của bạn đã bị từ chối ❌";
-        const message = notes
-          ? `Lý do từ chối: ${notes}`
-          : "Truyện của bạn không đáp ứng yêu cầu kiểm duyệt.";
+        const title = `Truyện "${storyTitle}" đã bị từ chối ❌`;
+        const message =
+          notes && notes.trim() !== ""
+            ? `Lý do từ chối: ${notes}.\nTruyện "${storyTitle}" không đáp ứng yêu cầu kiểm duyệt.`
+            : `Truyện "${storyTitle}" không đáp ứng yêu cầu kiểm duyệt.`;
 
         await handleNotifyUser(title, message);
 
@@ -124,7 +130,13 @@ export default function PendingActionButtons({
         toast.error("Đã từ chối truyện!");
       }
 
-      router.push("/owner/stories?from=pending");
+      if (role === "Admin") {
+        router.push("/owner/stories?from=pending");
+      } else if (role === "Moderator") {
+        router.push("/moderator/stories?from=pending");
+      } else {
+        router.push("/");
+      }
     } catch (err) {
       console.error(err);
       toast.error(

@@ -99,7 +99,7 @@ export function ViewBugSheet({
 
                   <button
                     onClick={() => setExpanded(true)}
-                    className="absolute top-6 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition"
+                    className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full hover:bg-black/70 transition"
                   >
                     <Maximize2 className="w-5 h-5" />
                   </button>

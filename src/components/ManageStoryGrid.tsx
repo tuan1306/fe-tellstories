@@ -7,6 +7,7 @@ import Link from "next/link";
 import { PendingStory } from "./PendingStory";
 import { PendingStoryRequest, PublishedStories } from "@/app/types/story";
 import { Loader2Icon } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 type Props = {
   stories: PublishedStories[];
@@ -22,6 +23,8 @@ export default function ManageStoryGrid({
   filtered,
   onRemovePending,
 }: Props) {
+  const { role } = useAuth();
+
   if (statusFilter === "Pending") {
     return pendingStories.length === 0 ? (
       <div className="flex items-center justify-center h-full w-full">
@@ -39,44 +42,51 @@ export default function ManageStoryGrid({
   return (
     <ScrollArea className="h-full w-full pr-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3 gap-4">
-        {filtered.map((story) => (
-          <Link
-            key={story.id}
-            href={`/owner/stories/${story.id}`}
-            className="space-y-2 cursor-pointer hover:opacity-90 transition"
-          >
-            <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
-              {story.coverImageUrl?.startsWith("http") ? (
-                <Image
-                  src={story.coverImageUrl}
-                  alt={story.title}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center text-sm text-muted-foreground font-medium">
-                  No Image
-                </div>
-              )}
+        {filtered.map((story) => {
+          const storyLink =
+            role === "Admin"
+              ? `/owner/stories/${story.id}`
+              : `/moderator/stories/${story.id}`;
 
-              {statusFilter === "Published" && story.isFeatured && (
-                <div className="absolute top-1 right-1">
-                  <Badge
-                    variant="secondary"
-                    className="absolute top-1 right-1 bg-amber-400"
-                  >
-                    Featured
-                  </Badge>
-                </div>
-              )}
-            </div>
+          return (
+            <Link
+              key={story.id}
+              href={storyLink}
+              className="space-y-2 cursor-pointer hover:opacity-90 transition"
+            >
+              <div className="relative w-full aspect-[2/3] overflow-hidden rounded-xl">
+                {story.coverImageUrl?.startsWith("http") ? (
+                  <Image
+                    src={story.coverImageUrl}
+                    alt={story.title}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-muted flex items-center justify-center text-sm text-muted-foreground font-medium">
+                    No Image
+                  </div>
+                )}
 
-            <h1 className="text-sm font-semibold text-muted-foreground">
-              {story.author || "Unknown Author"}
-            </h1>
-            <h1 className="text-xl font-semibold">{story.title}</h1>
-          </Link>
-        ))}
+                {statusFilter === "Published" && story.isFeatured && (
+                  <div className="absolute top-1 right-1">
+                    <Badge
+                      variant="secondary"
+                      className="absolute top-1 right-1 bg-amber-400"
+                    >
+                      Featured
+                    </Badge>
+                  </div>
+                )}
+              </div>
+
+              <h1 className="text-sm font-semibold text-muted-foreground">
+                {story.author || "Unknown Author"}
+              </h1>
+              <h1 className="text-xl font-semibold">{story.title}</h1>
+            </Link>
+          );
+        })}
       </div>
     </ScrollArea>
   );

@@ -14,11 +14,10 @@ const moderatorAllowed = [
 
 export default function middleware(request: NextRequest) {
   const token = request.cookies.get("authToken")?.value;
+  const pathname = request.nextUrl.pathname;
 
-  // Restrict access if other roles
   if (
-    (request.nextUrl.pathname.startsWith("/owner") ||
-      request.nextUrl.pathname.startsWith("/moderator")) &&
+    (pathname.startsWith("/owner") || pathname.startsWith("/moderator")) &&
     !token
   ) {
     return NextResponse.redirect(new URL("/login", request.url));
@@ -29,8 +28,7 @@ export default function middleware(request: NextRequest) {
     const role =
       decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
 
-    // Redirect after login
-    if (request.nextUrl.pathname === "/login") {
+    if (pathname === "/login") {
       if (role === "Admin") {
         return NextResponse.redirect(new URL("/owner/dashboard", request.url));
       }
@@ -41,17 +39,21 @@ export default function middleware(request: NextRequest) {
       }
     }
 
-    // Owner access check
-    if (request.nextUrl.pathname.startsWith("/owner") && role !== "Admin") {
+    // Owner access
+    if (pathname.startsWith("/owner") && role !== "Admin") {
       return NextResponse.redirect(new URL("/moderator/stories", request.url));
     }
 
-    // Moderator access check
-    if (request.nextUrl.pathname.startsWith("/moderator")) {
+    // Moderator access
+    if (pathname.startsWith("/moderator")) {
       if (role !== "Moderator") {
         return NextResponse.redirect(new URL("/owner/dashboard", request.url));
       }
-      if (!moderatorAllowed.includes(request.nextUrl.pathname)) {
+
+      if (
+        !moderatorAllowed.includes(pathname) &&
+        !pathname.startsWith("/moderator/stories/")
+      ) {
         return NextResponse.redirect(
           new URL("/moderator/stories", request.url)
         );
@@ -63,5 +65,5 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/owner/:path*", "/moderator/:path*", "/login"],
+  matcher: ["/owner/:path*", "/moderator/:path*", "/stories/:path*", "/login"],
 };

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
+import { useAuth } from "@/context/AuthContext";
 import { ChevronLeft, ChevronRight, Music, PenLine } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -30,6 +31,14 @@ export default function StoryPage() {
       bgMusicRef.current.volume = bgmVolume;
     }
   }, [bgmVolume]);
+
+  // Link
+  const { role } = useAuth();
+  const storyLink = story
+    ? role === "Admin"
+      ? `/owner/write-story/${story.id}`
+      : `/moderator/write-story/${story.id}`
+    : "#";
 
   // // Stop the autoplay
   // useEffect(() => {
@@ -139,7 +148,7 @@ export default function StoryPage() {
               </h1>
             </div>
             <div className="pb-2 border-b mt-4">
-              <Link href={`/owner/write-story/${story.id}`}>
+              <Link href={storyLink}>
                 <Button className="w-full py-4 hover:bg-primary/90 transition cursor-pointer">
                   <PenLine />
                   Chỉnh sửa truyện
@@ -149,6 +158,7 @@ export default function StoryPage() {
                 <PendingActionButtons
                   pendingId={pendingId}
                   userId={story.createdBy.id}
+                  storyTitle={story.title}
                 />
               )}
             </div>
