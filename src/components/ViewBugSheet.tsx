@@ -112,7 +112,7 @@ export function ViewBugSheet({
               <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center">
                 <div className="relative w-full h-full">
                   <Image
-                    src="https://images.pexels.com/photos/33545207/pexels-photo-33545207.jpeg"
+                    src={bug.attachment || "fallback.jpg"}
                     alt="Bug attachment fullscreen"
                     fill
                     className="object-contain"
@@ -128,7 +128,7 @@ export function ViewBugSheet({
               </div>
             )}
 
-            <div className="mt-4">
+            {/* <div className="mt-4">
               <strong>Hình ảnh:</strong>
               <div className="mt-2 relative w-full h-64">
                 <Image
@@ -145,7 +145,7 @@ export function ViewBugSheet({
                   <Maximize2 className="w-5 h-5" />
                 </button>
               </div>
-            </div>
+            </div> */}
 
             {bug.description && (
               <div className="mt-4">
