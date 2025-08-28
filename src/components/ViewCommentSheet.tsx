@@ -108,6 +108,13 @@ export function ViewCommentSheet({
     null
   );
 
+  // Reasons
+  const reasonMap: Record<string, string> = {
+    Spam: "spam",
+    Harassment: "quấy rối",
+    "Toxic Behavior": "đối xử không tốt",
+  };
+
   // Get the damn story
   const [story, setStory] = useState<StoryDetails | null>(null);
   // const { role } = useAuth();
@@ -212,12 +219,12 @@ export function ViewCommentSheet({
               <div>
                 <SheetTitle className="text-2xl flex items-center gap-2">
                   <MessageSquare className="w-5 h-5" />
-                  Comment Details
+                  Chi tiết về bình luận
                 </SheetTitle>
                 <SheetDescription>
-                  This comment was flagged for{" "}
+                  Bình luận này mang tính chất{" "}
                   <strong className="text-red-500">
-                    {comment.flaggedReason}
+                    {reasonMap[comment.flaggedReason] ?? comment.flaggedReason}
                   </strong>
                 </SheetDescription>
               </div>

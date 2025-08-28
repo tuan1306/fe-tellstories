@@ -27,6 +27,13 @@ export default function CommentIssueList({
   const [open, setOpen] = useState(false);
   const [issueList, setIssueList] = useState<FlaggedComment[]>(issues);
 
+  // Reasons
+  const reasonMap: Record<string, string> = {
+    Spam: "Spam",
+    Harassment: "Quấy rối",
+    "Toxic Behavior": "Đối xử không tốt",
+  };
+
   useEffect(() => {
     setIssueList(issues);
   }, [issues]);
@@ -108,7 +115,7 @@ export default function CommentIssueList({
                 variant="default"
                 className="bg-red-500 text-white whitespace-nowrap"
               >
-                {issue.flaggedReason}
+                {reasonMap[issue.flaggedReason] ?? issue.flaggedReason}
               </Badge>
             </div>
 
@@ -133,12 +140,13 @@ export default function CommentIssueList({
                 <Button
                   variant="secondary"
                   size="sm"
+                  className="cursor-pointer"
                   onClick={() => {
                     setSelectedIssue(issue);
                     setOpen(true);
                   }}
                 >
-                  View Detailed Comment
+                  Xem chi tiết bình luận
                 </Button>
               </ViewCommentSheet>
             </div>

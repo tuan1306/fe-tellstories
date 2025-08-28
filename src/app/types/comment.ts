@@ -55,7 +55,7 @@ export type CommentSummary = {
   content: string;
   createdDate: string;
   displayName: string;
-  flaggedReason?: string;
+  flaggedReason: string;
   reporterId: string;
   reporterName: string;
 };
