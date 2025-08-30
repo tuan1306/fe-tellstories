@@ -87,7 +87,6 @@ export const SubscriptionForm = ({
           `Bạn đang có ${activeCount} gói đang hoạt động, cân nhắc trước khi kích hoạt thêm.`
         );
         setIsSubmitting(false);
-        return;
       }
 
       const method = selectedPackage ? "PUT" : "POST";
