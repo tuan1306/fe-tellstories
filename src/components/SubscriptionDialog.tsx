@@ -144,16 +144,18 @@ export const SubscriptionDialog = ({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="active">Đang hoạt động</SelectItem>
-                        <SelectItem value="inactive">Chưa hoạt động</SelectItem>
+                        <SelectItem value="inactive">
+                          Không hoạt động
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
                 <ScrollArea className="flex-1 min-h-0 pr-4">
-                  <div className="space-y-2">
-                    {filteredPackages.length > 0 ? (
-                      filteredPackages.map((pkg) => (
+                  {filteredPackages.length > 0 ? (
+                    <div className="space-y-2">
+                      {filteredPackages.map((pkg) => (
                         <div
                           key={pkg.id}
                           onClick={() => handleSelect(pkg)}
@@ -179,13 +181,15 @@ export const SubscriptionDialog = ({
                             }[pkg.purchaseMethod] ?? "Không xác định"}
                           </p>
                         </div>
-                      ))
-                    ) : (
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full mt-37">
                       <p className="text-sm text-muted-foreground text-center">
-                        Hiện tại không có gói nào, hãy thêm gói mới.
+                        Không có gói .3.
                       </p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </ScrollArea>
               </>
             )}

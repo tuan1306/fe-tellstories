@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface Props {
   selectedPackage: SubscriptionPackage | null;
@@ -110,11 +111,17 @@ export const SubscriptionForm = ({
 
       if (!res.ok) throw new Error("Failed to save subscription");
 
+      if (isEditing) {
+        toast.success("Gói đăng ký đã được cập nhật!");
+      } else {
+        toast.success("Gói đăng ký mới đã được tạo!");
+      }
+
       fetchSubscriptions();
       onClose();
     } catch (err) {
       console.error(err);
-      setFormError("Có lỗi xảy ra khi lưu gói đăng ký.");
+      toast.error("Có lỗi xảy ra khi lưu gói đăng ký.");
     } finally {
       setIsSubmitting(false);
     }
@@ -133,11 +140,14 @@ export const SubscriptionForm = ({
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete subscription");
+
+      toast.success("Gói đăng ký đã bị xóa!");
+
       fetchSubscriptions();
       onClose();
     } catch (err) {
       console.error(err);
-      setFormError("Không thể xóa gói đăng ký.");
+      toast.error("Có lỗi xảy ra khi xóa gói đăng ký.");
     } finally {
       setIsDeleting(false);
       setConfirmDelete(false);
