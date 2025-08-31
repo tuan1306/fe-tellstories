@@ -15,6 +15,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { SubscriptionPackage } from "@/app/types/subscription";
 import { SubscriptionForm } from "./SubscriptionForm";
 import { SubscriptionDetails } from "./SubscriptionDetails";
+import { Input } from "./ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 interface Props {
   subscriptionPackages: SubscriptionPackage[];
@@ -31,6 +39,10 @@ export const SubscriptionDialog = ({
     useState<SubscriptionPackage | null>(null);
   const [formPreview, setFormPreview] = useState<Partial<SubscriptionPackage>>(
     {}
+  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"active" | "inactive">(
+    "active"
   );
 
   const handleSelect = (pkg: SubscriptionPackage) => {
@@ -53,6 +65,17 @@ export const SubscriptionDialog = ({
     setEditingPackage(null);
     setFormPreview({});
   };
+
+  // Filter
+  const filteredPackages = subscriptionPackages.filter((pkg) => {
+    const matchesSearch = pkg.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      (statusFilter === "active" && pkg.isActive) ||
+      (statusFilter === "inactive" && !pkg.isActive);
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <Dialog>
@@ -83,25 +106,54 @@ export const SubscriptionDialog = ({
                   onChange={(updatedFields) =>
                     setFormPreview((prev) => ({ ...prev, ...updatedFields }))
                   }
-                  key={editingPackage.id ?? "new"} // reset form when switching packages
+                  key={editingPackage.id ?? "new"}
                 />
               </ScrollArea>
             ) : (
               <>
-                <div className="mb-4">
-                  <h3 className="font-semibold text-lg mb-1">Danh sách gói</h3>
-                  <p className="text-sm text-muted-foreground mb-2">
+                <div className="mb-2">
+                  <h3 className="font-semibold text-lg">Danh sách gói</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
                     Danh sách tất cả các gói đăng ký hiện có trong hệ thống.
                   </p>
-                  <Button size="sm" onClick={handleCreate} className="w-full">
+                  <Button
+                    size="sm"
+                    onClick={handleCreate}
+                    className="w-full hover:cursor-pointer mb-2"
+                  >
                     <Plus className="w-4 h-4 mr-1" /> Tạo gói mới
                   </Button>
+
+                  {/* Search + Filter */}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Tìm kiếm gói..."
+                      className="w-[70%]"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+
+                    <Select
+                      value={statusFilter}
+                      onValueChange={(value: "active" | "inactive") =>
+                        setStatusFilter(value)
+                      }
+                    >
+                      <SelectTrigger className="w-[30%]">
+                        <SelectValue placeholder="Trạng thái" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Đang hoạt động</SelectItem>
+                        <SelectItem value="inactive">Chưa hoạt động</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <ScrollArea className="flex-1 min-h-0 pr-4">
                   <div className="space-y-2">
-                    {subscriptionPackages.length > 0 ? (
-                      subscriptionPackages.map((pkg) => (
+                    {filteredPackages.length > 0 ? (
+                      filteredPackages.map((pkg) => (
                         <div
                           key={pkg.id}
                           onClick={() => handleSelect(pkg)}

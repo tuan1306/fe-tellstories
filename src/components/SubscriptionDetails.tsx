@@ -12,8 +12,8 @@ interface Props {
 export const SubscriptionDetails = ({ pkg, onEdit, isCreating }: Props) => {
   return (
     <div className="flex flex-col h-full">
-      {/* Title + Description */}
-      <div className="mb-4">
+      {/* Title + Desc */}
+      <div className="mb-2">
         <h3 className="font-semibold text-lg">Chi tiết gói</h3>
         <p className="text-sm text-muted-foreground">
           Thông tin chi tiết của gói đăng ký đã chọn
@@ -69,7 +69,7 @@ export const SubscriptionDetails = ({ pkg, onEdit, isCreating }: Props) => {
       {!isCreating && (
         <Button
           variant="link"
-          className="px-0 text-sm text-amber-300 mt-2 self-start"
+          className="px-0 text-sm text-amber-300 mt-2 self-start hover:cursor-pointer"
           onClick={() => onEdit(pkg)}
         >
           Chỉnh sửa gói
