@@ -75,9 +75,22 @@ export const SubscriptionForm = ({
         },
   });
 
+  // Confirm
+  const [confirmSubmit, setConfirmSubmit] = useState(false);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleFieldChange = (field: keyof SubscriptionPackage, value: any) => {
     onChange?.({ [field]: value });
+  };
+
+  const handleSubmitClick = () => {
+    if (confirmSubmit) {
+      form.handleSubmit(onSubmit)();
+      setConfirmSubmit(false);
+    } else {
+      setConfirmSubmit(true);
+      setTimeout(() => setConfirmSubmit(false), 5000);
+    }
   };
 
   const onSubmit = async (values: z.infer<typeof subscriptionSchema>) => {
@@ -346,7 +359,7 @@ export const SubscriptionForm = ({
               variant={confirmDelete ? "destructive" : "secondary"}
               onClick={handleDelete}
               className={cn(
-                "min-w-[100px]",
+                "min-w-[100px] cursor-pointer",
                 confirmDelete && "bg-red-600 text-white"
               )}
             >
@@ -361,19 +374,23 @@ export const SubscriptionForm = ({
           )}
 
           <div className="flex gap-2">
-            <Button type="button" onClick={onClose}>
+            <Button type="button" className="cursor-pointer" onClick={onClose}>
               Hủy
             </Button>
             <Button
-              type="submit"
+              type="button"
               disabled={isSubmitting}
               className={cn(
-                "min-w-[90px] text-white",
-                "bg-yellow-500 hover:bg-yellow-600"
+                "text-white transition-all duration-300 ease-in-out",
+                "min-w-[90px] flex justify-center items-center gap-2",
+                confirmSubmit
+                  ? "bg-amber-500 hover:bg-amber-500 min-w-[120px] cursor-pointer"
+                  : "bg-amber-400 hover:bg-amber-400 min-w-[90px] cursor-pointer"
               )}
+              onClick={handleSubmitClick}
             >
               {isSubmitting && <Loader2 className="animate-spin w-4 h-4" />}
-              {selectedPackage ? "Lưu" : "Tạo"}
+              {confirmSubmit ? "Xác nhận" : selectedPackage ? "Lưu" : "Tạo"}
             </Button>
           </div>
         </div>
