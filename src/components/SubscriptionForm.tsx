@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +32,7 @@ interface Props {
   subscriptionPackages: SubscriptionPackage[];
   fetchSubscriptions: () => void;
   onClose: () => void;
+  onChange?: (updatedFields: Partial<SubscriptionPackage>) => void;
 }
 
 export const SubscriptionForm = ({
@@ -39,6 +40,7 @@ export const SubscriptionForm = ({
   subscriptionPackages,
   fetchSubscriptions,
   onClose,
+  onChange,
 }: Props) => {
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,12 +74,16 @@ export const SubscriptionForm = ({
         },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleFieldChange = (field: keyof SubscriptionPackage, value: any) => {
+    onChange?.({ [field]: value });
+  };
+
   const onSubmit = async (values: z.infer<typeof subscriptionSchema>) => {
     try {
       setIsSubmitting(true);
       setFormError("");
 
-      // Limit active packages
       const activeCount = subscriptionPackages.filter((p) => p.isActive).length;
       const isActivating =
         values.isActive && (!selectedPackage || !selectedPackage.isActive);
@@ -137,16 +143,28 @@ export const SubscriptionForm = ({
     }
   };
 
-  // Helper to always return a number
+  // Live update
+  const { watch } = form;
+
+  useEffect(() => {
+    const subscription = watch((values) => {
+      onChange?.(values as Partial<SubscriptionPackage>);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onChange]);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const numericField = (field: any) => ({
+  const numericField = (field: any, key: keyof SubscriptionPackage) => ({
     ...field,
     type: "number",
     value: field.value ?? 0,
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      field.onChange(
-        Number.isNaN(e.target.valueAsNumber) ? 0 : e.target.valueAsNumber
-      ),
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = Number.isNaN(e.target.valueAsNumber)
+        ? 0
+        : e.target.valueAsNumber;
+      field.onChange(val);
+      handleFieldChange(key, val);
+    },
   });
 
   return (
@@ -171,14 +189,19 @@ export const SubscriptionForm = ({
         />
 
         {/* Purchase Method */}
-        {/* Purchase Method */}
         <FormField
           control={form.control}
           name="purchaseMethod"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel>Phương thức</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <Select
+                onValueChange={(val) => {
+                  field.onChange(val);
+                  handleFieldChange("purchaseMethod", val);
+                }}
+                value={field.value}
+              >
                 <FormControl>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Chọn phương thức thanh toán..." />
@@ -194,7 +217,7 @@ export const SubscriptionForm = ({
           )}
         />
 
-        {/* Conditionally show Price or Points */}
+        {/* Price & Points */}
         {form.watch("purchaseMethod") === "MoneyOnly" && (
           <FormField
             control={form.control}
@@ -203,7 +226,7 @@ export const SubscriptionForm = ({
               <FormItem>
                 <FormLabel>Giá tiền</FormLabel>
                 <FormControl>
-                  <Input {...numericField(field)} />
+                  <Input {...numericField(field, "price")} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -219,7 +242,7 @@ export const SubscriptionForm = ({
               <FormItem>
                 <FormLabel>Điểm</FormLabel>
                 <FormControl>
-                  <Input {...numericField(field)} />
+                  <Input {...numericField(field, "pointsCost")} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -235,7 +258,7 @@ export const SubscriptionForm = ({
             <FormItem>
               <FormLabel>Số ngày</FormLabel>
               <FormControl>
-                <Input {...numericField(field)} />
+                <Input {...numericField(field, "durationDays")} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -250,14 +273,14 @@ export const SubscriptionForm = ({
             <FormItem>
               <FormLabel>Điểm thưởng</FormLabel>
               <FormControl>
-                <Input {...numericField(field)} />
+                <Input {...numericField(field, "rewardPoints")} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Active & Default */}
+        {/* Active */}
         <div className="flex items-center gap-4">
           <FormField
             control={form.control}
@@ -267,28 +290,16 @@ export const SubscriptionForm = ({
                 <FormControl>
                   <Checkbox
                     checked={field.value}
-                    onCheckedChange={field.onChange}
+                    onCheckedChange={(val) => {
+                      field.onChange(val);
+                      handleFieldChange("isActive", val);
+                    }}
                   />
                 </FormControl>
                 <FormLabel className="!mt-0">Hoạt động</FormLabel>
               </FormItem>
             )}
           />
-          {/* <FormField
-            control={form.control}
-            name="isDefault"
-            render={({ field }) => (
-              <FormItem className="flex items-center gap-2 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <FormLabel className="!mt-0">Mặc định</FormLabel>
-              </FormItem>
-            )}
-          /> */}
         </div>
 
         {/* Error */}
@@ -301,7 +312,6 @@ export const SubscriptionForm = ({
 
         {/* Actions */}
         <div className="flex justify-between items-center mt-4">
-          {/* Delete on bottom left */}
           {selectedPackage && (
             <Button
               type="button"
@@ -323,7 +333,6 @@ export const SubscriptionForm = ({
             </Button>
           )}
 
-          {/* Cancel & Save on bottom right */}
           <div className="flex gap-2">
             <Button type="button" onClick={onClose}>
               Hủy
@@ -333,9 +342,7 @@ export const SubscriptionForm = ({
               disabled={isSubmitting}
               className={cn(
                 "min-w-[90px] text-white",
-                selectedPackage
-                  ? "bg-yellow-500 hover:bg-yellow-600"
-                  : "bg-yellow-500 hover:bg-yellow-600"
+                "bg-yellow-500 hover:bg-yellow-600"
               )}
             >
               {isSubmitting && <Loader2 className="animate-spin w-4 h-4" />}

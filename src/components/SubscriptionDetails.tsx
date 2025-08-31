@@ -21,6 +21,13 @@ export const SubscriptionDetails = ({ pkg, onEdit }: Props) => {
 
       {/* Package Details */}
       <div className="text-sm text-muted-foreground space-y-1 flex-1">
+        {pkg.name ? (
+          <p>
+            <strong>Tên gói: </strong>
+            {pkg.name}
+          </p>
+        ) : null}
+
         {pkg.price ? (
           <p>
             <strong>Số tiền quy đổi: </strong>

@@ -28,6 +28,9 @@ export const SubscriptionDialog = ({
   const [selectedPackage, setSelectedPackage] =
     useState<SubscriptionPackage | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [formPreview, setFormPreview] = useState<Partial<SubscriptionPackage>>(
+    {}
+  );
 
   const handleSelect = (pkg: SubscriptionPackage) => {
     setSelectedPackage(pkg);
@@ -63,68 +66,82 @@ export const SubscriptionDialog = ({
         <div className="flex-1 grid grid-cols-[2fr_1fr] gap-4 overflow-hidden min-h-0">
           {/* Left */}
           <div className="border rounded-lg p-4 flex flex-col h-full min-h-0">
-            <div className="mb-4">
-              <h3 className="font-semibold text-lg mb-1">Danh sách gói</h3>
-              <p className="text-sm text-muted-foreground mb-2">
-                Danh sách tất cả các gói đăng ký hiện có trong hệ thống.
-              </p>
-              <Button size="sm" onClick={handleCreate} className="w-full">
-                <Plus className="w-4 h-4 mr-1" /> Tạo gói mới
-              </Button>
-            </div>
-
-            <ScrollArea className="flex-1 min-h-0 pr-4">
-              <div className="space-y-2">
-                {subscriptionPackages.length > 0 ? (
-                  subscriptionPackages.map((pkg) => (
-                    <div
-                      key={pkg.id}
-                      onClick={() => handleSelect(pkg)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                        selectedPackage?.id === pkg.id
-                          ? "border-primary bg-primary/10"
-                          : "hover:bg-muted"
-                      }`}
-                    >
-                      <h4 className="font-semibold">{pkg.name}</h4>
-                      <p
-                        className={`text-sm font-medium truncate ${
-                          pkg.purchaseMethod === "PointsOnly"
-                            ? "text-amber-300"
-                            : pkg.purchaseMethod === "MoneyOnly"
-                            ? "text-emerald-400"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {{
-                          PointsOnly: "Điểm",
-                          MoneyOnly: "Tiền",
-                        }[pkg.purchaseMethod] ?? "Không xác định"}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center">
-                    Hiện tại không có gói nào, hãy thêm gói mới.
+            {isCreating ? (
+              <ScrollArea className="flex-1 min-h-0 pr-2">
+                <SubscriptionForm
+                  selectedPackage={selectedPackage}
+                  onClose={handleClose}
+                  fetchSubscriptions={fetchSubscriptions}
+                  subscriptionPackages={subscriptionPackages}
+                  onChange={(updatedFields) =>
+                    setFormPreview((prev) => ({ ...prev, ...updatedFields }))
+                  }
+                />
+              </ScrollArea>
+            ) : (
+              <>
+                <div className="mb-4">
+                  <h3 className="font-semibold text-lg mb-1">Danh sách gói</h3>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Danh sách tất cả các gói đăng ký hiện có trong hệ thống.
                   </p>
-                )}
-              </div>
-            </ScrollArea>
+                  <Button size="sm" onClick={handleCreate} className="w-full">
+                    <Plus className="w-4 h-4 mr-1" /> Tạo gói mới
+                  </Button>
+                </div>
+
+                <ScrollArea className="flex-1 min-h-0 pr-4">
+                  <div className="space-y-2">
+                    {subscriptionPackages.length > 0 ? (
+                      subscriptionPackages.map((pkg) => (
+                        <div
+                          key={pkg.id}
+                          onClick={() => handleSelect(pkg)}
+                          className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                            selectedPackage?.id === pkg.id
+                              ? "border-primary bg-primary/10"
+                              : "hover:bg-muted"
+                          }`}
+                        >
+                          <h4 className="font-semibold">{pkg.name}</h4>
+                          <p
+                            className={`text-sm font-medium truncate ${
+                              pkg.purchaseMethod === "PointsOnly"
+                                ? "text-amber-300"
+                                : pkg.purchaseMethod === "MoneyOnly"
+                                ? "text-emerald-400"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            {{
+                              PointsOnly: "Điểm",
+                              MoneyOnly: "Tiền",
+                            }[pkg.purchaseMethod] ?? "Không xác định"}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center">
+                        Hiện tại không có gói nào, hãy thêm gói mới.
+                      </p>
+                    )}
+                  </div>
+                </ScrollArea>
+              </>
+            )}
           </div>
 
           {/* Right */}
           <div className="border rounded-lg p-4 flex flex-col h-full min-h-0">
             <ScrollArea className="flex-1 min-h-0 pr-2">
-              {isCreating ? (
-                <SubscriptionForm
-                  selectedPackage={null}
-                  onClose={handleClose}
-                  fetchSubscriptions={fetchSubscriptions}
-                  subscriptionPackages={subscriptionPackages}
-                />
-              ) : selectedPackage ? (
+              {selectedPackage || isCreating ? (
                 <SubscriptionDetails
-                  pkg={selectedPackage}
+                  pkg={
+                    {
+                      ...(selectedPackage ?? {}), // Empty object if creating
+                      ...formPreview, // Merge preview values
+                    } as SubscriptionPackage
+                  }
                   onEdit={(pkg) => {
                     setSelectedPackage(pkg);
                     setIsCreating(false);
