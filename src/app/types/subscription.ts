@@ -6,7 +6,7 @@ export type SubscriptionPackage = {
   rewardPoints?: number;
   durationDays: number;
   pointsCost: number;
-  purchaseMethod: "MoneyOnly" | "PointsOnly" | "MoneyOrPoints";
+  purchaseMethod: "MoneyOnly" | "PointsOnly";
   isActive: boolean;
   isDefault: boolean;
 };

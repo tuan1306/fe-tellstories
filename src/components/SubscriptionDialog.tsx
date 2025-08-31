@@ -14,7 +14,7 @@ import { ClipboardList, Plus } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SubscriptionPackage } from "@/app/types/subscription";
 import { SubscriptionForm } from "./SubscriptionForm";
-import { SubscriptionList } from "./SubscriptionList";
+import { SubscriptionDetails } from "./SubscriptionDetails";
 
 interface Props {
   subscriptionPackages: SubscriptionPackage[];
@@ -25,70 +25,119 @@ export const SubscriptionDialog = ({
   subscriptionPackages,
   fetchSubscriptions,
 }: Props) => {
-  const [showForm, setShowForm] = useState(false);
   const [selectedPackage, setSelectedPackage] =
     useState<SubscriptionPackage | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+
+  const handleSelect = (pkg: SubscriptionPackage) => {
+    setSelectedPackage(pkg);
+    setIsCreating(false);
+  };
 
   const handleCreate = () => {
     setSelectedPackage(null);
-    setShowForm(true);
-  };
-
-  const handleEdit = (pkg: SubscriptionPackage) => {
-    setSelectedPackage(pkg);
-    setShowForm(true);
+    setIsCreating(true);
   };
 
   const handleClose = () => {
-    setShowForm(false);
     setSelectedPackage(null);
+    setIsCreating(false);
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="mb-4 w-full">
+        <Button className="w-full">
           <ClipboardList /> Quản lý gói đăng ký
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[700px] max-w-full max-h-[80vh] flex flex-col">
+
+      <DialogContent className="!w-[95vw] !max-w-[1200px] !h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader>
-          <DialogTitle>
-            {showForm
-              ? selectedPackage
-                ? "Chỉnh sửa gói đăng ký"
-                : "Đăng ký gói mới"
-              : "Hệ thống quản lý gói"}
-          </DialogTitle>
+          <DialogTitle>Hệ thống quản lý gói</DialogTitle>
           <DialogDescription>
-            {showForm
-              ? selectedPackage
-                ? "Vui lòng chỉnh sửa thông tin gói đăng ký."
-                : "Vui lòng điền đầy đủ thông tin để tạo gói đăng ký mới."
-              : "Xem hoặc quản lý các gói đăng ký hiện có bên dưới."}
+            Quản lý, chỉnh sửa hoặc tạo mới các gói đăng ký.
           </DialogDescription>
-          {!showForm && (
-            <Button className="w-full mt-4" onClick={handleCreate}>
-              <Plus /> Tạo gói mới
-            </Button>
-          )}
         </DialogHeader>
 
-        <ScrollArea className="h-[40vh] pr-4">
-          {showForm ? (
-            <SubscriptionForm
-              selectedPackage={selectedPackage}
-              onClose={handleClose}
-              fetchSubscriptions={fetchSubscriptions}
-              subscriptionPackages={subscriptionPackages}
-            />
-          ) : (
-            <SubscriptionList
-              subscriptionPackages={subscriptionPackages}
-              onEdit={handleEdit}
-            />
-          )}
-        </ScrollArea>
+        <div className="flex-1 grid grid-cols-2 gap-4 mt-4 overflow-hidden min-h-0">
+          {/* Left */}
+          <div className="border rounded-lg p-4 flex flex-col h-full min-h-0">
+            <div className="mb-4">
+              <h3 className="font-semibold text-lg mb-1">Danh sách gói</h3>
+              <p className="text-sm text-muted-foreground mb-2">
+                Danh sách tất cả các gói đăng ký hiện có trong hệ thống.
+              </p>
+              <Button size="sm" onClick={handleCreate} className="w-full">
+                <Plus className="w-4 h-4 mr-1" /> Tạo gói mới
+              </Button>
+            </div>
+
+            <ScrollArea className="flex-1 min-h-0 pr-4">
+              <div className="space-y-2">
+                {subscriptionPackages.length > 0 ? (
+                  subscriptionPackages.map((pkg) => (
+                    <div
+                      key={pkg.id}
+                      onClick={() => handleSelect(pkg)}
+                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                        selectedPackage?.id === pkg.id
+                          ? "border-primary bg-primary/10"
+                          : "hover:bg-muted"
+                      }`}
+                    >
+                      <h4 className="font-semibold">{pkg.name}</h4>
+                      <p
+                        className={`text-sm font-medium truncate ${
+                          pkg.purchaseMethod === "PointsOnly"
+                            ? "text-amber-300"
+                            : pkg.purchaseMethod === "MoneyOnly"
+                            ? "text-emerald-400"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {{
+                          PointsOnly: "Điểm",
+                          MoneyOnly: "Tiền",
+                        }[pkg.purchaseMethod] ?? "Không xác định"}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center">
+                    Hiện tại không có gói nào, hãy thêm gói mới.
+                  </p>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+
+          {/* Right */}
+          <div className="border rounded-lg p-4 flex flex-col h-full min-h-0">
+            <ScrollArea className="flex-1 min-h-0 pr-2">
+              {isCreating ? (
+                <SubscriptionForm
+                  selectedPackage={null}
+                  onClose={handleClose}
+                  fetchSubscriptions={fetchSubscriptions}
+                  subscriptionPackages={subscriptionPackages}
+                />
+              ) : selectedPackage ? (
+                <SubscriptionDetails
+                  pkg={selectedPackage}
+                  onEdit={(pkg) => {
+                    setSelectedPackage(pkg);
+                    setIsCreating(false);
+                  }}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  Chọn một gói để xem hoặc chỉnh sửa
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
