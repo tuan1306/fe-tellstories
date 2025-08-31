@@ -27,24 +27,31 @@ export const SubscriptionDialog = ({
 }: Props) => {
   const [selectedPackage, setSelectedPackage] =
     useState<SubscriptionPackage | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const [editingPackage, setEditingPackage] =
+    useState<SubscriptionPackage | null>(null);
   const [formPreview, setFormPreview] = useState<Partial<SubscriptionPackage>>(
     {}
   );
 
   const handleSelect = (pkg: SubscriptionPackage) => {
     setSelectedPackage(pkg);
-    setIsCreating(false);
   };
 
   const handleCreate = () => {
+    setEditingPackage({} as SubscriptionPackage);
+    setFormPreview({});
     setSelectedPackage(null);
-    setIsCreating(true);
   };
 
-  const handleClose = () => {
-    setSelectedPackage(null);
-    setIsCreating(false);
+  const handleEdit = (pkg: SubscriptionPackage) => {
+    setEditingPackage(pkg);
+    setFormPreview({});
+    setSelectedPackage(pkg);
+  };
+
+  const handleCloseForm = () => {
+    setEditingPackage(null);
+    setFormPreview({});
   };
 
   return (
@@ -66,16 +73,17 @@ export const SubscriptionDialog = ({
         <div className="flex-1 grid grid-cols-[2fr_1fr] gap-4 overflow-hidden min-h-0">
           {/* Left */}
           <div className="border rounded-lg p-4 flex flex-col h-full min-h-0">
-            {isCreating ? (
+            {editingPackage ? (
               <ScrollArea className="flex-1 min-h-0 pr-2">
                 <SubscriptionForm
-                  selectedPackage={selectedPackage}
-                  onClose={handleClose}
+                  selectedPackage={editingPackage}
+                  onClose={handleCloseForm}
                   fetchSubscriptions={fetchSubscriptions}
                   subscriptionPackages={subscriptionPackages}
                   onChange={(updatedFields) =>
                     setFormPreview((prev) => ({ ...prev, ...updatedFields }))
                   }
+                  key={editingPackage.id ?? "new"} // reset form when switching packages
                 />
               </ScrollArea>
             ) : (
@@ -133,26 +141,22 @@ export const SubscriptionDialog = ({
 
           {/* Right */}
           <div className="border rounded-lg p-4 flex flex-col h-full min-h-0">
-            <ScrollArea className="flex-1 min-h-0 pr-2">
-              {selectedPackage || isCreating ? (
-                <SubscriptionDetails
-                  pkg={
-                    {
-                      ...(selectedPackage ?? {}), // Empty object if creating
-                      ...formPreview, // Merge preview values
-                    } as SubscriptionPackage
-                  }
-                  onEdit={(pkg) => {
-                    setSelectedPackage(pkg);
-                    setIsCreating(false);
-                  }}
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full text-muted-foreground">
-                  Chọn một gói để xem hoặc chỉnh sửa
-                </div>
-              )}
-            </ScrollArea>
+            {selectedPackage || editingPackage ? (
+              <SubscriptionDetails
+                pkg={
+                  {
+                    ...(selectedPackage ?? {}),
+                    ...formPreview,
+                  } as SubscriptionPackage
+                }
+                onEdit={handleEdit}
+                isCreating={!selectedPackage}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                Chọn một gói để xem hoặc chỉnh sửa
+              </div>
+            )}
           </div>
         </div>
       </DialogContent>

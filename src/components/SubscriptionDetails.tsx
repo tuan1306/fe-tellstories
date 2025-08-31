@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 interface Props {
   pkg: SubscriptionPackage;
   onEdit: (pkg: SubscriptionPackage) => void;
+  isCreating?: boolean;
 }
 
-export const SubscriptionDetails = ({ pkg, onEdit }: Props) => {
+export const SubscriptionDetails = ({ pkg, onEdit, isCreating }: Props) => {
   return (
     <div className="flex flex-col h-full">
       {/* Title + Description */}
@@ -65,13 +66,15 @@ export const SubscriptionDetails = ({ pkg, onEdit }: Props) => {
       </div>
 
       {/* Edit Button */}
-      <Button
-        variant="link"
-        className="px-0 text-sm text-amber-300 mt-2 self-start"
-        onClick={() => onEdit(pkg)}
-      >
-        Chỉnh sửa gói
-      </Button>
+      {!isCreating && (
+        <Button
+          variant="link"
+          className="px-0 text-sm text-amber-300 mt-2 self-start"
+          onClick={() => onEdit(pkg)}
+        >
+          Chỉnh sửa gói
+        </Button>
+      )}
     </div>
   );
 };
