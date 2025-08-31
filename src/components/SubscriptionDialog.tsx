@@ -52,7 +52,7 @@ export const SubscriptionDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="!w-[95vw] !max-w-[1200px] !h-[85vh] flex flex-col overflow-hidden">
+      <DialogContent className="!w-[90vw] !max-w-[1100px] !h-[75vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>Hệ thống quản lý gói</DialogTitle>
           <DialogDescription>
@@ -60,7 +60,7 @@ export const SubscriptionDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 grid grid-cols-2 gap-4 mt-4 overflow-hidden min-h-0">
+        <div className="flex-1 grid grid-cols-[2fr_1fr] gap-4 overflow-hidden min-h-0">
           {/* Left */}
           <div className="border rounded-lg p-4 flex flex-col h-full min-h-0">
             <div className="mb-4">
