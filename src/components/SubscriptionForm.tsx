@@ -53,7 +53,7 @@ export const SubscriptionForm = ({
       ? {
           name: selectedPackage.name,
           price: selectedPackage.price ?? 0,
-          type: selectedPackage.type ?? "",
+          type: selectedPackage.type ?? "default",
           durationDays: selectedPackage.durationDays ?? 1,
           pointsCost: selectedPackage.pointsCost ?? 0,
           rewardPoints: selectedPackage.rewardPoints ?? 0,
@@ -88,17 +88,18 @@ export const SubscriptionForm = ({
       const isActivating =
         values.isActive && (!selectedPackage || !selectedPackage.isActive);
 
-      if (isActivating && activeCount >= 5) {
+      if (isActivating && activeCount >= 10) {
         setFormError(
           `Bạn đang có ${activeCount} gói đang hoạt động, cân nhắc trước khi kích hoạt thêm.`
         );
         setIsSubmitting(false);
       }
 
-      const method = selectedPackage ? "PUT" : "POST";
+      const isEditing = !!(selectedPackage && selectedPackage.id);
+      const method = isEditing ? "PUT" : "POST";
       const url = "/api/subscription";
-      const payload = selectedPackage
-        ? { ...values, id: selectedPackage.id }
+      const payload = isEditing
+        ? { ...values, id: selectedPackage?.id }
         : values;
 
       const res = await fetch(url, {
@@ -149,9 +150,25 @@ export const SubscriptionForm = ({
   useEffect(() => {
     const subscription = watch((values) => {
       onChange?.(values as Partial<SubscriptionPackage>);
+
+      // Show warning immediately if activating and limit exceeded
+      if (values.isActive) {
+        const activeCount = subscriptionPackages.filter(
+          (p) => p.isActive && p.id !== selectedPackage?.id
+        ).length;
+
+        if (activeCount >= 5) {
+          setFormError(`Chú ý! Bạn đang có ${activeCount} gói đang hoạt động.`);
+        } else {
+          setFormError("");
+        }
+      } else {
+        setFormError("");
+      }
     });
+
     return () => subscription.unsubscribe();
-  }, [watch, onChange]);
+  }, [watch, subscriptionPackages, selectedPackage, onChange]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const numericField = (field: any, key: keyof SubscriptionPackage) => ({
@@ -304,7 +321,7 @@ export const SubscriptionForm = ({
 
         {/* Error */}
         {formError && (
-          <div className="flex items-center text-red-500 gap-2 text-sm">
+          <div className="flex items-center text-red-500 font-semibold text-sm gap-2">
             <AlertTriangle size={16} />
             {formError}
           </div>
