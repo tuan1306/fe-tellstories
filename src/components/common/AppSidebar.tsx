@@ -6,6 +6,7 @@ import {
   CircleDollarSign,
   Cog,
   DoorOpen,
+  KeyRound,
   LayoutDashboard,
   // LucideMessageSquareText,
   PenBoxIcon,
@@ -14,7 +15,7 @@ import {
   // Settings,
   Sparkles,
   SwatchBook,
-  User2,
+  // User2,
   Users,
 } from "lucide-react";
 import {
@@ -112,6 +113,8 @@ const AppSidebar = () => {
 
   const items = role === "Admin" ? ownerItems : moderatorItems;
 
+  const fallback = role === "Admin" ? "/owner/dashboard" : "/moderator/stories";
+
   return (
     <Sidebar
       className="text-white font-semibold border-r border-gray-700 transition-all ease-in-out duration-300"
@@ -122,7 +125,7 @@ const AppSidebar = () => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/">
+              <Link href={fallback}>
                 <SwatchBook />
                 <span>TellStories</span>
               </Link>
@@ -186,15 +189,15 @@ const AppSidebar = () => {
                 className="w-[var(--radix-popper-anchor-width)] text-white px-2 py-2 rounded-md text-[15px] space-y-1 transition-all duration-300"
               >
                 <DropdownMenuItem className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200">
-                  <User2 className="w-4 h-4" />
-                  <span>Account</span>
+                  <KeyRound className="w-4 h-4" />
+                  <span>Thay đổi thông tin</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={logout}
                   className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-red-500 transition-all duration-200"
                 >
                   <DoorOpen className="w-4 h-4" />
-                  <span>Logout</span>
+                  <span>Đăng xuất</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

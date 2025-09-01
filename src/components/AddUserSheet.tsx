@@ -37,11 +37,14 @@ import { Calendar } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import React from "react";
 import { ScrollArea } from "./ui/scroll-area";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function AddUserSheet({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof addUserSchema>>({
     resolver: zodResolver(addUserSchema),
@@ -97,9 +100,13 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
 
       const data = await res.json();
       console.log("Created user:", data);
+
+      toast.success("Người dùng đã được thêm thành công!");
       setOpen(false);
+      router.refresh();
     } catch (error) {
       console.error("Submit error:", error);
+      toast.error("Có lỗi xảy ra, không thể thêm người dùng.");
     } finally {
       setLoading(false);
     }

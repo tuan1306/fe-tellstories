@@ -16,6 +16,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import type { SortingFn } from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // TanStack doc: https://tanstack.com/table/v8/docs/guide/sorting for custom funcs
 // Sure you can write em at the sortingFn but then this exist, which is cleaner.
@@ -224,13 +225,25 @@ export const columns: ColumnDef<UserDetails>[] = [
                   );
                   if (!confirmed) return;
 
-                  const res = await fetch(`/api/users/${user.id}`, {
-                    method: "DELETE",
-                  });
+                  try {
+                    const res = await fetch(`/api/users/${user.id}`, {
+                      method: "DELETE",
+                    });
 
-                  const data = await res.json();
-                  console.log("Kết quả xóa:", data);
-                  // Optionally call `onSuccess?.()` if passed in to refresh
+                    if (!res.ok) {
+                      const err = await res.json();
+                      throw new Error(err.message || "Xóa người dùng thất bại");
+                    }
+
+                    const data = await res.json();
+                    console.log("Kết quả xóa:", data);
+
+                    toast.success("Người dùng đã được xóa thành công!");
+                    router.refresh();
+                  } catch (error) {
+                    console.error("Delete error:", error);
+                    toast.error("Có lỗi xảy ra, không thể xóa người dùng.");
+                  }
                 }}
               >
                 Xóa người dùng
