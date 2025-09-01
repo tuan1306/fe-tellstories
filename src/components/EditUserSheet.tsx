@@ -39,19 +39,22 @@ import React from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { UserDetails } from "@/app/types/user";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export function EditUserSheet({
   children,
   user,
+  onSuccess,
 }: {
   children: React.ReactNode;
   user?: UserDetails;
+  onSuccess?: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   const form = useForm<z.infer<typeof editUserSchema>>({
     resolver: zodResolver(editUserSchema),
@@ -115,6 +118,11 @@ export function EditUserSheet({
       toast.success("Đã chỉnh sửa thông tin người dùng!");
       setOpen(false);
       router.refresh();
+      if (pathname === "/owner/usermanagement") {
+        router.refresh();
+      } else if (pathname.startsWith("/owner/usermanagement/") && onSuccess) {
+        await onSuccess();
+      }
     } catch (error) {
       console.error("Submit error:", error);
       toast.success("Đã xảy ra lỗi, chỉnh sửa không thành công!");
