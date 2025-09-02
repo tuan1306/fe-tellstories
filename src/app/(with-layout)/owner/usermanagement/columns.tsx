@@ -2,6 +2,7 @@
 
 import { UserDetails } from "@/app/types/user";
 import { EditUserSheet } from "@/components/EditUserSheet";
+import { EmailDialog } from "@/components/EmailDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -195,12 +196,33 @@ export const columns: ColumnDef<UserDetails>[] = [
                 Xem chi tiết người dùng
               </DropdownMenuItem>
               <DropdownMenuSeparator />
+
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={() => navigator.clipboard.writeText(user.id)}
               >
                 Sao chép ID người dùng
               </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                className="p-0"
+              >
+                <div className="w-full">
+                  <EmailDialog
+                    defaultRecipients={user.email}
+                    defaultFields={{ displayName: user.displayName }}
+                  >
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start px-2 py-1.5 h-auto font-normal cursor-pointer"
+                    >
+                      Gửi email tới người dùng
+                    </Button>
+                  </EmailDialog>
+                </div>
+              </DropdownMenuItem>
+
               <DropdownMenuItem
                 onSelect={(e) => e.preventDefault()}
                 className="p-0"
@@ -216,6 +238,7 @@ export const columns: ColumnDef<UserDetails>[] = [
                   </EditUserSheet>
                 </div>
               </DropdownMenuItem>
+
               {/* Needed some how to add Dialog here. */}
               <DropdownMenuItem
                 className="cursor-pointer"
