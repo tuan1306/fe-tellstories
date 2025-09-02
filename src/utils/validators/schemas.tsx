@@ -17,9 +17,12 @@ export const addUserSchema = z.object({
   userType: z.enum(["Admin", "Moderator", "User"]).optional(),
   status: z.enum(["Active", "Suspended", "Banned"]).optional(),
   phoneNumber: z.string().optional(),
-  password: z.string().regex(/[!@#$%^&*(),.?":{}|<>]/, {
-    message: "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt",
-  }),
+  password: z
+    .string()
+    .min(8, { message: "Mật khẩu phải có ít nhất 8 ký tự" })
+    .regex(/^(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/, {
+      message: "Mật khẩu phải chứa ít nhất 1 số và 1 ký tự đặc biệt",
+    }),
   dob: z.date(),
 });
 
@@ -93,3 +96,23 @@ export const subscriptionSchema = z.object({
     .min(1, { message: "Phương thức mua hàng không được để trống" }),
   isDefault: z.boolean(),
 });
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z
+      .string()
+      .min(1, { message: "Mật khẩu hiện tại không được để trống" }),
+    newPassword: z
+      .string()
+      .min(8, { message: "Mật khẩu mới phải có ít nhất 8 ký tự" })
+      .regex(/^(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/, {
+        message: "Mật khẩu mới phải chứa ít nhất 1 số và 1 ký tự đặc biệt",
+      }),
+    confirmPassword: z
+      .string()
+      .min(1, { message: "Vui lòng xác nhận mật khẩu mới" }),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirmPassword"],
+  });

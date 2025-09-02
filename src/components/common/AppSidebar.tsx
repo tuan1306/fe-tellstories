@@ -43,6 +43,7 @@ import Image from "next/image";
 import { useAuth } from "../../context/AuthContext";
 import { EditProfileDialog } from "../EditProfileDialog";
 import { useState } from "react";
+import { ChangePasswordDialog } from "../ChangePasswordDialog";
 
 // Voodoo magic idk
 // So for all of the classes that's associated
@@ -119,6 +120,7 @@ const AppSidebar = () => {
   const fallback = role === "Admin" ? "/owner/dashboard" : "/moderator/stories";
 
   const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [openResetDialog, setOpenResetDialog] = useState(false);
 
   return (
     <Sidebar
@@ -201,7 +203,10 @@ const AppSidebar = () => {
                   <span>Thay đổi thông tin</span>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200">
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200"
+                  onClick={() => setOpenResetDialog(true)}
+                >
                   <KeyRound className="w-4 h-4" />
                   <span>Thay đổi mật khẩu</span>
                 </DropdownMenuItem>
@@ -224,6 +229,11 @@ const AppSidebar = () => {
         user={user}
         open={editProfileOpen}
         onOpenChange={setEditProfileOpen}
+      />
+
+      <ChangePasswordDialog
+        open={openResetDialog}
+        onOpenChange={setOpenResetDialog}
       />
     </Sidebar>
   );

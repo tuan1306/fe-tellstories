@@ -27,7 +27,28 @@ export default async function BillingHistoryPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const data = await getData((await params).id);
+  let data: BillingResponse | null = null;
+
+  try {
+    data = await getData((await params).id);
+  } catch (error) {
+    console.error("Failed to fetch billing history:", error);
+  }
+
+  // fallback
+  if (!data) {
+    return (
+      <div className="p-6">
+        <h1 className="text-2xl font-semibold">
+          Lịch sử thanh toán của người dùng
+        </h1>
+        <p className="text-sm text-muted-foreground mt-2">
+          Không tìm thấy thông tin thanh toán cho người dùng này.
+        </p>
+      </div>
+    );
+  }
+
   const metricsData = data.data;
   const billingData = data.data.billingHistory.items;
 
