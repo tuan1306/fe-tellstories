@@ -1,23 +1,39 @@
 "use client";
 
-import { useState, ReactNode, useEffect } from "react";
+import { useEffect, ReactNode, useState } from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { vi } from "date-fns/locale";
 import { parseISO, format, addYears } from "date-fns";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Calendar } from "./ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { profileSchema } from "@/utils/validators/schemas";
 
 interface EditProfileProps {
   user: {
@@ -41,49 +57,50 @@ export function EditProfileDialog({
   open,
   onOpenChange,
 }: EditProfileProps) {
-  const [form, setForm] = useState({
-    displayName: user?.displayName || "",
-    email: user?.email || "",
-    avatarUrl: user?.avatarUrl || "/fallback.jpg",
-    phoneNumber: user?.phoneNumber || "",
-    dob: user?.dob || "",
-    status: user?.status || "",
-  });
-
-  const [dob, setDob] = useState<Date | undefined>(
-    form.dob ? parseISO(form.dob) : undefined
-  );
-  const maxDate = addYears(new Date(), -18);
-
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setForm({
+  const form = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
       displayName: user?.displayName || "",
       email: user?.email || "",
       avatarUrl: user?.avatarUrl || "/fallback.jpg",
       phoneNumber: user?.phoneNumber || "",
       dob: user?.dob || "",
       status: user?.status || "",
-    });
-  }, [user]);
+    },
+  });
 
+  // Loading
+  const [loading, setLoading] = useState(false);
+
+  // is the information dirty
+  const { isDirty } = form.formState;
+
+  const dobValue: string | undefined = form.watch("dob");
+  const dobDate: Date | undefined = dobValue ? parseISO(dobValue) : undefined;
+  const maxDate = addYears(new Date(), -18);
+
+  // Reset form when closes
   useEffect(() => {
-    if (form.dob) setDob(parseISO(form.dob));
-  }, [form.dob]);
+    if (user) {
+      form.reset({
+        displayName: user.displayName || "",
+        email: user.email || "",
+        avatarUrl: user.avatarUrl || "/fallback.jpg",
+        phoneNumber: user.phoneNumber || "",
+        dob: user.dob || "",
+        status: user.status || "",
+      });
+    }
+  }, [user, form, open]);
 
-  const handleChange = (field: string, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSave = async () => {
-    if (!user) return;
+  const onSubmit = async (values: z.infer<typeof profileSchema>) => {
     setLoading(true);
+    if (!user) return;
     try {
       const res = await fetch(`/api/users/${user.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(values),
       });
 
       if (!res.ok) {
@@ -115,18 +132,19 @@ export function EditProfileDialog({
         <div className="flex justify-center my-4">
           <div className="w-24 h-24 relative cursor-pointer group">
             <Avatar className="w-full h-full">
-              <AvatarImage src={form.avatarUrl} alt={form.displayName} />
+              <AvatarImage
+                src={form.getValues("avatarUrl")}
+                alt={form.getValues("displayName")}
+              />
               <AvatarFallback className="text-lg">
-                {form.displayName
-                  ? form.displayName.charAt(0).toUpperCase()
+                {form.getValues("displayName")
+                  ? form.getValues("displayName").charAt(0).toUpperCase()
                   : "?"}
               </AvatarFallback>
             </Avatar>
-
             <div className="absolute inset-0 bg-gray-500 bg-opacity-20 opacity-0 group-hover:opacity-100 flex items-center justify-center rounded-full transition-opacity">
               <span className="text-white text-sm">Thay đổi</span>
             </div>
-
             <input
               type="file"
               accept="image/*"
@@ -136,11 +154,10 @@ export function EditProfileDialog({
                 const file = e.target.files?.[0];
                 if (file) {
                   const url = URL.createObjectURL(file);
-                  setForm((prev) => ({ ...prev, avatarUrl: url }));
+                  form.setValue("avatarUrl", url);
                 }
               }}
             />
-
             <label
               htmlFor="avatar-upload"
               className="absolute inset-0 cursor-pointer"
@@ -148,63 +165,102 @@ export function EditProfileDialog({
           </div>
         </div>
 
-        {/* Form */}
-        <div className="space-y-4">
-          <Input
-            value={form.displayName}
-            onChange={(e) => handleChange("displayName", e.target.value)}
-            placeholder="Tên hiển thị"
-          />
-          <Input
-            type="email"
-            value={form.email}
-            onChange={(e) => handleChange("email", e.target.value)}
-            placeholder="Email"
-          />
-          <Input
-            value={form.phoneNumber}
-            onChange={(e) => handleChange("phoneNumber", e.target.value)}
-            placeholder="Số điện thoại"
-          />
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full flex items-center justify-between"
-              >
-                {dob
-                  ? format(dob, "dd/MM/yyyy", { locale: vi })
-                  : "Chọn ngày sinh"}
-                <CalendarIcon className="ml-2 h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={dob}
-                onSelect={(date) => {
-                  if (!date) return;
-                  setDob(date);
-                  setForm({ ...form, dob: format(date, "yyyy-MM-dd") });
-                }}
-                locale={vi}
-                disabled={(date) => date > maxDate}
-                captionLayout="dropdown"
-                defaultMonth={dob || maxDate}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="displayName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tên hiển thị</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Tên hiển thị" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        {/* Actions */}
-        <div className="flex justify-end gap-2 mt-6">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Hủy
-          </Button>
-          <Button onClick={handleSave} disabled={loading}>
-            {loading ? "Đang lưu..." : "Lưu thay đổi"}
-          </Button>
-        </div>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input type="email" {...field} placeholder="Email" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Số điện thoại</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Số điện thoại" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dob"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ngày sinh</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full flex justify-between"
+                      >
+                        {dobDate
+                          ? format(dobDate, "dd/MM/yyyy", { locale: vi })
+                          : "Chọn ngày sinh"}
+                        <CalendarIcon className="ml-2 h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={dobDate}
+                        onSelect={(date) =>
+                          field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                        }
+                        locale={vi}
+                        disabled={(date) => date > maxDate}
+                        captionLayout="dropdown"
+                        defaultMonth={dobDate || maxDate}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Hủy
+              </Button>
+              <Button type="submit" disabled={loading || !isDirty}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading ? "Đang lưu..." : "Lưu"}
+              </Button>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

@@ -116,3 +116,14 @@ export const changePasswordSchema = z
     message: "Mật khẩu xác nhận không khớp",
     path: ["confirmPassword"],
   });
+
+export const profileSchema = z.object({
+  displayName: z
+    .string()
+    .min(1, { message: "Tên hiển thị không được để trống" }),
+  email: z.string().email("Email không hợp lệ"),
+  phoneNumber: z.string().optional(),
+  avatarUrl: z.string().optional(),
+  dob: z.string().optional(),
+  status: z.string().optional(),
+});
