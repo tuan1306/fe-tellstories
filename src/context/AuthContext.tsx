@@ -3,17 +3,22 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+type Role = "Admin" | "Moderator";
+
 type User = {
   id: string;
   email: string;
   displayName: string;
   avatarUrl?: string;
-  role: "Admin" | "Moderator";
+  userType: "Admin" | "Moderator";
+  phoneNumber?: string;
+  dob?: string;
+  status?: string;
 };
 
 type AuthContextType = {
   user: User | null;
-  role: "Admin" | "Moderator" | null;
+  role: Role | null;
   logout: () => void;
 };
 
@@ -42,7 +47,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             email: u.email,
             displayName: u.displayName,
             avatarUrl: u.avatarUrl,
-            role: u.userType,
+            userType: (u.userType as Role) ?? "Moderator",
+            phoneNumber: u.phoneNumber,
+            dob: u.dob,
+            status: u.status,
           });
         }
       })
@@ -56,7 +64,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, role: user?.role ?? null, logout }}>
+    <AuthContext.Provider
+      value={{ user, role: user?.userType ?? null, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

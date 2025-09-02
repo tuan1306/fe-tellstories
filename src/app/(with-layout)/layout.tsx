@@ -43,7 +43,6 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${manrope.variable} antialiased`}
       >
-        {/* 👇 wrap everything inside AuthProvider */}
         <AuthProvider>
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar />

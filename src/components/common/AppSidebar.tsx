@@ -15,6 +15,7 @@ import {
   // Settings,
   Sparkles,
   SwatchBook,
+  User2,
   // User2,
   Users,
 } from "lucide-react";
@@ -40,6 +41,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import { useAuth } from "../../context/AuthContext";
+import { EditProfileDialog } from "../EditProfileDialog";
+import { useState } from "react";
 
 // Voodoo magic idk
 // So for all of the classes that's associated
@@ -115,6 +118,8 @@ const AppSidebar = () => {
 
   const fallback = role === "Admin" ? "/owner/dashboard" : "/moderator/stories";
 
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+
   return (
     <Sidebar
       className="text-white font-semibold border-r border-gray-700 transition-all ease-in-out duration-300"
@@ -188,22 +193,38 @@ const AppSidebar = () => {
                 align="start"
                 className="w-[var(--radix-popper-anchor-width)] text-white px-2 py-2 rounded-md text-[15px] space-y-1 transition-all duration-300"
               >
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200"
+                  onClick={() => setEditProfileOpen(true)}
+                >
+                  <User2 className="w-4 h-4" />
+                  <span>Thay đổi thông tin</span>
+                </DropdownMenuItem>
+
                 <DropdownMenuItem className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200">
                   <KeyRound className="w-4 h-4" />
-                  <span>Thay đổi thông tin</span>
+                  <span>Thay đổi mật khẩu</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={logout}
-                  className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-red-500 transition-all duration-200"
+                  className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] text-red-500 hover:text-red-500 transition-all duration-200"
                 >
-                  <DoorOpen className="w-4 h-4" />
-                  <span>Đăng xuất</span>
+                  <DoorOpen className="w-4 h-4 text-red-500" />
+                  <span className=" text-red-500 hover:text-red-500">
+                    Đăng xuất
+                  </span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
+      <EditProfileDialog
+        user={user}
+        open={editProfileOpen}
+        onOpenChange={setEditProfileOpen}
+      />
     </Sidebar>
   );
 };
