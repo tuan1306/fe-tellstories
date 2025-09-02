@@ -70,12 +70,12 @@ export default function ConfigManager() {
         prev.map((c) => (c.key === editing.key ? { ...c, value: newValue } : c))
       );
 
-      toast.success("Configuration updated");
+      toast.success("Cập nhật cấu hình thành công");
       setEditing(null);
       setNewValue("");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      toast.error("Failed to update config");
+      toast.error("Cập nhật cấu hình thất bại");
     } finally {
       setIsSaving(false);
     }
@@ -84,11 +84,11 @@ export default function ConfigManager() {
   return (
     <Card className="shadow-md mt-4 max-h-[80vh] overflow-hidden flex flex-col">
       <CardHeader>
-        <CardTitle>System Configurations</CardTitle>
+        <CardTitle>Cấu hình hệ thống</CardTitle>
         <div className="flex items-center gap-2 mt-2">
           <Search className="w-4 h-4 text-gray-500" />
           <Input
-            placeholder="Search by key or value"
+            placeholder="Tìm kiếm theo key hoặc value"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -108,9 +108,9 @@ export default function ConfigManager() {
             <TableHeader>
               <TableRow>
                 <TableHead>Key</TableHead>
-                <TableHead className="text-center">Value</TableHead>
-                <TableHead className="text-center">Updated At</TableHead>
-                <TableHead className="w-[80px]">Actions</TableHead>
+                <TableHead className="text-center">Giá trị</TableHead>
+                <TableHead className="text-center">Cập nhật lúc</TableHead>
+                <TableHead className="w-[80px]">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -121,7 +121,7 @@ export default function ConfigManager() {
                   </TableCell>
                   <TableCell className="text-center">{config.value}</TableCell>
                   <TableCell className="text-center">
-                    {new Date(config.updatedAt).toLocaleString("en-GB", {
+                    {new Date(config.updatedAt).toLocaleString("vi-VN", {
                       year: "numeric",
                       month: "2-digit",
                       day: "2-digit",
@@ -152,7 +152,7 @@ export default function ConfigManager() {
         {!loading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-10 text-gray-500">
             <Search className="h-6 w-6 mb-2" />
-            <p>No configurations found.</p>
+            <p>Không tìm thấy cấu hình nào.</p>
           </div>
         )}
       </CardContent>
@@ -161,29 +161,49 @@ export default function ConfigManager() {
       <Dialog open={!!editing} onOpenChange={() => setEditing(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Config</DialogTitle>
+            <DialogTitle>Chỉnh sửa cấu hình</DialogTitle>
             <DialogDescription>
-              Update the value for this configuration.
+              Cập nhật giá trị cho cấu hình này.
             </DialogDescription>
           </DialogHeader>
 
           <div className="p-3 text-sm text-muted-foreground bg-muted rounded-md">
             <div className="flex items-center gap-2 mb-1 font-semibold">
               <BadgeInfo className="h-4 w-4 text-cyan-500" />
-              About this config:
+              Thông tin về cấu hình:
             </div>
+            {editing?.key ===
+              "BillingRecord_Background_CheckRecords_IntervalMinutes" &&
+              "Khoảng thời gian (tính bằng phút) hệ thống kiểm tra hóa đơn trong nền."}
+            {editing?.key ===
+              "BillingRecord_Background_MarkRecordAsFailedIfNotPaidInMinutes" &&
+              "Thời gian (tính bằng phút) sau đó hóa đơn chưa thanh toán sẽ bị đánh dấu là thất bại."}
             {editing?.key === "Login_DailyReward_Points" &&
-              "Defines how many reward points a user receives for logging in daily."}
+              "Số điểm thưởng người dùng nhận được khi đăng nhập hằng ngày."}
             {editing?.key === "StoryPublish_MaxPendingRequests_Default" &&
-              "Defines the maximum number of pending story publish requests allowed for basic accounts."}
+              "Số lượng tối đa yêu cầu xuất bản truyện đang chờ xử lý cho người dùng thông thường."}
             {editing?.key === "StoryPublish_MaxPendingRequests_Tier1" &&
-              "Defines the maximum number of pending story publish requests allowed for premium accounts."}
+              "Số lượng tối đa yêu cầu xuất bản truyện đang chờ xử lý cho người dùng đã mua gói"}
+            {editing?.key ===
+              "Subscription_Background_CheckExpiration_IntervalMinutes" &&
+              "Khoảng thời gian (tính bằng phút) hệ thống kiểm tra thời hạn gói đăng ký."}
+            {editing?.key ===
+              "Subscription_Background_SendEmailUpcomingExpiration_DaysBeforeExpiration" &&
+              "Số ngày trước khi hết hạn mà hệ thống gửi email nhắc nhở gia hạn."}
+            {editing?.key ===
+              "Subscription_Background_SendEmailUpcomingExpiration_IntervalMinutes" &&
+              "Khoảng thời gian (tính bằng phút) giữa các lần gửi email nhắc nhở hết hạn gói đăng ký."}
             {![
+              "BillingRecord_Background_CheckRecords_IntervalMinutes",
+              "BillingRecord_Background_MarkRecordAsFailedIfNotPaidInMinutes",
               "Login_DailyReward_Points",
               "StoryPublish_MaxPendingRequests_Default",
               "StoryPublish_MaxPendingRequests_Tier1",
+              "Subscription_Background_CheckExpiration_IntervalMinutes",
+              "Subscription_Background_SendEmailUpcomingExpiration_DaysBeforeExpiration",
+              "Subscription_Background_SendEmailUpcomingExpiration_IntervalMinutes",
             ].includes(editing?.key || "") && (
-              <>No description available for this configuration.</>
+              <>Không có mô tả cho cấu hình này.</>
             )}
           </div>
 
@@ -200,13 +220,13 @@ export default function ConfigManager() {
                 onClick={() => {
                   if (!editing?.key) return;
                   navigator.clipboard.writeText(editing.key);
-                  toast.info("Key copied");
+                  toast.info("Đã sao chép key");
                 }}
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="value" className="text-right">
-                Value
+                Giá trị
               </Label>
               <Input
                 id="value"
@@ -219,16 +239,16 @@ export default function ConfigManager() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>
-              Cancel
+              Hủy
             </Button>
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  Đang lưu...
                 </>
               ) : (
-                "Save"
+                "Lưu"
               )}
             </Button>
           </DialogFooter>
