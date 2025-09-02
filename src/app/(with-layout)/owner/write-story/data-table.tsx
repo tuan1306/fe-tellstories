@@ -34,6 +34,7 @@ export default function DataTable() {
   const [selectedVoice, setSelectedVoice] = useState<string>("");
   const [selectedStyle, setSelectedStyle] = useState<string>("cartoonish");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
+  const [loading, setLoading] = useState(true);
 
   const router = useRouter();
 
@@ -44,7 +45,8 @@ export default function DataTable() {
         const stories = json.data?.data?.items ?? [];
         setUserStories(stories);
       })
-      .catch((err) => console.error("Fetch error:", err));
+      .catch((err) => console.error("Fetch error:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   const filtered = userStories.filter(
@@ -345,7 +347,8 @@ export default function DataTable() {
       />
 
       <div className="bg-card mt-4 p-5 rounded-lg h-[80vh]">
-        {userStories.length === 0 ? (
+        {loading ? (
+          // Skeleton while fetching
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pr-4 animate-pulse">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="space-y-2">

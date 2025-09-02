@@ -194,7 +194,7 @@ export default function IssueMangement() {
       );
     });
 
-  const typeCounts = ["Comment", "Bug", "Other"].map((type) => ({
+  const typeCounts = ["Comment", "Bug"].map((type) => ({
     type,
     count: flaggedComments.filter(
       (c) =>

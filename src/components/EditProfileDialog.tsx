@@ -150,14 +150,35 @@ export function EditProfileDialog({
               accept="image/*"
               className="hidden"
               id="avatar-upload"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = e.target.files?.[0];
-                if (file) {
-                  const url = URL.createObjectURL(file);
-                  form.setValue("avatarUrl", url);
+                if (!file) return;
+
+                try {
+                  const formData = new FormData();
+                  formData.append("file", file);
+
+                  const res = await fetch("/api/cdn/upload", {
+                    method: "POST",
+                    body: formData,
+                  });
+
+                  if (!res.ok) {
+                    const data = await res.json();
+                    toast.error(data.message || "Đăng tải thất bại");
+                    return;
+                  }
+
+                  const data = await res.json();
+                  form.setValue("avatarUrl", data.url);
+                  toast.success("Ảnh đại diện đã được cập nhật!");
+                } catch (err) {
+                  console.error(err);
+                  toast.error("Đã xảy ra lỗi khi đăng tải ảnh.");
                 }
               }}
             />
+
             <label
               htmlFor="avatar-upload"
               className="absolute inset-0 cursor-pointer"

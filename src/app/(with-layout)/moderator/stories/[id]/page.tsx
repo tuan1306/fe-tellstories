@@ -6,7 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
-import { ChevronLeft, ChevronRight, Music, PenLine } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  Music,
+  PenLine,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
@@ -124,7 +130,12 @@ export default function StoryPage() {
     }
   }, [id]);
 
-  if (!story) return <div>Loading...</div>;
+  if (!story)
+    return (
+      <div className="flex items-center justify-center h-[90vh] w-full">
+        <Loader2 className="w-14 h-14 animate-spin text-muted-foreground" />
+      </div>
+    );
 
   return (
     <div className="mt-4 h-[90vh] flex flex-col xl:flex-row gap-8">

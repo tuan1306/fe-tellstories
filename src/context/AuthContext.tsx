@@ -20,16 +20,19 @@ type AuthContextType = {
   user: User | null;
   role: Role | null;
   logout: () => void;
+  loading: boolean;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   role: null,
   logout: () => {},
+  loading: true,
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   // Get the user info and then put it in AuthContext
@@ -54,7 +57,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           });
         }
       })
-      .catch(() => setUser(null));
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
   }, []);
 
   const logout = async () => {
@@ -65,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, role: user?.userType ?? null, logout }}
+      value={{ user, role: user?.userType ?? null, logout, loading }}
     >
       {children}
     </AuthContext.Provider>

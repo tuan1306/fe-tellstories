@@ -55,10 +55,10 @@ export default function Login() {
       });
 
       if (!res.ok) {
-        const error = await res.json();
-        setErr(error.message || "Đăng nhập thất bại");
+        setErr("Đăng nhập không thành công");
         return;
       }
+
       router.push("/owner/dashboard");
     } catch (err) {
       setErr(
@@ -140,7 +140,8 @@ export default function Login() {
               </div>
 
               {/* Checkbox & link */}
-              <div className="flex justify-between items-center w-full px-5 text-sm">
+              <div className="flex justify-between items-start w-full px-5 text-sm">
+                {/* Remember me and help */}
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id="remember"
@@ -161,12 +162,22 @@ export default function Login() {
                     </HoverCardContent>
                   </HoverCard>
                 </div>
-                <Link
-                  href="/forgot-password"
-                  className="hover:underline cursor-pointer underline-offset-3"
-                >
-                  Quên mật khẩu?
-                </Link>
+
+                {/* Links */}
+                <div className="flex flex-col gap-1">
+                  <Link
+                    href="/forgot-password"
+                    className="hover:underline cursor-pointer underline-offset-3"
+                  >
+                    Quên mật khẩu?
+                  </Link>
+                  <Link
+                    href="/validate-user"
+                    className="hover:underline cursor-pointer underline-offset-3"
+                  >
+                    Xác thực tài khoản
+                  </Link>
+                </div>
               </div>
 
               {err && (

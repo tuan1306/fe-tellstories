@@ -275,7 +275,7 @@ export function AddUserSheet({ children }: { children: React.ReactNode }) {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="Active">Hoạt động</SelectItem>
-                            <SelectItem value="Inactive">
+                            <SelectItem value="Suspended">
                               Không hoạt động
                             </SelectItem>
                             <SelectItem value="Banned">Bị cấm</SelectItem>

@@ -88,7 +88,7 @@ export default function ConfigManager() {
         <div className="flex items-center gap-2 mt-2">
           <Search className="w-4 h-4 text-gray-500" />
           <Input
-            placeholder="Tìm kiếm theo key hoặc value"
+            placeholder="Tìm kiếm theo key..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

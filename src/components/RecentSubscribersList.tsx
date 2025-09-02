@@ -127,10 +127,10 @@ export function RecentSubscribersList() {
     <div className="bg-card p-4 rounded-lg h-full">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold">Người đăng ký gần đây</h3>
+          <h3 className="text-lg font-semibold">Người đăng ký mới gần đây</h3>
           <p className="text-sm text-muted-foreground">
-            Danh sách những người dùng vừa đăng ký dịch vụ theo khung thời gian
-            được chọn
+            Danh sách những người dùng vừa đăng ký dịch vụ lần đầu theo khung
+            thời gian được chọn
           </p>
         </div>
 

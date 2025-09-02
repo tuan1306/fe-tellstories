@@ -74,14 +74,14 @@ export default function ManageStoryGrid({
                       variant="secondary"
                       className="absolute top-1 right-1 bg-amber-400"
                     >
-                      Featured
+                      Nổi bật
                     </Badge>
                   </div>
                 )}
               </div>
 
               <h1 className="text-sm font-semibold text-muted-foreground">
-                {story.author || "Unknown Author"}
+                {story.author || "Tác giả không tên"}
               </h1>
               <h1 className="text-xl font-semibold">{story.title}</h1>
             </Link>

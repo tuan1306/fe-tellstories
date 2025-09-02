@@ -8,6 +8,7 @@ import {
   DoorOpen,
   KeyRound,
   LayoutDashboard,
+  Loader2,
   // LucideMessageSquareText,
   PenBoxIcon,
   // Receipt,
@@ -113,7 +114,7 @@ const moderatorItems = [
 
 const AppSidebar = () => {
   const pathname = usePathname();
-  const { role, user, logout } = useAuth();
+  const { role, user, logout, loading } = useAuth();
 
   const items = role === "Admin" ? ownerItems : moderatorItems;
 
@@ -142,88 +143,97 @@ const AppSidebar = () => {
       </SidebarHeader>
 
       {/* Content */}
-      <SidebarContent className="bg-[#0D1A2C]">
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[#9c9c9c]">
-            Các tác vụ
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className={cn(
-                      "hover:bg-[#102134] hover:text-[#896F3D]",
-                      pathname === item.url && "bg-[#102134] text-[#896F3D]"
-                    )}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="bg-[#0D1A2C] flex-1">
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <Loader2 className="w-8 h-8 text-[#896F3D] animate-spin" />
+          </div>
+        ) : (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-[#9c9c9c]">
+              Các tác vụ
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      className={cn(
+                        "hover:bg-[#102134] hover:text-[#896F3D]",
+                        pathname === item.url && "bg-[#102134] text-[#896F3D]"
+                      )}
+                    >
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
-      <SidebarFooter className="bg-[#1A293F] border-t border-gray-700 transition-all duration-200">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="group cursor-pointer hover:bg-[#102134] hover:text-[#896F3D] flex items-center justify-between w-full transition-all duration-200">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src={user?.avatarUrl || "/fallback.jpg"}
-                      alt="User avatar"
-                      width={24}
-                      height={24}
-                      className="rounded-full object-cover"
-                    />
-                    <span>{user?.displayName}</span>
-                  </div>
-                  <ChevronUp className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                side="top"
-                sideOffset={20}
-                align="start"
-                className="w-[var(--radix-popper-anchor-width)] text-white px-2 py-2 rounded-md text-[15px] space-y-1 transition-all duration-300"
-              >
-                <DropdownMenuItem
-                  className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200"
-                  onClick={() => setEditProfileOpen(true)}
+      {/* Footer */}
+      {!loading && (
+        <SidebarFooter className="bg-[#1A293F] border-t border-gray-700 transition-all duration-200">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton className="group cursor-pointer hover:bg-[#102134] hover:text-[#896F3D] flex items-center justify-between w-full transition-all duration-200">
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={user?.avatarUrl || "/fallback.jpg"}
+                        alt="User avatar"
+                        width={24}
+                        height={24}
+                        className="rounded-full object-cover"
+                      />
+                      <span>{user?.displayName}</span>
+                    </div>
+                    <ChevronUp className="ml-auto transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  side="top"
+                  sideOffset={20}
+                  align="start"
+                  className="w-[var(--radix-popper-anchor-width)] text-white px-2 py-2 rounded-md text-[15px] space-y-1 transition-all duration-300"
                 >
-                  <User2 className="w-4 h-4" />
-                  <span>Thay đổi thông tin</span>
-                </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200"
+                    onClick={() => setEditProfileOpen(true)}
+                  >
+                    <User2 className="w-4 h-4" />
+                    <span>Thay đổi thông tin</span>
+                  </DropdownMenuItem>
 
-                <DropdownMenuItem
-                  className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200"
-                  onClick={() => setOpenResetDialog(true)}
-                >
-                  <KeyRound className="w-4 h-4" />
-                  <span>Thay đổi mật khẩu</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={logout}
-                  className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] text-red-500 hover:text-red-500 transition-all duration-200"
-                >
-                  <DoorOpen className="w-4 h-4 text-red-500" />
-                  <span className=" text-red-500 hover:text-red-500">
-                    Đăng xuất
-                  </span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+                  <DropdownMenuItem
+                    className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] hover:text-[#896F3D] transition-all duration-200"
+                    onClick={() => setOpenResetDialog(true)}
+                  >
+                    <KeyRound className="w-4 h-4" />
+                    <span>Thay đổi mật khẩu</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-md hover:bg-[#102134] text-red-500 hover:text-red-500 transition-all duration-200"
+                  >
+                    <DoorOpen className="w-4 h-4 text-red-500" />
+                    <span className=" text-red-500 hover:text-red-500">
+                      Đăng xuất
+                    </span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      )}
 
       <EditProfileDialog
         user={user}

@@ -33,6 +33,8 @@ import React from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { StoryEditDetails } from "@/app/types/story";
 import { Textarea } from "./ui/textarea";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export function EditStorySheet({
   children,
@@ -76,6 +78,8 @@ export function EditStorySheet({
     try {
       if (!story?.id) throw new Error("Story ID is missing");
 
+      setLoading(true);
+
       const payload = {
         ...values,
         coverImageUrl: story.coverImageUrl || "",
@@ -111,9 +115,12 @@ export function EditStorySheet({
       const data = await res.json();
       console.log("Updated story:", data);
       setOpen(false);
+      toast.success("Đã lưu thông tin truyện thành công!");
       onSuccess?.();
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Submit error:", error);
+      toast.success("Có lỗi xảy ra lúc lưu thông tin truyện");
     } finally {
       setLoading(false);
     }
@@ -426,10 +433,11 @@ export function EditStorySheet({
 
                 <Button
                   type="submit"
-                  className="cursor-pointer"
+                  className="cursor-pointer flex items-center gap-2"
                   disabled={loading}
                 >
-                  {loading ? "Submitting..." : "Submit"}
+                  {loading && <Loader2 className="animate-spin w-4 h-4" />}
+                  {loading ? "Đang lưu..." : "Lưu"}
                 </Button>
               </form>
             </Form>

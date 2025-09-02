@@ -4,7 +4,7 @@ import Clock from "../misc/clock/clock";
 
 const Navbar = () => {
   return (
-    <nav className="h-12 px-5 flex items-center justify-between sticky text-white border-b border-gray-700 bg-[#1A293F]">
+    <nav className="sticky top-0 h-12 px-5 flex items-center justify-between text-white border-b border-gray-700 bg-[#1A293F] z-50">
       {/* Left */}
       <SidebarTrigger className="hover:text-[#896F3D] hover:bg-[#102134] p-4 transition-all duration-200 cursor-pointer" />
       {/* Right */}
