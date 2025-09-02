@@ -29,8 +29,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DataTablePagination } from "@/components/TablePagination";
 import { AddUserSheet } from "@/components/AddUserSheet";
+import { DataTablePaginationClient } from "@/components/DataTablePaginationClient";
 
 // Define the prerequisite values.
 interface DataTableProps<TData, TValue> {
@@ -177,7 +177,7 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="py-4">
-        <DataTablePagination table={table} />
+        <DataTablePaginationClient table={table} />
       </div>
     </div>
   );

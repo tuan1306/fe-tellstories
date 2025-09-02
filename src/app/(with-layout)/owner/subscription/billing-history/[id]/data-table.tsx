@@ -28,8 +28,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DataTablePagination } from "@/components/TablePagination";
 import { Clock } from "lucide-react";
+import { DataTablePaginationClient } from "@/components/DataTablePaginationClient";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -176,7 +176,7 @@ DataTableProps<TData, TValue>) {
 
       {/* Pagination */}
       <div className="py-4">
-        <DataTablePagination table={table} />
+        <DataTablePaginationClient table={table} />
       </div>
     </div>
   );

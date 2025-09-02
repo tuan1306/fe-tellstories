@@ -7,8 +7,8 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type") || "subscribers";
-
-    // console.log("[subscriber-list] Query type:", type);
+    const page = searchParams.get("page") ?? "1";
+    const pageSize = searchParams.get("pageSize") ?? "10";
 
     const endpointMap: Record<string, string> = {
       subscribers: "dashboard-get-subscribers",
@@ -17,8 +17,13 @@ export async function GET(request: Request) {
     };
 
     const endpoint = endpointMap[type] || endpointMap.subscribers;
+
+    const queryParams = new URLSearchParams({ page, pageSize });
+
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/Subscription/${endpoint}`,
+      `${
+        process.env.NEXT_PUBLIC_API_BASE_URL
+      }/Subscription/${endpoint}?${queryParams.toString()}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

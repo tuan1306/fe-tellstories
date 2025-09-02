@@ -30,7 +30,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DataTablePagination } from "@/components/TablePagination";
 import {
   Popover,
   PopoverContent,
@@ -46,6 +45,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DataTablePaginationClient } from "@/components/DataTablePaginationClient";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -259,7 +259,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       <div className="py-4">
-        <DataTablePagination table={table} />
+        <DataTablePaginationClient table={table} />
       </div>
     </div>
   );
