@@ -22,7 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-// import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -31,77 +30,88 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import DateRangeFilter from "@/components/DateRangeFilter";
-import { Button } from "@/components/ui/button";
+import { DataTablePagination } from "@/components/TablePagination";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  defaultSort?: SortingState;
   loading?: boolean;
+  totalPages: number;
   onDateRangeApply?: (from?: string, to?: string) => void;
   onPageChange: (page: number, pageSize: number) => void;
+  onSearch?: (query: string) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  defaultSort = [],
   loading,
+  totalPages,
   onDateRangeApply,
   onPageChange,
+  onSearch,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>(defaultSort);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [globalFilter, setGlobalFilter] = React.useState("");
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+
+  // Pagination
+  const [pageIndex, setPageIndex] = React.useState(0);
+  const [pageSize, setPageSize] = React.useState(10);
 
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
-    onGlobalFilterChange: setGlobalFilter,
-    onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      globalFilter,
+      pagination: { pageIndex, pageSize },
     },
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    manualPagination: true, // important
+    pageCount: totalPages,
   });
+
+  const handlePageChange = (newPage: number, newPageSize: number) => {
+    setPageIndex(newPage - 1);
+    setPageSize(newPageSize);
+    onPageChange(newPage, newPageSize);
+  };
 
   return (
     <div>
+      {/* Filters and search */}
       <div className="flex items-center py-4 gap-4">
-        {/* Search */}
         <Input
           placeholder="Tìm kiếm giao dịch..."
-          value={globalFilter ?? ""}
-          onChange={(event) => setGlobalFilter(event.target.value)}
+          onChange={(e) => {
+            if (onSearch) onSearch(e.target.value);
+            setPageIndex(0);
+          }}
           className="max-w-sm"
         />
 
+        {/* If used then reset the pagination index */}
         <DateRangeFilter
           onApply={(from, to) => {
-            if (onDateRangeApply) {
-              onDateRangeApply(from, to);
-            }
+            if (onDateRangeApply) onDateRangeApply(from, to);
+            setPageIndex(0);
           }}
         />
 
-        {/* Column visibility dropdown */}
         <div className="ml-auto flex gap-4">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              {/* <Button variant="outline">Ẩn/Hiện Cột</Button> */}
-            </DropdownMenuTrigger>
+            <DropdownMenuTrigger asChild />
             <DropdownMenuContent
               align="end"
               side="bottom"
@@ -110,15 +120,15 @@ export function DataTable<TData, TValue>({
             >
               {table
                 .getAllColumns()
-                .filter((column) => column.getCanHide())
+                .filter((c) => c.getCanHide())
                 .map((column) => (
                   <DropdownMenuCheckboxItem
                     key={column.id}
-                    className="capitalize cursor-pointer"
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) =>
                       column.toggleVisibility(!!value)
                     }
+                    className="capitalize cursor-pointer"
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
@@ -150,7 +160,6 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-
           <TableBody>
             {loading ? (
               <TableRow>
@@ -191,34 +200,12 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            onPageChange(
-              table.getState().pagination.pageIndex - 1,
-              table.getState().pagination.pageSize
-            )
-          }
-          disabled={!table.getCanPreviousPage()}
-        >
-          Trước
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            onPageChange(
-              table.getState().pagination.pageIndex + 1,
-              table.getState().pagination.pageSize
-            )
-          }
-          disabled={!table.getCanNextPage()}
-        >
-          Sau
-        </Button>
-      </div>
+      {/* Pagination */}
+      <DataTablePagination
+        table={table}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 }

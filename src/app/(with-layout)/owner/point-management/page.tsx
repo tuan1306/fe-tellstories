@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import {
@@ -9,22 +9,34 @@ import {
 } from "@/app/types/wallet";
 
 export default function WalletTransactionPage() {
-  const [data, setData] = React.useState<WalletTransaction[]>([]);
-  const [loading, setLoading] = React.useState(false);
+  const [data, setData] = useState<WalletTransaction[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [loading, setLoading] = useState(false);
+
+  const [userQuery, setUserQuery] = useState("");
+  const [dateRange, setDateRange] = useState<{ from?: string; to?: string }>(
+    {}
+  );
 
   const fetchData = async (
+    currentPage = page,
+    currentPageSize = pageSize,
     from?: string,
     to?: string,
-    page = 1,
-    pageSize = 10
+    userQuery?: string
   ) => {
     try {
       setLoading(true);
+
+      // spread
       const params = new URLSearchParams({
-        page: page.toString(),
-        pageSize: pageSize.toString(),
+        page: currentPage.toString(),
+        pageSize: currentPageSize.toString(),
         ...(from ? { from } : {}),
         ...(to ? { to } : {}),
+        ...(userQuery ? { userQuery } : {}),
       });
 
       const res = await fetch(
@@ -39,28 +51,29 @@ export default function WalletTransactionPage() {
 
       if (!res.ok) throw new Error("Failed to fetch wallet transactions");
 
-      const json = (await res.json()) as WalletTransactionResponse;
+      const json: WalletTransactionResponse = await res.json();
       setData(json.items);
-      return json;
+      setTotalPages(json.totalPages);
     } catch (error) {
       console.error(error);
       setData([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
   };
 
-  React.useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => {
+    console.log("Current userQuery:", userQuery);
+    fetchData(page, pageSize, dateRange.from, dateRange.to, userQuery);
+  }, [page, pageSize, userQuery, dateRange]);
 
   return (
     <div className="p-4">
-      <div className="w-full">
+      <div className="w-full mb-4">
         <h1 className="text-2xl font-semibold">Danh sách giao dịch ví</h1>
         <h2 className="text-md text-muted-foreground">
-          Các giao dịch ví gần đây nhất, bao gồm người dùng, số dư và loại giao
-          dịch.
+          Các giao dịch ví gần đây nhất, những giao dịch liên quan tới điểm.
         </h2>
       </div>
 
@@ -68,10 +81,19 @@ export default function WalletTransactionPage() {
         columns={columns}
         data={data}
         loading={loading}
-        onDateRangeApply={(from, to) => fetchData(from, to)}
-        onPageChange={(page, pageSize) =>
-          fetchData(undefined, undefined, page, pageSize)
-        }
+        totalPages={totalPages}
+        onSearch={(query) => {
+          setUserQuery(query);
+          setPage(1);
+        }}
+        onDateRangeApply={(from, to) => {
+          setDateRange({ from, to });
+          setPage(1);
+        }}
+        onPageChange={(newPage, newSize) => {
+          setPage(newPage);
+          setPageSize(newSize);
+        }}
       />
     </div>
   );

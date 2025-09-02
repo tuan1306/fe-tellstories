@@ -9,6 +9,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 
 export default function DateRangeFilter({
   onApply,
@@ -25,32 +26,37 @@ export default function DateRangeFilter({
   };
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 items-center">
       {/* From Date */}
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline">
-            {from ? format(from, "yyyy-MM-dd") : "From Date"}
+          <Button variant="outline" className="text-center">
+            {from ? format(from, "yyyy-MM-dd", { locale: vi }) : "Từ ngày"}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0">
-          <Calendar mode="single" selected={from} onSelect={setFrom} />
+        <PopoverContent className="p-0 flex justify-center">
+          <Calendar
+            mode="single"
+            selected={from}
+            onSelect={setFrom}
+            locale={vi}
+          />
         </PopoverContent>
       </Popover>
-
       {/* To Date */}
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline">
-            {to ? format(to, "yyyy-MM-dd") : "To Date"}
+          <Button variant="outline" className="text-center">
+            {to ? format(to, "yyyy-MM-dd", { locale: vi }) : "Đến ngày"}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0">
-          <Calendar mode="single" selected={to} onSelect={setTo} />
+        <PopoverContent className="p-0 flex justify-center">
+          <Calendar mode="single" selected={to} onSelect={setTo} locale={vi} />
         </PopoverContent>
       </Popover>
-
-      <Button onClick={handleApply}>Apply</Button>
+      <Button onClick={handleApply} className="self-center">
+        Tìm kiếm theo ngày
+      </Button>
     </div>
   );
 }

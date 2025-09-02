@@ -135,6 +135,7 @@ export default function ConfigManager() {
                     <Button
                       size="icon"
                       variant="ghost"
+                      className="cursor-pointer"
                       onClick={() => {
                         setEditing(config);
                         setNewValue(config.value);
@@ -238,10 +239,18 @@ export default function ConfigManager() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>
+            <Button
+              className="cursor-pointer"
+              variant="outline"
+              onClick={() => setEditing(null)}
+            >
               Hủy
             </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
+            <Button
+              className="cursor-pointer"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
               {isSaving ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

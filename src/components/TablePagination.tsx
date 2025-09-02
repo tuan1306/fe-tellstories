@@ -7,57 +7,70 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
+  totalPages: number;
+  onPageChange: (page: number, pageSize: number) => void;
 }
 
 export function DataTablePagination<TData>({
   table,
+  totalPages,
+  onPageChange,
 }: DataTablePaginationProps<TData>) {
+  const pageIndex = table.getState().pagination.pageIndex;
+  const pageSize = table.getState().pagination.pageSize;
+
+  const goToPage = (newPageIndex: number) => {
+    if (newPageIndex < 0 || newPageIndex >= totalPages) return;
+    table.setPageIndex(newPageIndex);
+    onPageChange(newPageIndex + 1, pageSize);
+  };
+
+  // const changePageSize = (newSize: number) => {
+  //   table.setPageSize(newSize);
+  //   goToPage(0);
+  // };
+
   return (
-    <div className="flex items-center justify-between px-2">
+    <div className="flex items-center justify-between px-2 mt-4">
       <div className="flex-1" />
 
       <div className="flex items-center space-x-6 lg:space-x-8">
-        <div className="flex items-center space-x-2">
+        {/* Page size selector */}
+        {/* <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Số cá thể mỗi trang</p>
           <Select
-            value={`${table.getState().pagination.pageSize}`}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
+            value={`${pageSize}`}
+            onValueChange={(value) => changePageSize(Number(value))}
           >
             <SelectTrigger className="h-8 w-[70px] cursor-pointer">
-              <SelectValue placeholder={table.getState().pagination.pageSize} />
+              <SelectValue placeholder={pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[10, 20, 25, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
+              {[10, 20, 25, 30, 40, 50].map((size) => (
+                <SelectItem key={size} value={`${size}`}>
+                  {size}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
+
+        {/* Page info */}
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Trang {table.getState().pagination.pageIndex + 1} trên{" "}
-          {table.getPageCount()}
+          Trang {pageIndex + 1} trên {totalPages}
         </div>
-        <div className="flex items-center space-x-2 cursor-pointer disabled:cursor-default">
+
+        {/* Pagination buttons */}
+        <div className="flex items-center space-x-2">
           <Button
             variant="outline"
             size="icon"
             className="hidden size-8 lg:flex"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => goToPage(0)}
+            disabled={pageIndex === 0}
           >
             <span className="sr-only">Trang đầu</span>
             <ChevronsLeft />
@@ -65,31 +78,31 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             size="icon"
-            className="size-8 cursor-pointer disabled:cursor-default"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            className="size-8"
+            onClick={() => goToPage(pageIndex - 1)}
+            disabled={pageIndex === 0}
           >
-            <span className="sr-only">Trang cuối</span>
+            <span className="sr-only">Trang trước</span>
             <ChevronLeft />
           </Button>
           <Button
             variant="outline"
             size="icon"
-            className="size-8 cursor-pointer disabled:cursor-default"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            className="size-8"
+            onClick={() => goToPage(pageIndex + 1)}
+            disabled={pageIndex >= totalPages - 1}
           >
-            <span className="sr-only">Trang kế tiếp</span>
+            <span className="sr-only">Trang sau</span>
             <ChevronRight />
           </Button>
           <Button
             variant="outline"
             size="icon"
-            className="hidden size-8 lg:flex cursor-pointer disabled:cursor-default"
-            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
+            className="hidden size-8 lg:flex"
+            onClick={() => goToPage(totalPages - 1)}
+            disabled={pageIndex >= totalPages - 1}
           >
-            <span className="sr-only">Trang trước đó</span>
+            <span className="sr-only">Trang cuối</span>
             <ChevronsRight />
           </Button>
         </div>

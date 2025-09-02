@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await res.json();
+    console.log("Fetched wallet transactions:", data);
     return NextResponse.json(data, { status: 200 });
   } catch (err) {
     console.error("GET - /api/wallet-transactions response:", err);

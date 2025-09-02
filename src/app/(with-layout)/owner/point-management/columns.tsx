@@ -103,11 +103,28 @@ export const columns: ColumnDef<WalletTransaction>[] = [
     ),
   },
 
-  // {
-  //   accessorKey: "description",
-  //   header: "Mô tả",
-  //   cell: ({ row }) => <div>{row.getValue("description")}</div>,
-  // },
+  {
+    accessorKey: "description",
+    header: () => (
+      <div className="flex justify-center items-center">Hành động</div>
+    ),
+    cell: ({ row }) => {
+      const value = row.getValue("description") as string | undefined;
+
+      const descriptionMap: Record<string, string> = {
+        "Daily Login": "Đăng nhập hàng ngày",
+        "Subscription Bonus": "Gói tặng kèm điểm",
+        "Redeem Subscription": "Quy đổi gói đăng ký",
+      };
+
+      const displayText = value ? descriptionMap[value] ?? value : "-";
+
+      return (
+        <div className="flex justify-center items-center">{displayText}</div>
+      );
+    },
+  },
+
   // {
   //   accessorKey: "referenceId",
   //   header: "Mã tham chiếu",
