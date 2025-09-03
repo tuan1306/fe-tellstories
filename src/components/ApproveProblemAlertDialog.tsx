@@ -1,5 +1,6 @@
 "use client";
 
+import { BugIssue } from "@/app/types/issue-report";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,11 +20,13 @@ import { toast } from "sonner";
 export function ResolveItem({
   itemId,
   userId,
+  bug,
   onSuccess,
   className,
 }: {
   itemId: string;
   userId: string;
+  bug?: BugIssue;
   onSuccess: (id: string) => void;
   className?: string;
 }) {
@@ -48,11 +51,30 @@ export function ResolveItem({
         console.error("Failed to send notification:", await res.text());
         toast.error("Gửi thông báo thất bại");
       } else {
-        toast.success("Đã gửi thông báo tới người dùng");
+        toast.success("Đã giải quyết và gửi thông báo tới người dùng");
       }
     } catch (err) {
       console.error("Notification error:", err);
       toast.error("Gửi thông báo thất bại");
+    }
+  };
+
+  const handlePointAdding = async (points: number) => {
+    try {
+      const res = await fetch(`/api/wallet/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: points,
+          reason: "Report resolved",
+        }),
+      });
+
+      if (!res.ok) {
+        console.error("Failed to add points:", await res.text());
+      }
+    } catch (err) {
+      console.error("Error adding points:", err);
     }
   };
 
@@ -68,11 +90,14 @@ export function ResolveItem({
         return;
       }
 
-      // Notify the user after resolving
+      await handlePointAdding(10);
+
       await notifyUser(
         userId,
         "Vấn đề đã được giải quyết",
-        "Bình luận của bạn báo cáo đã được xử lý."
+        `Vấn đề bạn báo cáo đã được xử lý và bạn nhận được 10 điểm vì sự đóng góp của bạn!${
+          bug?.description ? `\nNội dung báo cáo: ${bug.description}` : ""
+        }${bug?.issueType ? `\nLoại vấn đề: ${bug.issueType}` : ""}`
       );
 
       onSuccess(itemId);

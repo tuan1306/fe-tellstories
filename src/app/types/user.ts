@@ -7,6 +7,7 @@ export type UserDetails = {
   avatarUrl: string;
   phoneNumber: string | null;
   dob: string | null;
+  lastLogin: string;
   createdDate: string;
   updatedDate: string;
 };

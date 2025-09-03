@@ -83,7 +83,7 @@ export default function UserPage() {
       }
 
       const data = await res.json();
-      setActivity(data?.data?.items || []);
+      setActivity(data?.data || []);
     } catch (error) {
       console.error("Failed to fetch activity logs", error);
     } finally {
@@ -153,20 +153,22 @@ export default function UserPage() {
             <div className="flex items-center gap-2">
               <span className="font-bold">Email:</span>
               <span>{user.email}</span>
-              <HoverCard>
-                <HoverCardTrigger>
-                  <BadgeCheck
-                    size={24}
-                    className="rounded-full bg-green-500/30 border border-green-500/50 p-1"
-                  />
-                </HoverCardTrigger>
-                <HoverCardContent>
-                  <h1 className="font-bold mb-2">Người dùng đã xác thực</h1>
-                  <p className="text-sm text-muted-foreground">
-                    Người dùng này đã xác thực email.
-                  </p>
-                </HoverCardContent>
-              </HoverCard>
+              {user.lastLogin && (
+                <HoverCard>
+                  <HoverCardTrigger>
+                    <BadgeCheck
+                      size={24}
+                      className="rounded-full bg-green-500/30 border border-green-500/50 p-1"
+                    />
+                  </HoverCardTrigger>
+                  <HoverCardContent>
+                    <h1 className="font-bold mb-2">Người dùng đã xác thực</h1>
+                    <p className="text-sm text-muted-foreground">
+                      Người dùng này đã xác thực email.
+                    </p>
+                  </HoverCardContent>
+                </HoverCard>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <span className="font-bold">Số điện thoại:</span>
@@ -353,17 +355,17 @@ export default function UserPage() {
                   <div key={log.id} className="flex items-center">
                     <div
                       className={`w-2 h-2 rounded-full ${
-                        log.action === "Hệ Thống"
+                        log.action === "System"
                           ? "bg-red-500"
-                          : log.action === "Xuất Bản Truyện"
+                          : log.action === "Publish"
                           ? "bg-green-500"
-                          : log.action === "Bình Luận"
+                          : log.action === "Comment"
                           ? "bg-yellow-500"
                           : log.action === "Đánh Giá"
                           ? "bg-yellow-600"
-                          : log.action === "Xem Truyện"
+                          : log.action === "View"
                           ? "bg-purple-500"
-                          : log.action === "Báo Cáo"
+                          : log.action === "Report"
                           ? "bg-orange-500"
                           : "bg-gray-400"
                       }`}

@@ -294,9 +294,7 @@ export function ViewCommentSheet({
                 />
               </div>
             ) : (
-              <p className="mt-6 text-muted-foreground">
-                No detailed comment found.
-              </p>
+              <p className="mt-6 text-muted-foreground">Không có bình luận</p>
             )}
           </div>
         </ScrollArea>

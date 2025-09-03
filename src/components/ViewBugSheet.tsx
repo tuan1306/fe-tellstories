@@ -158,6 +158,7 @@ export function ViewBugSheet({
               <ResolveItem
                 itemId={bug.id}
                 userId={bug.user.id}
+                bug={bug}
                 onSuccess={() => {
                   onOpenChange(false);
                   onResolved?.(bug.id);
